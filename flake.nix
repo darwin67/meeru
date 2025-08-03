@@ -24,6 +24,10 @@
             claude-code
             gemini-cli
           ];
+          
+          shellHook = ''
+            export PATH="$HOME/.pub-cache/bin:$PATH"
+          '';
         };
       });
 }
