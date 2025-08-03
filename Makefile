@@ -13,3 +13,7 @@ lint:
 .PHONY: fmt
 fmt:
 	dart format .
+
+.PHONY: clean
+clean:
+	flutter clean
