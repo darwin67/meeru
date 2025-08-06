@@ -143,6 +143,17 @@ class AuthProvider with ChangeNotifier {
     _clearError();
   }
 
+  Future<void> clearAllData() async {
+    try {
+      await _credentialStorage.clearAll();
+      _accounts = [];
+      _currentAccount = null;
+      _clearError();
+    } catch (e) {
+      _setError('Failed to clear all data: $e');
+    }
+  }
+
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();

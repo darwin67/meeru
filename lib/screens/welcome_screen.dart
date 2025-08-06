@@ -3,6 +3,7 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'account_setup_screen.dart';
+import 'account_list_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -107,8 +108,8 @@ class WelcomeScreen extends StatelessWidget {
 
               // Sign in link for existing users
               ShadButton.ghost(
-                onPressed: () => _navigateToAccountSetup(context),
-                child: const Text('I already have an account'),
+                onPressed: () => _navigateToAccountList(context),
+                child: const Text('Manage existing accounts'),
               ),
             ],
           ),
@@ -120,6 +121,12 @@ class WelcomeScreen extends StatelessWidget {
   void _navigateToAccountSetup(BuildContext context) {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => const AccountSetupScreen()),
+    );
+  }
+
+  void _navigateToAccountList(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const AccountListScreen()),
     );
   }
 }

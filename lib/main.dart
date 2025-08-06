@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'providers/auth_provider.dart';
 import 'screens/welcome_screen.dart';
+import 'screens/account_list_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -64,33 +65,7 @@ class _AppRootState extends State<AppRoot> {
         }
 
         if (authProvider.hasAccounts) {
-          // TODO: Navigate to main email interface
-          return Scaffold(
-            backgroundColor: ShadTheme.of(context).colorScheme.background,
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.check_circle, size: 64, color: Colors.green),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Account Setup Complete!',
-                    style: ShadTheme.of(context).textTheme.h2,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'You have ${authProvider.accounts.length} account(s) configured.',
-                    style: ShadTheme.of(context).textTheme.p,
-                  ),
-                  const SizedBox(height: 24),
-                  ShadButton(
-                    onPressed: () => authProvider.loadAccounts(),
-                    child: const Text('Refresh'),
-                  ),
-                ],
-              ),
-            ),
-          );
+          return const AccountListScreen();
         }
 
         return const WelcomeScreen();

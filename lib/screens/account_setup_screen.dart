@@ -362,12 +362,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
 
     if (success && mounted) {
       // TODO: Navigate to main email screen
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Account added successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      Navigator.of(context).pop();
     }
   }
 }
