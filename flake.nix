@@ -25,12 +25,27 @@
             gemini-cli
 
             # deps
+            pkg-config
             libsecret
           ];
 
           shellHook = ''
-            export PATH="$HOME/.pub-cache/bin:$PATH"
+            if [ -z "$PUB_CACHE" ]; then
+              export PATH="$PATH:$HOME/.pub-cache/bin"
+            else
+              export PATH="$PATH:$PUB_CACHE/bin"
+            fi
+
+            dart pub global activate protoc_plugin
           '';
+
+          FLUTTER_ROOT = pkgs.flutter;
+          DART_ROOT = "${pkgs.flutter}/bin/cache/dart-sdk";
+          # emulator related: vulkan-loader and libGL shared libs are necessary for hardware decoding
+          LD_LIBRARY_PATH =
+            "${pkgs.lib.makeLibraryPath [ pkgs.vulkan-loader pkgs.libGL ]}";
+          CMAKE_PREFIX_PATH =
+            "${pkgs.lib.makeLibraryPath [ pkgs.libsecret.dev pkgs.gtk3.dev ]}";
         };
       });
 }
