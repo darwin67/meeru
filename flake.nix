@@ -23,8 +23,11 @@
             git-cliff
             claude-code
             gemini-cli
+
+            # deps
+            libsecret
           ];
-          
+
           shellHook = ''
             export PATH="$HOME/.pub-cache/bin:$PATH"
           '';
