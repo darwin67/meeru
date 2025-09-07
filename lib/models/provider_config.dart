@@ -38,10 +38,7 @@ class ProviderConfig {
         useTLS: true,
         authMethod: AuthMethod.oauth2,
       ),
-      supportedAuthMethods: [
-        AuthMethod.oauth2,
-        AuthMethod.appPassword,
-      ],
+      supportedAuthMethods: [AuthMethod.oauth2, AuthMethod.appPassword],
       oauthConfig: OAuthConfig(
         clientId: '', // To be configured
         scopes: [
@@ -71,17 +68,15 @@ class ProviderConfig {
         useTLS: true,
         authMethod: AuthMethod.oauth2,
       ),
-      supportedAuthMethods: [
-        AuthMethod.oauth2,
-        AuthMethod.appPassword,
-      ],
+      supportedAuthMethods: [AuthMethod.oauth2, AuthMethod.appPassword],
       oauthConfig: OAuthConfig(
         clientId: '', // To be configured
         scopes: [
           'https://graph.microsoft.com/IMAP.AccessAsUser.All',
           'https://graph.microsoft.com/SMTP.Send',
         ],
-        authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
+        authUrl:
+            'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
         tokenUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
       ),
     ),
@@ -103,9 +98,7 @@ class ProviderConfig {
         useTLS: true,
         authMethod: AuthMethod.appPassword,
       ),
-      supportedAuthMethods: [
-        AuthMethod.appPassword,
-      ],
+      supportedAuthMethods: [AuthMethod.appPassword],
     ),
     ProviderConfig(
       provider: EmailProvider.icloud,
@@ -125,15 +118,15 @@ class ProviderConfig {
         useTLS: true,
         authMethod: AuthMethod.appPassword,
       ),
-      supportedAuthMethods: [
-        AuthMethod.appPassword,
-      ],
+      supportedAuthMethods: [AuthMethod.appPassword],
     ),
   ];
 
   static ProviderConfig? getConfig(EmailProvider provider) {
     try {
-      return predefinedProviders.firstWhere((config) => config.provider == provider);
+      return predefinedProviders.firstWhere(
+        (config) => config.provider == provider,
+      );
     } catch (e) {
       return null;
     }

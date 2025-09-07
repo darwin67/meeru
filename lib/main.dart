@@ -16,9 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
       child: ShadApp(
         title: 'Meeru - Email Client',
         theme: ShadThemeData(
@@ -58,9 +56,7 @@ class _AppRootState extends State<AppRoot> {
         if (authProvider.isLoading) {
           return Scaffold(
             backgroundColor: ShadTheme.of(context).colorScheme.background,
-            body: const Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: const Center(child: CircularProgressIndicator()),
           );
         }
 

@@ -39,8 +39,8 @@ class EmailCredentials {
 
   bool get isPasswordAuth => password != null;
   bool get isOAuthAuth => accessToken != null;
-  bool get isTokenExpired => tokenExpiresAt != null && 
-      DateTime.now().isAfter(tokenExpiresAt!);
+  bool get isTokenExpired =>
+      tokenExpiresAt != null && DateTime.now().isAfter(tokenExpiresAt!);
 
   Map<String, dynamic> toJson() {
     return {
@@ -61,8 +61,8 @@ class EmailCredentials {
       password: json['password'],
       accessToken: json['accessToken'],
       refreshToken: json['refreshToken'],
-      tokenExpiresAt: json['tokenExpiresAt'] != null 
-          ? DateTime.parse(json['tokenExpiresAt']) 
+      tokenExpiresAt: json['tokenExpiresAt'] != null
+          ? DateTime.parse(json['tokenExpiresAt'])
           : null,
       oauthTokens: json['oauthTokens']?.cast<String, dynamic>(),
     );

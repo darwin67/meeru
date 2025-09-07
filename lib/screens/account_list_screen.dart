@@ -41,9 +41,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
       body: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
           if (authProvider.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (authProvider.accounts.isEmpty) {
@@ -122,9 +120,9 @@ class _AccountListScreenState extends State<AccountListScreen> {
   }
 
   void _addAccount(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => const AccountSetupScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const AccountSetupScreen()));
   }
 
   void _selectAccount(BuildContext context, EmailAccount account) {
@@ -157,8 +155,7 @@ class _AccountListScreenState extends State<AccountListScreen> {
   }
 
   void _deleteAccount(BuildContext context, EmailAccount account) {
-    Provider.of<AuthProvider>(context, listen: false)
-        .removeAccount(account.id);
+    Provider.of<AuthProvider>(context, listen: false).removeAccount(account.id);
   }
 }
 
@@ -178,7 +175,7 @@ class _AccountCard extends StatelessWidget {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         final isSelected = authProvider.currentAccount?.id == account.id;
-        
+
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           child: InkWell(
@@ -195,7 +192,9 @@ class _AccountCard extends StatelessWidget {
                       )
                     : null,
                 color: isSelected
-                    ? ShadTheme.of(context).colorScheme.primary.withOpacity(0.05)
+                    ? ShadTheme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.05)
                     : null,
               ),
               child: Row(
@@ -207,13 +206,15 @@ class _AccountCard extends StatelessWidget {
                     child: Text(
                       account.email[0].toUpperCase(),
                       style: TextStyle(
-                        color: ShadTheme.of(context).colorScheme.primaryForeground,
+                        color: ShadTheme.of(
+                          context,
+                        ).colorScheme.primaryForeground,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                   const SizedBox(width: 16),
-                  
+
                   // Account details
                   Expanded(
                     child: Column(
@@ -224,9 +225,8 @@ class _AccountCard extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 account.email,
-                                style: ShadTheme.of(context).textTheme.p.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: ShadTheme.of(context).textTheme.p
+                                    .copyWith(fontWeight: FontWeight.w600),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -237,15 +237,20 @@ class _AccountCard extends StatelessWidget {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: ShadTheme.of(context).colorScheme.primary,
+                                  color: ShadTheme.of(
+                                    context,
+                                  ).colorScheme.primary,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
                                   'Active',
-                                  style: ShadTheme.of(context).textTheme.small.copyWith(
-                                    color: ShadTheme.of(context).colorScheme.primaryForeground,
-                                    fontSize: 10,
-                                  ),
+                                  style: ShadTheme.of(context).textTheme.small
+                                      .copyWith(
+                                        color: ShadTheme.of(
+                                          context,
+                                        ).colorScheme.primaryForeground,
+                                        fontSize: 10,
+                                      ),
                                 ),
                               ),
                           ],
@@ -254,20 +259,24 @@ class _AccountCard extends StatelessWidget {
                         Text(
                           account.provider.displayName,
                           style: ShadTheme.of(context).textTheme.small.copyWith(
-                            color: ShadTheme.of(context).colorScheme.mutedForeground,
+                            color: ShadTheme.of(
+                              context,
+                            ).colorScheme.mutedForeground,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${account.imapConfig.host}:${account.imapConfig.port}',
                           style: ShadTheme.of(context).textTheme.small.copyWith(
-                            color: ShadTheme.of(context).colorScheme.mutedForeground,
+                            color: ShadTheme.of(
+                              context,
+                            ).colorScheme.mutedForeground,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  
+
                   // Delete button
                   IconButton(
                     onPressed: onDelete,

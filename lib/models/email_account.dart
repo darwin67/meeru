@@ -74,8 +74,8 @@ class EmailAccount {
       imapConfig: ServerConfig.fromJson(json['imapConfig']),
       smtpConfig: ServerConfig.fromJson(json['smtpConfig']),
       createdAt: DateTime.parse(json['createdAt']),
-      lastSyncAt: json['lastSyncAt'] != null 
-          ? DateTime.parse(json['lastSyncAt']) 
+      lastSyncAt: json['lastSyncAt'] != null
+          ? DateTime.parse(json['lastSyncAt'])
           : null,
       isActive: json['isActive'] ?? true,
     );

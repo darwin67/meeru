@@ -49,8 +49,8 @@ class WelcomeScreen extends StatelessWidget {
               Text(
                 'A modern, secure email client for all your accounts',
                 style: ShadTheme.of(context).textTheme.large.copyWith(
-                  color: ShadTheme.of(context).colorScheme.mutedForeground,
-                ),
+                      color: ShadTheme.of(context).colorScheme.mutedForeground,
+                    ),
                 textAlign: TextAlign.center,
               ),
 
@@ -174,8 +174,8 @@ class _FeatureItem extends StatelessWidget {
               Text(
                 description,
                 style: ShadTheme.of(context).textTheme.small.copyWith(
-                  color: ShadTheme.of(context).colorScheme.mutedForeground,
-                ),
+                      color: ShadTheme.of(context).colorScheme.mutedForeground,
+                    ),
               ),
             ],
           ),

@@ -7,7 +7,8 @@ import 'credential_storage_service.dart';
 
 class EmailAuthService {
   final Dio _dio = Dio();
-  final CredentialStorageService _credentialStorage = CredentialStorageService();
+  final CredentialStorageService _credentialStorage =
+      CredentialStorageService();
 
   Future<AuthResult> authenticateWithPassword({
     required String email,
@@ -18,7 +19,7 @@ class EmailAuthService {
   }) async {
     try {
       final providerConfig = ProviderConfig.getConfig(provider);
-      
+
       if (providerConfig == null && provider != EmailProvider.custom) {
         throw AuthException('Unsupported email provider');
       }
@@ -69,7 +70,7 @@ class EmailAuthService {
 
       // Store credentials and account
       await _credentialStorage.storeCredentials(credentials);
-      
+
       final existingAccounts = await _credentialStorage.getAccounts();
       existingAccounts.add(account);
       await _credentialStorage.storeAccounts(existingAccounts);
@@ -90,7 +91,7 @@ class EmailAuthService {
   }) async {
     try {
       final providerConfig = ProviderConfig.getConfig(provider);
-      
+
       if (providerConfig?.oauthConfig == null) {
         throw AuthException('OAuth not supported for this provider');
       }
@@ -133,7 +134,7 @@ class EmailAuthService {
 
       // Store credentials and account
       await _credentialStorage.storeCredentials(credentials);
-      
+
       final existingAccounts = await _credentialStorage.getAccounts();
       existingAccounts.add(account);
       await _credentialStorage.storeAccounts(existingAccounts);
@@ -150,14 +151,14 @@ class EmailAuthService {
   Future<bool> refreshToken(String accountId) async {
     try {
       final credentials = await _credentialStorage.getCredentials(accountId);
-      
+
       if (credentials == null || credentials.refreshToken == null) {
         return false;
       }
 
       final accounts = await _credentialStorage.getAccounts();
       final account = accounts.where((a) => a.id == accountId).firstOrNull;
-      
+
       if (account == null) {
         return false;
       }
@@ -196,18 +197,20 @@ class EmailAuthService {
     try {
       // Basic socket connection test
       final socket = await Socket.connect(
-        config.host, 
+        config.host,
         config.port,
         timeout: const Duration(seconds: 10),
       );
-      
+
       socket.destroy();
-      
+
       // For now, we'll consider a successful socket connection as valid
       // In a real implementation, you would use an IMAP library here
       return ConnectionTestResult.success();
     } catch (e) {
-      return ConnectionTestResult.failure('Failed to connect to IMAP server: $e');
+      return ConnectionTestResult.failure(
+        'Failed to connect to IMAP server: $e',
+      );
     }
   }
 
@@ -219,18 +222,20 @@ class EmailAuthService {
     try {
       // Basic socket connection test
       final socket = await Socket.connect(
-        config.host, 
+        config.host,
         config.port,
         timeout: const Duration(seconds: 10),
       );
-      
+
       socket.destroy();
-      
+
       // For now, we'll consider a successful socket connection as valid
       // In a real implementation, you would use an SMTP library here
       return ConnectionTestResult.success();
     } catch (e) {
-      return ConnectionTestResult.failure('Failed to connect to SMTP server: $e');
+      return ConnectionTestResult.failure(
+        'Failed to connect to SMTP server: $e',
+      );
     }
   }
 
@@ -248,9 +253,7 @@ class EmailAuthService {
         'redirect_uri': oauthConfig.redirectUri,
       },
       options: Options(
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       ),
     );
 
@@ -270,9 +273,7 @@ class EmailAuthService {
         'client_secret': oauthConfig.clientSecret,
       },
       options: Options(
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       ),
     );
 
@@ -302,7 +303,10 @@ class AuthResult {
     this.error,
   });
 
-  factory AuthResult.success(EmailAccount account, EmailCredentials credentials) {
+  factory AuthResult.success(
+    EmailAccount account,
+    EmailCredentials credentials,
+  ) {
     return AuthResult._(
       success: true,
       account: account,
@@ -311,10 +315,7 @@ class AuthResult {
   }
 
   factory AuthResult.failure(String error) {
-    return AuthResult._(
-      success: false,
-      error: error,
-    );
+    return AuthResult._(success: false, error: error);
   }
 }
 
@@ -335,9 +336,9 @@ class ConnectionTestResult {
 
 class AuthException implements Exception {
   final String message;
-  
+
   const AuthException(this.message);
-  
+
   @override
   String toString() => 'AuthException: $message';
 }

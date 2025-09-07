@@ -14,9 +14,7 @@ class CredentialStorageService {
       accountName: 'meeru_keychain',
     ),
     lOptions: LinuxOptions(),
-    wOptions: WindowsOptions(
-      useBackwardCompatibility: true,
-    ),
+    wOptions: WindowsOptions(useBackwardCompatibility: true),
     mOptions: MacOsOptions(
       groupId: 'group.com.example.meeru',
       accountName: 'meeru_keychain',
@@ -44,11 +42,11 @@ class CredentialStorageService {
     try {
       final key = _credentialsPrefix + accountId;
       final jsonString = await _storage.read(key: key);
-      
+
       if (jsonString == null) {
         return null;
       }
-      
+
       final json = jsonDecode(jsonString) as Map<String, dynamic>;
       return EmailCredentials.fromJson(json);
     } catch (e) {
@@ -82,11 +80,11 @@ class CredentialStorageService {
   Future<List<EmailAccount>> getAccounts() async {
     try {
       final jsonString = await _storage.read(key: _accountsKey);
-      
+
       if (jsonString == null) {
         return [];
       }
-      
+
       final jsonList = jsonDecode(jsonString) as List<dynamic>;
       return jsonList
           .cast<Map<String, dynamic>>()
@@ -101,10 +99,12 @@ class CredentialStorageService {
     try {
       // Delete credentials for this account
       await deleteCredentials(accountId);
-      
+
       // Remove account from the accounts list
       final accounts = await getAccounts();
-      final updatedAccounts = accounts.where((account) => account.id != accountId).toList();
+      final updatedAccounts = accounts
+          .where((account) => account.id != accountId)
+          .toList();
       await storeAccounts(updatedAccounts);
     } catch (e) {
       throw CredentialStorageException('Failed to delete account: $e');
@@ -149,9 +149,9 @@ class CredentialStorageService {
 
 class CredentialStorageException implements Exception {
   final String message;
-  
+
   const CredentialStorageException(this.message);
-  
+
   @override
   String toString() => 'CredentialStorageException: $message';
 }
