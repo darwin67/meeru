@@ -120,9 +120,14 @@ class _AccountListScreenState extends State<AccountListScreen> {
   }
 
   void _addAccount(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const AccountSetupScreen()));
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const AccountSetupScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    );
   }
 
   void _selectAccount(BuildContext context, EmailAccount account) {
