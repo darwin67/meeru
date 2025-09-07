@@ -22,7 +22,7 @@
             # tools
             git-cliff
             claude-code
-            gemini-cli
+            nodePackages.svgo
 
             # deps
             pkg-config

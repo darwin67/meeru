@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide ThemeData;
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../providers/auth_provider.dart';
 import '../models/email_account.dart';
 
@@ -162,6 +163,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          spacing: 12,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -170,7 +172,6 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                 context,
               ).textTheme.large.copyWith(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -189,7 +190,18 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                   foregroundColor: _selectedProvider == provider
                       ? ShadTheme.of(context).colorScheme.primary
                       : null,
-                  child: Text(provider.displayName),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(provider.displayName),
+                      const SizedBox(width: 8),
+                      SvgPicture.asset(
+                        provider.iconPath,
+                        width: 20,
+                        height: 20,
+                      ),
+                    ],
+                  ),
                 );
               }).toList(),
             ),
@@ -220,6 +232,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
             ),
             const SizedBox(height: 8),
             Row(
+              spacing: 16,
               children: [
                 Expanded(
                   child: ShadInputFormField(
@@ -229,7 +242,6 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                     validator: _validatePort,
                   ),
                 ),
-                const SizedBox(width: 16),
                 ShadSwitchFormField(
                   label: const Text('SSL'),
                   initialValue: _customImapSSL,
@@ -252,6 +264,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
             ),
             const SizedBox(height: 8),
             Row(
+              spacing: 16,
               children: [
                 Expanded(
                   child: ShadInputFormField(
@@ -261,7 +274,6 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                     validator: _validatePort,
                   ),
                 ),
-                const SizedBox(width: 16),
                 ShadSwitchFormField(
                   label: const Text('TLS'),
                   initialValue: _customSmtpTLS,

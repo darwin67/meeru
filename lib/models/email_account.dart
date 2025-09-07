@@ -155,6 +155,21 @@ enum EmailProvider {
         return 'Custom';
     }
   }
+
+  String get iconPath {
+    switch (this) {
+      case EmailProvider.gmail:
+        return 'assets/icons/gmail.svg';
+      case EmailProvider.outlook:
+        return 'assets/icons/outlook.svg';
+      case EmailProvider.yahoo:
+        return 'assets/icons/yahoo.svg';
+      case EmailProvider.icloud:
+        return 'assets/icons/icloud.svg';
+      case EmailProvider.custom:
+        return 'assets/icons/custom.svg';
+    }
+  }
 }
 
 enum AuthMethod {
