@@ -16,9 +16,8 @@ class WelcomeScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
+            spacing: 32,
             children: [
-              const SizedBox(height: 60),
-
               // Logo/Icon
               Container(
                 width: 120,
@@ -33,18 +32,12 @@ class WelcomeScreen extends StatelessWidget {
                   color: ShadTheme.of(context).colorScheme.primaryForeground,
                 ),
               ),
-
-              const SizedBox(height: 32),
-
               // Title
               Text(
                 'Welcome to Meeru',
                 style: ShadTheme.of(context).textTheme.h1,
                 textAlign: TextAlign.center,
               ),
-
-              const SizedBox(height: 16),
-
               // Subtitle
               Text(
                 'A modern, secure email client for all your accounts',
@@ -54,11 +47,10 @@ class WelcomeScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
 
-              const SizedBox(height: 48),
-
               // Features list
               Expanded(
                 child: Column(
+                  spacing: 24,
                   children: [
                     _FeatureItem(
                       icon: Icons.security_outlined,
@@ -66,14 +58,12 @@ class WelcomeScreen extends StatelessWidget {
                       description:
                           'Your credentials are encrypted and stored securely',
                     ),
-                    const SizedBox(height: 24),
                     _FeatureItem(
                       icon: Icons.sync_outlined,
                       title: 'Multi-Account Support',
                       description:
                           'Manage multiple email accounts in one place',
                     ),
-                    const SizedBox(height: 24),
                     _FeatureItem(
                       icon: Icons.devices_outlined,
                       title: 'Cross-Platform',
@@ -82,8 +72,6 @@ class WelcomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
-              const SizedBox(height: 48),
 
               // Get started button
               Consumer<AuthProvider>(
@@ -103,8 +91,6 @@ class WelcomeScreen extends StatelessWidget {
                   );
                 },
               ),
-
-              const SizedBox(height: 16),
 
               // Sign in link for existing users
               ShadButton.ghost(
@@ -146,6 +132,7 @@ class _FeatureItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      spacing: 16,
       children: [
         Container(
           width: 48,
@@ -160,9 +147,9 @@ class _FeatureItem extends StatelessWidget {
             color: ShadTheme.of(context).colorScheme.mutedForeground,
           ),
         ),
-        const SizedBox(width: 16),
         Expanded(
           child: Column(
+            spacing: 4,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -171,7 +158,6 @@ class _FeatureItem extends StatelessWidget {
                   context,
                 ).textTheme.large.copyWith(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 4),
               Text(
                 description,
                 style: ShadTheme.of(context).textTheme.small.copyWith(
