@@ -27,7 +27,7 @@ class WelcomeScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Icon(
-                  Icons.email_outlined,
+                  LucideIcons.mail,
                   size: 64,
                   color: ShadTheme.of(context).colorScheme.primaryForeground,
                 ),
@@ -53,19 +53,19 @@ class WelcomeScreen extends StatelessWidget {
                   spacing: 24,
                   children: [
                     _FeatureItem(
-                      icon: Icons.security_outlined,
+                      icon: LucideIcons.lock,
                       title: 'Secure Storage',
                       description:
                           'Your credentials are encrypted and stored securely',
                     ),
                     _FeatureItem(
-                      icon: Icons.sync_outlined,
+                      icon: LucideIcons.users,
                       title: 'Multi-Account Support',
                       description:
                           'Manage multiple email accounts in one place',
                     ),
                     _FeatureItem(
-                      icon: Icons.devices_outlined,
+                      icon: LucideIcons.laptop,
                       title: 'Cross-Platform',
                       description: 'Works seamlessly across all your devices',
                     ),
