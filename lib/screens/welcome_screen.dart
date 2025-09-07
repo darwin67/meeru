@@ -106,7 +106,7 @@ class WelcomeScreen extends StatelessWidget {
   }
 
   void _navigateToAccountSetup(BuildContext context) {
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const AccountSetupScreen(),
