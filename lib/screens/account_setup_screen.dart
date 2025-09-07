@@ -50,7 +50,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(LucideIcons.arrowLeft),
         ),
       ),
       body: SafeArea(
@@ -59,12 +59,13 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
           child: Form(
             key: _formKey,
             child: Column(
+              spacing: 16,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Provider selection
                 _buildProviderSelection(),
 
-                const SizedBox(height: 24),
+                // const SizedBox(height: 24),
 
                 // Email input
                 ShadInputFormField(
@@ -73,8 +74,6 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                   keyboardType: TextInputType.emailAddress,
                   validator: _validateEmail,
                 ),
-
-                const SizedBox(height: 16),
 
                 // Password input
                 ShadInputFormField(
@@ -85,8 +84,6 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                   obscureText: !_showPassword,
                   validator: _validatePassword,
                 ),
-
-                const SizedBox(height: 16),
 
                 // Custom settings toggle
                 ShadSwitchFormField(
@@ -124,10 +121,10 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                         child: Text(
                           authProvider.error!,
                           style: ShadTheme.of(context).textTheme.small.copyWith(
-                            color: ShadTheme.of(
-                              context,
-                            ).colorScheme.destructive,
-                          ),
+                                color: ShadTheme.of(
+                                  context,
+                                ).colorScheme.destructive,
+                              ),
                         ),
                       );
                     }
@@ -139,10 +136,9 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                 Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
                     return ShadButton(
-                      onPressed: authProvider.isLoading
-                          ? null
-                          : _handleContinue,
-                      width: double.infinity,
+                      onPressed:
+                          authProvider.isLoading ? null : _handleContinue,
+                      width: 480,
                       child: authProvider.isLoading
                           ? const SizedBox(
                               width: 16,
@@ -217,14 +213,12 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
               ).textTheme.large.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-
             ShadInputFormField(
               controller: _customImapHostController,
               placeholder: const Text('imap.example.com'),
               validator: _validateRequired,
             ),
             const SizedBox(height: 8),
-
             Row(
               children: [
                 Expanded(
@@ -243,9 +237,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: 24),
-
             Text(
               'SMTP Settings (Outgoing)',
               style: ShadTheme.of(
@@ -253,14 +245,12 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
               ).textTheme.large.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-
             ShadInputFormField(
               controller: _customSmtpHostController,
               placeholder: const Text('smtp.example.com'),
               validator: _validateRequired,
             ),
             const SizedBox(height: 8),
-
             Row(
               children: [
                 Expanded(
