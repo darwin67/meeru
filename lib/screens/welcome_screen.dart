@@ -34,7 +34,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               // Title
               Text(
-                'Welcome to Meeru',
+                'Meeru',
                 style: ShadTheme.of(context).textTheme.h1,
                 textAlign: TextAlign.center,
               ),
@@ -48,7 +48,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
 
               // Features list
-              Expanded(
+              const Expanded(
                 child: Column(
                   spacing: 24,
                   children: [
