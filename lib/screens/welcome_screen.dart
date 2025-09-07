@@ -92,7 +92,7 @@ class WelcomeScreen extends StatelessWidget {
                     onPressed: authProvider.isLoading
                         ? null
                         : () => _navigateToAccountSetup(context),
-                    width: double.infinity,
+                    width: 480,
                     child: authProvider.isLoading
                         ? const SizedBox(
                             width: 16,
@@ -109,6 +109,7 @@ class WelcomeScreen extends StatelessWidget {
               // Sign in link for existing users
               ShadButton.ghost(
                 onPressed: () => _navigateToAccountList(context),
+                width: 480,
                 child: const Text('Manage existing accounts'),
               ),
             ],
