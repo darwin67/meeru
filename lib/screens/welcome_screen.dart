@@ -16,7 +16,7 @@ class WelcomeScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
-            spacing: 32,
+            spacing: 56,
             children: [
               // Logo/Icon
               Container(
@@ -32,71 +32,100 @@ class WelcomeScreen extends StatelessWidget {
                   color: ShadTheme.of(context).colorScheme.primaryForeground,
                 ),
               ),
-              // Title
-              Text(
-                'Meeru',
-                style: ShadTheme.of(context).textTheme.h1,
-                textAlign: TextAlign.center,
-              ),
-              // Subtitle
-              Text(
-                'A modern, secure email client for all your accounts',
-                style: ShadTheme.of(context).textTheme.large.copyWith(
-                      color: ShadTheme.of(context).colorScheme.mutedForeground,
-                    ),
-                textAlign: TextAlign.center,
-              ),
 
-              // Features list
-              const Expanded(
-                child: Column(
-                  spacing: 24,
-                  children: [
-                    _FeatureItem(
-                      icon: LucideIcons.lock,
-                      title: 'Secure Storage',
-                      description:
-                          'Your credentials are encrypted and stored securely',
-                    ),
-                    _FeatureItem(
-                      icon: LucideIcons.users,
-                      title: 'Multi-Account Support',
-                      description:
-                          'Manage multiple email accounts in one place',
-                    ),
-                    _FeatureItem(
-                      icon: LucideIcons.laptop,
-                      title: 'Cross-Platform',
-                      description: 'Works seamlessly across all your devices',
-                    ),
-                  ],
+              Center(
+                child: SizedBox(
+                  width: 480,
+                  child: Column(
+                    spacing: 18,
+                    children: [
+                      // Title
+                      Text(
+                        'Meeru',
+                        style: ShadTheme.of(context).textTheme.h1,
+                        textAlign: TextAlign.center,
+                      ),
+                      // Subtitle
+                      Text(
+                        'A modern, secure email client for all your accounts',
+                        style: ShadTheme.of(context).textTheme.large.copyWith(
+                              color: ShadTheme.of(context)
+                                  .colorScheme
+                                  .mutedForeground,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
-              // Get started button
-              Consumer<AuthProvider>(
-                builder: (context, authProvider, child) {
-                  return ShadButton(
-                    onPressed: authProvider.isLoading
-                        ? null
-                        : () => _navigateToAccountSetup(context),
-                    width: 480,
-                    child: authProvider.isLoading
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Get Started'),
-                  );
-                },
+              // Features list
+              const Center(
+                child: SizedBox(
+                  width: 480,
+                  child: Column(
+                    spacing: 24,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _FeatureItem(
+                        icon: LucideIcons.lock,
+                        title: 'Secure Storage',
+                        description:
+                            'Your credentials are encrypted and stored securely',
+                      ),
+                      _FeatureItem(
+                        icon: LucideIcons.users,
+                        title: 'Multi-Account Support',
+                        description:
+                            'Manage multiple email accounts in one place',
+                      ),
+                      _FeatureItem(
+                        icon: LucideIcons.laptop,
+                        title: 'Cross-Platform',
+                        description: 'Works seamlessly across all your devices',
+                      ),
+                    ],
+                  ),
+                ),
               ),
 
-              // Sign in link for existing users
-              ShadButton.ghost(
-                onPressed: () => _navigateToAccountList(context),
-                width: 480,
-                child: const Text('Manage existing accounts'),
+              // Buttons
+              Center(
+                child: SizedBox(
+                  width: 480,
+                  child: Column(
+                    spacing: 12,
+                    children: [
+                      // Get started button
+                      Consumer<AuthProvider>(
+                        builder: (context, authProvider, child) {
+                          return ShadButton(
+                            onPressed: authProvider.isLoading
+                                ? null
+                                : () => _navigateToAccountSetup(context),
+                            width: double.infinity,
+                            child: authProvider.isLoading
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  )
+                                : const Text('Get Started'),
+                          );
+                        },
+                      ),
+
+                      // Sign in link for existing users
+                      ShadButton.ghost(
+                        onPressed: () => _navigateToAccountList(context),
+                        width: double.infinity,
+                        child: const Text('Manage existing accounts'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
