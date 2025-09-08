@@ -55,7 +55,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Form(
             key: _formKey,
@@ -99,7 +99,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                   _buildCustomSettings(),
                 ],
 
-                const Spacer(),
+                const SizedBox(height: 32),
 
                 // Error display
                 Consumer<AuthProvider>(
@@ -176,12 +176,13 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
               spacing: 8,
               runSpacing: 8,
               children: EmailProvider.values.map((provider) {
-                if (provider == EmailProvider.custom && !_useCustomSettings) {
-                  return const SizedBox.shrink();
-                }
-
                 return ShadButton.outline(
-                  onPressed: () => setState(() => _selectedProvider = provider),
+                  onPressed: () => setState(() {
+                    _selectedProvider = provider;
+                    if (provider == EmailProvider.custom) {
+                      _useCustomSettings = true;
+                    }
+                  }),
                   backgroundColor: _selectedProvider == provider
                       ? ShadTheme.of(
                           context,
