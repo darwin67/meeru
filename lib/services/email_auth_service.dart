@@ -21,7 +21,7 @@ class EmailAuthService {
       final providerConfig = ProviderConfig.getConfig(provider);
 
       if (providerConfig == null && provider != EmailProvider.custom) {
-        throw AuthException('Unsupported email provider');
+        throw const AuthException('Unsupported email provider');
       }
 
       final imapConfig = customImapConfig ?? providerConfig!.imapConfig;
@@ -93,7 +93,7 @@ class EmailAuthService {
       final providerConfig = ProviderConfig.getConfig(provider);
 
       if (providerConfig?.oauthConfig == null) {
-        throw AuthException('OAuth not supported for this provider');
+        throw const AuthException('OAuth not supported for this provider');
       }
 
       final oauthConfig = providerConfig!.oauthConfig!;

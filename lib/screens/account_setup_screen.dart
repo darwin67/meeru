@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide ThemeData;
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../providers/auth_provider.dart';
 import '../models/email_account.dart';
 
@@ -18,7 +17,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   final _passwordController = TextEditingController();
 
   EmailProvider _selectedProvider = EmailProvider.gmail;
-  bool _showPassword = false;
+  final bool _showPassword = false;
   bool _useCustomSettings = false;
 
   final _customImapHostController = TextEditingController();
@@ -111,12 +110,12 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                         decoration: BoxDecoration(
                           color: ShadTheme.of(
                             context,
-                          ).colorScheme.destructive.withOpacity(0.1),
+                          ).colorScheme.destructive.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: ShadTheme.of(
                               context,
-                            ).colorScheme.destructive.withOpacity(0.3),
+                            ).colorScheme.destructive.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Text(
@@ -186,7 +185,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                   backgroundColor: _selectedProvider == provider
                       ? ShadTheme.of(
                           context,
-                        ).colorScheme.primary.withOpacity(0.1)
+                        ).colorScheme.primary.withValues(alpha: 0.1)
                       : null,
                   foregroundColor: _selectedProvider == provider
                       ? ShadTheme.of(context).colorScheme.primary

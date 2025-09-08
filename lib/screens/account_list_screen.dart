@@ -199,7 +199,7 @@ class _AccountCard extends StatelessWidget {
                 color: isSelected
                     ? ShadTheme.of(
                         context,
-                      ).colorScheme.primary.withOpacity(0.05)
+                      ).colorScheme.primary.withValues(alpha: 0.05)
                     : null,
               ),
               child: Row(
