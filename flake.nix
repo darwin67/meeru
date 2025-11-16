@@ -31,8 +31,17 @@
             cargo
             clippy
 
-            # Lua
-            lua
+            # deps
+            cargo-tauri
+            pkg-config
+            openssl
+            # webkitgtk_6_0
+            gtk3
+            librsvg
+            libsoup_3
+            atkmm
+            at-spi2-atk
+            webkitgtk_4_1
 
             # Node
             typescript
