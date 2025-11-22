@@ -9,7 +9,10 @@
   outputs = { self, nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs { inherit system; };
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
         corepack = pkgs.stdenv.mkDerivation {
           name = "corepack";
           buildInputs = [ pkgs.nodejs_24 ];
@@ -55,6 +58,7 @@
 
             # Tools
             git-cliff
+            claude-code
           ];
 
           RUST_SRC_PATH =
