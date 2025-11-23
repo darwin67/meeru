@@ -55,6 +55,9 @@ keyring = "3"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
+# Test utilities (only in debug builds)
+lazy_static = "1.4"
+
 [dev-dependencies]
 testcontainers = "0.23"
 tokio-test = "0.4"

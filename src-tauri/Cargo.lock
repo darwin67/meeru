@@ -2579,6 +2579,7 @@ dependencies = [
  "futures",
  "imap-proto",
  "keyring",
+ "lazy_static",
  "lettre",
  "serde",
  "serde_json",

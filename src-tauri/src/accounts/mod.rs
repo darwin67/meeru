@@ -4,6 +4,16 @@ use sqlx::SqlitePool;
 
 use crate::db::models::{Account, AuthType};
 
+// Test-only in-memory password storage (available in debug builds for testing)
+#[cfg(debug_assertions)]
+use std::collections::HashMap;
+#[cfg(debug_assertions)]
+use std::sync::Mutex;
+#[cfg(debug_assertions)]
+lazy_static::lazy_static! {
+    static ref TEST_PASSWORDS: Mutex<HashMap<String, String>> = Mutex::new(HashMap::new());
+}
+
 /// Account manager handles account CRUD and credential storage
 pub struct AccountManager {
     pool: SqlitePool,
@@ -175,34 +185,66 @@ impl AccountManager {
         Ok(())
     }
 
-    /// Store password in OS keychain
+    /// Store password in OS keychain (or in-memory for debug builds)
     fn store_password(&self, account_id: &str, password: &str) -> Result<()> {
-        let entry = Entry::new("meeru", account_id)
-            .context("Failed to create keyring entry")?;
-        entry
-            .set_password(password)
-            .context("Failed to store password in keychain")?;
-        Ok(())
+        #[cfg(debug_assertions)]
+        {
+            let mut passwords = TEST_PASSWORDS.lock().unwrap();
+            passwords.insert(account_id.to_string(), password.to_string());
+            return Ok(());
+        }
+
+        #[cfg(not(debug_assertions))]
+        {
+            let entry = Entry::new("meeru", account_id)
+                .context("Failed to create keyring entry")?;
+            entry
+                .set_password(password)
+                .context("Failed to store password in keychain")?;
+            Ok(())
+        }
     }
 
-    /// Retrieve password from OS keychain
+    /// Retrieve password from OS keychain (or in-memory for debug builds)
     pub fn get_password(&self, account_id: &str) -> Result<String> {
-        let entry = Entry::new("meeru", account_id)
-            .context("Failed to create keyring entry")?;
-        let password = entry
-            .get_password()
-            .context("Failed to retrieve password from keychain")?;
-        Ok(password)
+        #[cfg(debug_assertions)]
+        {
+            let passwords = TEST_PASSWORDS.lock().unwrap();
+            passwords
+                .get(account_id)
+                .cloned()
+                .context("Password not found in test storage")
+        }
+
+        #[cfg(not(debug_assertions))]
+        {
+            let entry = Entry::new("meeru", account_id)
+                .context("Failed to create keyring entry")?;
+            let password = entry
+                .get_password()
+                .context("Failed to retrieve password from keychain")?;
+            Ok(password)
+        }
     }
 
-    /// Delete password from OS keychain
+    /// Delete password from OS keychain (or in-memory for debug builds)
     fn delete_password(&self, account_id: &str) -> Result<()> {
-        let entry = Entry::new("meeru", account_id)
-            .context("Failed to create keyring entry")?;
-        entry
-            .delete_credential()
-            .context("Failed to delete password from keychain")?;
-        Ok(())
+        #[cfg(debug_assertions)]
+        {
+            let mut passwords = TEST_PASSWORDS.lock().unwrap();
+            passwords.remove(account_id);
+            return Ok(());
+        }
+
+        #[cfg(not(debug_assertions))]
+        {
+            let entry = Entry::new("meeru", account_id)
+                .context("Failed to create keyring entry")?;
+            entry
+                .delete_credential()
+                .context("Failed to delete password from keychain")?;
+            Ok(())
+        }
     }
 }
 
