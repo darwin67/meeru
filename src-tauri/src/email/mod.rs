@@ -2,10 +2,11 @@ pub mod imap;
 pub mod smtp;
 pub mod sync;
 
-// Test-only modules (available in tests and when testing feature is enabled)
-#[cfg(any(test, feature = "test-utils"))]
+// Test-only modules (insecure - no TLS!)
+// These are always compiled but should NEVER be used in production
+#[cfg(any(test, debug_assertions))]
 pub mod imap_test;
-#[cfg(any(test, feature = "test-utils"))]
+#[cfg(any(test, debug_assertions))]
 pub mod smtp_test;
 
 pub use imap::{ImapClient, MailboxInfo, MessageData, MessageEnvelope};

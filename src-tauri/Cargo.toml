@@ -59,3 +59,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 testcontainers = "0.23"
 tokio-test = "0.4"
 tempfile = "3"
+
+# Enable test-utils feature automatically when testing
+[package.metadata.docs.rs]
+features = ["test-utils"]
