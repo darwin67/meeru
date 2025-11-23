@@ -22,3 +22,32 @@ tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Email protocols
+async-imap = "0.9"
+async-native-tls = "0.5"
+lettre = { version = "0.11", features = ["tokio1-native-tls", "smtp-transport", "builder"] }
+
+# Database
+sqlx = { version = "0.8", features = ["runtime-tokio-native-tls", "sqlite", "migrate", "chrono", "uuid"] }
+
+# Utilities
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+anyhow = "1"
+thiserror = "1"
+
+# Keychain/credential storage
+keyring = "3"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+testcontainers = "0.23"
+tokio-test = "0.4"
+tempfile = "3"
