@@ -138,7 +138,7 @@ pub struct Email {
     pub uid: i64,
     pub message_id: String,
     pub in_reply_to: Option<String>,
-    pub references: Option<String>, // JSON
+    pub email_references: Option<String>, // JSON
     pub subject: Option<String>,
     pub from_address: String,
     pub from_name: Option<String>,

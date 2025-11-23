@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS emails (
     uid INTEGER NOT NULL, -- IMAP UID
     message_id TEXT NOT NULL, -- RFC 2822 Message-ID
     in_reply_to TEXT, -- RFC 2822 In-Reply-To
-    references TEXT, -- RFC 2822 References (JSON array)
+    email_references TEXT, -- RFC 2822 References (JSON array)
     subject TEXT,
     from_address TEXT NOT NULL,
     from_name TEXT,

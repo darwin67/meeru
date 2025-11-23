@@ -58,13 +58,10 @@ impl ImapClient {
 
     /// Select a mailbox
     pub async fn select_mailbox(&mut self, mailbox_path: &str) -> Result<ImapMailbox> {
-        let mailbox = self
-            .session
+        self.session
             .select(mailbox_path)
             .await
-            .context(format!("Failed to select mailbox: {}", mailbox_path))?;
-
-        Ok(mailbox)
+            .context(format!("Failed to select mailbox: {}", mailbox_path))
     }
 
     /// Fetch message UIDs in a mailbox
@@ -260,7 +257,7 @@ pub struct MailboxInfo {
 }
 
 impl MailboxInfo {
-    fn from_name(name: &Name) -> Self {
+    pub fn from_name(name: &Name) -> Self {
         let path = name.name().to_string();
         let delimiter = name.delimiter().map(|s| s.to_string());
         let attributes: Vec<String> = name
@@ -342,7 +339,7 @@ pub struct MessageData {
 }
 
 impl MessageData {
-    fn from_fetch(fetch: &Fetch) -> Result<Self> {
+    pub fn from_fetch(fetch: &Fetch) -> Result<Self> {
         let uid = fetch.uid.context("Missing UID in fetch response")?;
         let size = fetch.size.unwrap_or(0);
 
