@@ -4,7 +4,7 @@ use sqlx::SqlitePool;
 use uuid::Uuid;
 
 use crate::accounts::AccountManager;
-use crate::db::models::{Account, Mailbox, Email};
+use crate::db::models::{Account, Mailbox};
 use crate::email::imap::{ImapClient, MailboxInfo, MessageData};
 
 /// Email synchronization service
@@ -321,7 +321,7 @@ impl EmailSyncService {
 
         // Extract basic headers (very simplified)
         let mut from_address = String::new();
-        let mut from_name = None;
+        let from_name = None;
         let mut to_addresses = String::from("[]");
         let mut subject = None;
         let mut date = Utc::now().to_rfc2822();

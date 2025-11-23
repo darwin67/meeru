@@ -25,13 +25,11 @@ impl Database {
 
         let db_url = format!("sqlite:{}", db_path.display());
 
-        let mut options = SqliteConnectOptions::from_str(&db_url)?
+        let options = SqliteConnectOptions::from_str(&db_url)?
             .create_if_missing(true)
             .foreign_keys(true)
-            .busy_timeout(std::time::Duration::from_secs(30));
-
-        // Disable sqlx query logging to avoid noise
-        options.log_statements(LevelFilter::Off);
+            .busy_timeout(std::time::Duration::from_secs(30))
+            .log_statements(LevelFilter::Off);
 
         let pool = SqlitePoolOptions::new()
             .max_connections(5)

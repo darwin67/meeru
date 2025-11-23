@@ -3,7 +3,7 @@ pub mod db;
 pub mod email;
 
 use std::sync::Arc;
-use tauri::State;
+use tauri::{Manager, State};
 use tokio::sync::Mutex;
 
 use accounts::AccountManager;

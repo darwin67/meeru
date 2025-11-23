@@ -1,10 +1,9 @@
 use anyhow::{Context, Result};
-use async_imap::types::{Fetch, Mailbox as ImapMailbox, Name, NameAttribute};
+use async_imap::types::{Fetch, Mailbox as ImapMailbox, Name};
 use async_imap::Session;
 use async_native_tls::{TlsConnector, TlsStream};
-use tokio::net::TcpStream;
-
-use crate::db::models::Mailbox;
+use async_std::net::TcpStream;
+use futures::stream::StreamExt;
 
 pub struct ImapClient {
     session: Session<TlsStream<TcpStream>>,
@@ -42,15 +41,16 @@ impl ImapClient {
 
     /// List all mailboxes/folders
     pub async fn list_mailboxes(&mut self) -> Result<Vec<MailboxInfo>> {
-        let mailboxes = self
+        let mut mailboxes = self
             .session
             .list(Some(""), Some("*"))
             .await
             .context("Failed to list mailboxes")?;
 
         let mut result = Vec::new();
-        for mailbox in mailboxes.iter() {
-            result.push(MailboxInfo::from_name(mailbox));
+        while let Some(mailbox_result) = mailboxes.next().await {
+            let mailbox = mailbox_result.context("Failed to parse mailbox")?;
+            result.push(MailboxInfo::from_name(&mailbox));
         }
 
         Ok(result)
@@ -69,14 +69,15 @@ impl ImapClient {
 
     /// Fetch message UIDs in a mailbox
     pub async fn fetch_uids(&mut self, range: &str) -> Result<Vec<u32>> {
-        let fetches = self
+        let mut fetches = self
             .session
             .fetch(range, "UID")
             .await
             .context("Failed to fetch UIDs")?;
 
         let mut uids = Vec::new();
-        for fetch in fetches.iter() {
+        while let Some(fetch_result) = fetches.next().await {
+            let fetch = fetch_result.context("Failed to parse fetch response")?;
             if let Some(uid) = fetch.uid {
                 uids.push(uid);
             }
@@ -88,15 +89,16 @@ impl ImapClient {
     /// Fetch messages by UID range
     pub async fn fetch_messages(&mut self, uid_range: &str) -> Result<Vec<MessageData>> {
         let fetch_query = "(UID RFC822.SIZE FLAGS ENVELOPE BODY.PEEK[])";
-        let fetches = self
+        let mut fetches = self
             .session
             .uid_fetch(uid_range, fetch_query)
             .await
             .context("Failed to fetch messages")?;
 
         let mut messages = Vec::new();
-        for fetch in fetches.iter() {
-            messages.push(MessageData::from_fetch(fetch)?);
+        while let Some(fetch_result) = fetches.next().await {
+            let fetch = fetch_result.context("Failed to parse fetch response")?;
+            messages.push(MessageData::from_fetch(&fetch)?);
         }
 
         Ok(messages)
@@ -115,10 +117,13 @@ impl ImapClient {
         }
 
         let uid_set = format_uid_set(uids);
-        self.session
+        let mut stream = self.session
             .uid_store(&uid_set, "+FLAGS (\\Seen)")
             .await
             .context("Failed to mark messages as seen")?;
+
+        // Consume the stream
+        while let Some(_) = stream.next().await {}
 
         Ok(())
     }
@@ -130,10 +135,13 @@ impl ImapClient {
         }
 
         let uid_set = format_uid_set(uids);
-        self.session
+        let mut stream = self.session
             .uid_store(&uid_set, "-FLAGS (\\Seen)")
             .await
             .context("Failed to mark messages as unseen")?;
+
+        // Consume the stream
+        while let Some(_) = stream.next().await {}
 
         Ok(())
     }
@@ -145,10 +153,13 @@ impl ImapClient {
         }
 
         let uid_set = format_uid_set(uids);
-        self.session
+        let mut stream = self.session
             .uid_store(&uid_set, "+FLAGS (\\Flagged)")
             .await
             .context("Failed to mark messages as flagged")?;
+
+        // Consume the stream
+        while let Some(_) = stream.next().await {}
 
         Ok(())
     }
@@ -160,10 +171,13 @@ impl ImapClient {
         }
 
         let uid_set = format_uid_set(uids);
-        self.session
+        let mut stream = self.session
             .uid_store(&uid_set, "-FLAGS (\\Flagged)")
             .await
             .context("Failed to mark messages as unflagged")?;
+
+        // Consume the stream
+        while let Some(_) = stream.next().await {}
 
         Ok(())
     }
@@ -175,15 +189,24 @@ impl ImapClient {
         }
 
         let uid_set = format_uid_set(uids);
-        self.session
-            .uid_store(&uid_set, "+FLAGS (\\Deleted)")
-            .await
-            .context("Failed to mark messages as deleted")?;
+        {
+            let mut stream = self.session
+                .uid_store(&uid_set, "+FLAGS (\\Deleted)")
+                .await
+                .context("Failed to mark messages as deleted")?;
 
-        self.session
+            // Consume the stream
+            while let Some(_) = stream.next().await {}
+        }
+
+        let expunge_stream = self.session
             .expunge()
             .await
             .context("Failed to expunge deleted messages")?;
+
+        // Pin and consume the stream
+        futures::pin_mut!(expunge_stream);
+        while let Some(_) = expunge_stream.next().await {}
 
         Ok(())
     }
@@ -325,7 +348,6 @@ impl MessageData {
 
         let flags: Vec<String> = fetch
             .flags()
-            .iter()
             .map(|f| format!("{:?}", f))
             .collect();
 
@@ -358,21 +380,21 @@ pub struct MessageEnvelope {
 }
 
 impl MessageEnvelope {
-    fn from_envelope(env: &async_imap::types::Envelope) -> Self {
+    fn from_envelope(env: &imap_proto::Envelope) -> Self {
         Self {
             date: env.date.as_ref().map(|d| String::from_utf8_lossy(d).to_string()),
             subject: env.subject.as_ref().map(|s| String::from_utf8_lossy(s).to_string()),
-            from: env.from.as_ref().map(Self::parse_addresses).unwrap_or_default(),
-            to: env.to.as_ref().map(Self::parse_addresses).unwrap_or_default(),
-            cc: env.cc.as_ref().map(Self::parse_addresses).unwrap_or_default(),
-            bcc: env.bcc.as_ref().map(Self::parse_addresses).unwrap_or_default(),
-            reply_to: env.reply_to.as_ref().map(Self::parse_addresses).unwrap_or_default(),
+            from: env.from.as_ref().map(|v| Self::parse_addresses(v)).unwrap_or_default(),
+            to: env.to.as_ref().map(|v| Self::parse_addresses(v)).unwrap_or_default(),
+            cc: env.cc.as_ref().map(|v| Self::parse_addresses(v)).unwrap_or_default(),
+            bcc: env.bcc.as_ref().map(|v| Self::parse_addresses(v)).unwrap_or_default(),
+            reply_to: env.reply_to.as_ref().map(|v| Self::parse_addresses(v)).unwrap_or_default(),
             message_id: env.message_id.as_ref().map(|m| String::from_utf8_lossy(m).to_string()),
             in_reply_to: env.in_reply_to.as_ref().map(|i| String::from_utf8_lossy(i).to_string()),
         }
     }
 
-    fn parse_addresses(addrs: &[async_imap::types::Address]) -> Vec<EmailAddr> {
+    fn parse_addresses(addrs: &Vec<imap_proto::Address>) -> Vec<EmailAddr> {
         addrs
             .iter()
             .filter_map(|addr| {
@@ -390,7 +412,7 @@ impl MessageEnvelope {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct EmailAddr {
     pub email: String,
     pub name: Option<String>,

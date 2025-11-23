@@ -1,7 +1,6 @@
 use anyhow::{Context, Result};
 use keyring::Entry;
 use sqlx::SqlitePool;
-use uuid::Uuid;
 
 use crate::db::models::{Account, AuthType};
 
