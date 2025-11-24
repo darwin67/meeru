@@ -5,7 +5,19 @@ use uuid::Uuid;
 
 use crate::accounts::AccountManager;
 use crate::db::models::{Account, Mailbox};
+
+// Use production IMAP client in release builds, test client in debug builds
+#[cfg(not(debug_assertions))]
 use crate::email::imap::{ImapClient, MailboxInfo, MessageData};
+#[cfg(not(debug_assertions))]
+type ActiveImapClient = ImapClient;
+
+#[cfg(debug_assertions)]
+use crate::email::imap::{MailboxInfo, MessageData};
+#[cfg(debug_assertions)]
+use crate::email::imap_test::ImapTestClient;
+#[cfg(debug_assertions)]
+type ActiveImapClient = ImapTestClient;
 
 /// Email synchronization service
 pub struct EmailSyncService {
@@ -35,8 +47,19 @@ impl EmailSyncService {
             .get_password(account_id)
             .context("Failed to retrieve password")?;
 
-        // Connect to IMAP
-        let mut imap_client = ImapClient::connect(
+        // Connect to IMAP (TLS in production, plain in debug/test mode)
+        #[cfg(not(debug_assertions))]
+        let mut imap_client = ActiveImapClient::connect(
+            &account.imap_host,
+            account.imap_port as u16,
+            &account.email,
+            &password,
+        )
+        .await
+        .context("Failed to connect to IMAP server")?;
+
+        #[cfg(debug_assertions)]
+        let mut imap_client = ActiveImapClient::connect_plain(
             &account.imap_host,
             account.imap_port as u16,
             &account.email,
@@ -150,7 +173,7 @@ impl EmailSyncService {
     /// Sync messages in a mailbox
     async fn sync_mailbox_messages(
         &self,
-        imap_client: &mut ImapClient,
+        imap_client: &mut ActiveImapClient,
         account: &Account,
         mailbox: &Mailbox,
     ) -> Result<(u32, u32)> {
@@ -252,18 +275,39 @@ impl EmailSyncService {
                 }
             };
 
-        // Create thread ID (simplified - just use message_id for now)
-        let thread_id = Uuid::new_v4().to_string();
-
-        // Determine if message is unread
-        let is_unread = !message.flags.iter().any(|f| f.contains("Seen"));
-        let is_starred = message.flags.iter().any(|f| f.contains("Flagged"));
-
-        // Parse date
+        // Parse date first (needed for thread timestamps)
         let parsed_date = chrono::DateTime::parse_from_rfc2822(&date)
             .or_else(|_| chrono::DateTime::parse_from_rfc3339(&date))
             .unwrap_or_else(|_| Utc::now().into())
             .with_timezone(&Utc);
+
+        // Create thread ID (simplified - just use message_id for now)
+        let thread_id = Uuid::new_v4().to_string();
+
+        // Create thread entry first (to satisfy foreign key constraint)
+        let participants_json = serde_json::to_string(&vec![from_address.as_str()])?;
+        sqlx::query(
+            r#"
+            INSERT OR IGNORE INTO threads (
+                id, account_id, subject, participants,
+                first_message_at, last_message_at, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            "#,
+        )
+        .bind(&thread_id)
+        .bind(&account.id)
+        .bind(&subject)
+        .bind(&participants_json)
+        .bind(parsed_date)
+        .bind(parsed_date)
+        .bind(Utc::now())
+        .execute(&self.pool)
+        .await?;
+
+        // Determine if message is unread
+        let is_unread = !message.flags.iter().any(|f| f.contains("Seen"));
+        let is_starred = message.flags.iter().any(|f| f.contains("Flagged"));
 
         // Insert email
         let email_id = Uuid::new_v4().to_string();

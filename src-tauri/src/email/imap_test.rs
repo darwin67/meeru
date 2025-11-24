@@ -60,6 +60,25 @@ impl ImapTestClient {
             .context(format!("Failed to select mailbox: {}", mailbox_path))
     }
 
+    /// Fetch message UIDs in a mailbox
+    pub async fn fetch_uids(&mut self, range: &str) -> Result<Vec<u32>> {
+        let mut fetches = self
+            .session
+            .fetch(range, "UID")
+            .await
+            .context("Failed to fetch UIDs")?;
+
+        let mut uids = Vec::new();
+        while let Some(fetch_result) = fetches.next().await {
+            let fetch = fetch_result.context("Failed to parse fetch response")?;
+            if let Some(uid) = fetch.uid {
+                uids.push(uid);
+            }
+        }
+
+        Ok(uids)
+    }
+
     /// Fetch messages by UID range
     pub async fn fetch_messages(&mut self, uid_range: &str) -> Result<Vec<MessageData>> {
         let fetch_query = "(UID RFC822.SIZE FLAGS ENVELOPE BODY.PEEK[])";

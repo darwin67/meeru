@@ -170,20 +170,20 @@ CREATE VIRTUAL TABLE IF NOT EXISTS emails_fts USING fts5(
 );
 
 -- Triggers to keep FTS index in sync
+-- For external content FTS5 tables, we use rowid for delete/update operations
 CREATE TRIGGER IF NOT EXISTS emails_fts_insert AFTER INSERT ON emails BEGIN
-    INSERT INTO emails_fts(email_id, subject, from_name, from_address, body_text)
-    VALUES (new.id, new.subject, new.from_name, new.from_address, new.body_text);
+    INSERT INTO emails_fts(rowid, email_id, subject, from_name, from_address, body_text)
+    VALUES (new.rowid, new.id, new.subject, new.from_name, new.from_address, new.body_text);
 END;
 
 CREATE TRIGGER IF NOT EXISTS emails_fts_update AFTER UPDATE ON emails BEGIN
-    UPDATE emails_fts
-    SET subject = new.subject,
-        from_name = new.from_name,
-        from_address = new.from_address,
-        body_text = new.body_text
-    WHERE email_id = new.id;
+    INSERT INTO emails_fts(emails_fts, rowid, email_id, subject, from_name, from_address, body_text)
+    VALUES ('delete', old.rowid, old.id, old.subject, old.from_name, old.from_address, old.body_text);
+    INSERT INTO emails_fts(rowid, email_id, subject, from_name, from_address, body_text)
+    VALUES (new.rowid, new.id, new.subject, new.from_name, new.from_address, new.body_text);
 END;
 
 CREATE TRIGGER IF NOT EXISTS emails_fts_delete AFTER DELETE ON emails BEGIN
-    DELETE FROM emails_fts WHERE email_id = old.id;
+    INSERT INTO emails_fts(emails_fts, rowid, email_id, subject, from_name, from_address, body_text)
+    VALUES ('delete', old.rowid, old.id, old.subject, old.from_name, old.from_address, old.body_text);
 END;
