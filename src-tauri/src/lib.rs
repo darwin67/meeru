@@ -22,14 +22,11 @@ pub fn run() {
             std::fs::create_dir_all(&app_data_dir)?;
 
             // Initialize AppState asynchronously
-            let state = tauri::async_runtime::block_on(async {
-                AppState::new(app_data_dir).await
-            })?;
+            let state =
+                tauri::async_runtime::block_on(async { AppState::new(app_data_dir).await })?;
 
             // Run database migrations
-            tauri::async_runtime::block_on(async {
-                state.db.migrate().await
-            })?;
+            tauri::async_runtime::block_on(async { state.db.migrate().await })?;
 
             // Manage the state in Tauri
             app.manage(state);
