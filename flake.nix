@@ -62,6 +62,7 @@
             # Tools
             git-cliff
             claude-code
+            sqlx-cli # to use with database interactions
           ];
 
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
