@@ -1,4 +1,5 @@
 pub mod db;
+pub mod email;
 pub mod state;
 
 use state::AppState;
