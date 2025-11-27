@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Accept command-line arguments and create a migration
+if [ $# -eq 0 ]; then
+    echo "Error: Migration name required"
+    echo "Usage: $0 <migration_name>"
+    echo "Example: $0 add emails"
+    exit 1
+fi
+
+sqlx migrate add --source src-tauri/migrations "$*"
