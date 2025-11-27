@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS mailboxes (
     UNIQUE(account_id, path)
 );
 
-CREATE INDEX idx_mailboxes_account ON mailboxes(account_id);
-CREATE INDEX idx_mailboxes_role ON mailboxes(role);
+CREATE INDEX IF NOT EXISTS idx_mailboxes_account ON mailboxes(account_id);
+CREATE INDEX IF NOT EXISTS idx_mailboxes_role ON mailboxes(role);
 
 -- Threads table (conversation grouping)
 CREATE TABLE IF NOT EXISTS threads (
@@ -55,11 +55,11 @@ CREATE TABLE IF NOT EXISTS threads (
     FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_threads_account ON threads(account_id);
-CREATE INDEX idx_threads_unread ON threads(is_unread);
-CREATE INDEX idx_threads_starred ON threads(is_starred);
-CREATE INDEX idx_threads_last_message ON threads(last_message_at DESC);
-CREATE INDEX idx_threads_category ON threads(category);
+CREATE INDEX IF NOT EXISTS idx_threads_account ON threads(account_id);
+CREATE INDEX IF NOT EXISTS idx_threads_unread ON threads(is_unread);
+CREATE INDEX IF NOT EXISTS idx_threads_starred ON threads(is_starred);
+CREATE INDEX IF NOT EXISTS idx_threads_last_message ON threads(last_message_at DESC);
+CREATE INDEX IF NOT EXISTS idx_threads_category ON threads(category);
 
 -- Emails table
 CREATE TABLE IF NOT EXISTS emails (
@@ -98,13 +98,13 @@ CREATE TABLE IF NOT EXISTS emails (
     UNIQUE(account_id, mailbox_id, uid)
 );
 
-CREATE INDEX idx_emails_thread ON emails(thread_id);
-CREATE INDEX idx_emails_account ON emails(account_id);
-CREATE INDEX idx_emails_mailbox ON emails(mailbox_id);
-CREATE INDEX idx_emails_message_id ON emails(message_id);
-CREATE INDEX idx_emails_date ON emails(date DESC);
-CREATE INDEX idx_emails_unread ON emails(is_unread);
-CREATE INDEX idx_emails_starred ON emails(is_starred);
+CREATE INDEX IF NOT EXISTS idx_emails_thread ON emails(thread_id);
+CREATE INDEX IF NOT EXISTS idx_emails_account ON emails(account_id);
+CREATE INDEX IF NOT EXISTS idx_emails_mailbox ON emails(mailbox_id);
+CREATE INDEX IF NOT EXISTS idx_emails_message_id ON emails(message_id);
+CREATE INDEX IF NOT EXISTS idx_emails_date ON emails(date DESC);
+CREATE INDEX IF NOT EXISTS idx_emails_unread ON emails(is_unread);
+CREATE INDEX IF NOT EXISTS idx_emails_starred ON emails(is_starred);
 
 -- Attachments table
 CREATE TABLE IF NOT EXISTS attachments (
@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS attachments (
     FOREIGN KEY (email_id) REFERENCES emails(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_attachments_email ON attachments(email_id);
+CREATE INDEX IF NOT EXISTS idx_attachments_email ON attachments(email_id);
 
 -- Contacts table
 CREATE TABLE IF NOT EXISTS contacts (
@@ -137,9 +137,9 @@ CREATE TABLE IF NOT EXISTS contacts (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_contacts_email ON contacts(email);
-CREATE INDEX idx_contacts_vip ON contacts(is_vip);
-CREATE INDEX idx_contacts_last_emailed ON contacts(last_emailed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
+CREATE INDEX IF NOT EXISTS idx_contacts_vip ON contacts(is_vip);
+CREATE INDEX IF NOT EXISTS idx_contacts_last_emailed ON contacts(last_emailed_at DESC);
 
 -- Sync queue for offline support
 CREATE TABLE IF NOT EXISTS sync_queue (
@@ -155,8 +155,8 @@ CREATE TABLE IF NOT EXISTS sync_queue (
     FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_sync_queue_account ON sync_queue(account_id);
-CREATE INDEX idx_sync_queue_status ON sync_queue(status);
+CREATE INDEX IF NOT EXISTS idx_sync_queue_account ON sync_queue(account_id);
+CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON sync_queue(status);
 
 -- Search index (FTS5 for full-text search)
 CREATE VIRTUAL TABLE IF NOT EXISTS emails_fts USING fts5(
