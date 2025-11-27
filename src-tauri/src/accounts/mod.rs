@@ -196,8 +196,8 @@ impl AccountManager {
 
         #[cfg(not(debug_assertions))]
         {
-            let entry = Entry::new("meeru", account_id)
-                .context("Failed to create keyring entry")?;
+            let entry =
+                Entry::new("meeru", account_id).context("Failed to create keyring entry")?;
             entry
                 .set_password(password)
                 .context("Failed to store password in keychain")?;
@@ -218,8 +218,8 @@ impl AccountManager {
 
         #[cfg(not(debug_assertions))]
         {
-            let entry = Entry::new("meeru", account_id)
-                .context("Failed to create keyring entry")?;
+            let entry =
+                Entry::new("meeru", account_id).context("Failed to create keyring entry")?;
             let password = entry
                 .get_password()
                 .context("Failed to retrieve password from keychain")?;
@@ -238,8 +238,8 @@ impl AccountManager {
 
         #[cfg(not(debug_assertions))]
         {
-            let entry = Entry::new("meeru", account_id)
-                .context("Failed to create keyring entry")?;
+            let entry =
+                Entry::new("meeru", account_id).context("Failed to create keyring entry")?;
             entry
                 .delete_credential()
                 .context("Failed to delete password from keychain")?;

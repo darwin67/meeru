@@ -10,7 +10,13 @@ pub struct SmtpClient {
 
 impl SmtpClient {
     /// Create a new SMTP client
-    pub fn new(host: &str, port: u16, email: &str, password: &str, from_name: Option<&str>) -> Result<Self> {
+    pub fn new(
+        host: &str,
+        port: u16,
+        email: &str,
+        password: &str,
+        from_name: Option<&str>,
+    ) -> Result<Self> {
         let creds = Credentials::new(email.to_string(), password.to_string());
 
         let transport = SmtpTransport::starttls_relay(host)
@@ -20,7 +26,10 @@ impl SmtpClient {
             .build();
 
         let from_address = if let Some(name) = from_name {
-            Mailbox::new(Some(name.to_string()), email.parse().context("Invalid from email")?)
+            Mailbox::new(
+                Some(name.to_string()),
+                email.parse().context("Invalid from email")?,
+            )
         } else {
             Mailbox::new(None, email.parse().context("Invalid from email")?)
         };
@@ -33,8 +42,7 @@ impl SmtpClient {
 
     /// Send an email
     pub fn send_email(&self, email_data: EmailData) -> Result<()> {
-        let mut message_builder = Message::builder()
-            .from(self.from_address.clone());
+        let mut message_builder = Message::builder().from(self.from_address.clone());
 
         // Add To recipients
         for to in &email_data.to {
@@ -191,7 +199,9 @@ mod tests {
     #[test]
     fn test_email_data_builder() {
         let mut email = EmailData::new("Test Subject".to_string());
-        email.add_to("recipient@example.com", Some("Recipient Name")).unwrap();
+        email
+            .add_to("recipient@example.com", Some("Recipient Name"))
+            .unwrap();
         email.add_cc("cc@example.com", None).unwrap();
 
         let email = email

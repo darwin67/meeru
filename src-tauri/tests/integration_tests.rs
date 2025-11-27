@@ -105,7 +105,10 @@ async fn test_create_account() {
     // Note: In CI/tests, keychain may not work, so we skip password verification
 
     // Cleanup
-    env.account_manager.delete_account(&account.id).await.unwrap();
+    env.account_manager
+        .delete_account(&account.id)
+        .await
+        .unwrap();
 }
 
 #[tokio::test]
@@ -150,8 +153,14 @@ async fn test_list_accounts() {
     assert_eq!(accounts.len(), 2);
 
     // Cleanup
-    env.account_manager.delete_account(&account1.id).await.unwrap();
-    env.account_manager.delete_account(&account2.id).await.unwrap();
+    env.account_manager
+        .delete_account(&account1.id)
+        .await
+        .unwrap();
+    env.account_manager
+        .delete_account(&account2.id)
+        .await
+        .unwrap();
 }
 
 #[tokio::test]
@@ -194,7 +203,9 @@ async fn test_smtp_send_email() {
 
     // Create email
     let mut email = EmailData::new("Test Subject".to_string());
-    email.add_to("recipient@localhost", Some("Recipient Name")).unwrap();
+    email
+        .add_to("recipient@localhost", Some("Recipient Name"))
+        .unwrap();
     email = email.with_text_body("This is a test email body.".to_string());
 
     // Send email
@@ -239,7 +250,10 @@ async fn test_imap_send_and_receive() {
 
     // Select INBOX
     let mailbox = imap_client.select_mailbox("INBOX").await.unwrap();
-    assert!(mailbox.exists > 0, "Should have at least one message in INBOX");
+    assert!(
+        mailbox.exists > 0,
+        "Should have at least one message in INBOX"
+    );
 
     // Fetch messages
     let messages = imap_client.fetch_messages("1:*").await.unwrap();
@@ -266,13 +280,8 @@ async fn test_imap_mark_operations() {
     let test_password = "password";
 
     // Send a test email
-    let smtp_client = SmtpTestClient::new_plain(
-        &env.get_smtp_host(),
-        env.smtp_port,
-        test_email,
-        None,
-    )
-    .unwrap();
+    let smtp_client =
+        SmtpTestClient::new_plain(&env.get_smtp_host(), env.smtp_port, test_email, None).unwrap();
 
     let mut email = EmailData::new("Mark Test".to_string());
     email.add_to(test_email, None).unwrap();
@@ -359,18 +368,20 @@ async fn test_full_sync_flow() {
     assert_eq!(result.new_messages, 3, "Should sync 3 new messages");
 
     // Verify emails are in database
-    let emails: Vec<(String,)> = sqlx::query_as(
-        "SELECT subject FROM emails WHERE account_id = ? ORDER BY date DESC",
-    )
-    .bind(&account.id)
-    .fetch_all(env.db.pool())
-    .await
-    .unwrap();
+    let emails: Vec<(String,)> =
+        sqlx::query_as("SELECT subject FROM emails WHERE account_id = ? ORDER BY date DESC")
+            .bind(&account.id)
+            .fetch_all(env.db.pool())
+            .await
+            .unwrap();
 
     assert_eq!(emails.len(), 3, "Should have 3 emails in database");
 
     // Cleanup
-    env.account_manager.delete_account(&account.id).await.unwrap();
+    env.account_manager
+        .delete_account(&account.id)
+        .await
+        .unwrap();
 }
 
 #[tokio::test]
@@ -415,7 +426,10 @@ async fn test_mailbox_sync() {
     assert!(has_inbox, "Should have INBOX mailbox");
 
     // Cleanup
-    env.account_manager.delete_account(&account.id).await.unwrap();
+    env.account_manager
+        .delete_account(&account.id)
+        .await
+        .unwrap();
 }
 
 #[tokio::test]
@@ -442,13 +456,8 @@ async fn test_incremental_sync() {
         .await
         .unwrap();
 
-    let smtp_client = SmtpTestClient::new_plain(
-        &env.get_smtp_host(),
-        env.smtp_port,
-        test_email,
-        None,
-    )
-    .unwrap();
+    let smtp_client =
+        SmtpTestClient::new_plain(&env.get_smtp_host(), env.smtp_port, test_email, None).unwrap();
 
     // Send initial email
     let mut email = EmailData::new("First Email".to_string());
@@ -476,5 +485,8 @@ async fn test_incremental_sync() {
     assert_eq!(result2.total_messages, 2, "Should have 2 total messages");
 
     // Cleanup
-    env.account_manager.delete_account(&account.id).await.unwrap();
+    env.account_manager
+        .delete_account(&account.id)
+        .await
+        .unwrap();
 }

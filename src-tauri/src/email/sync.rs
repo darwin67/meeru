@@ -78,9 +78,7 @@ impl EmailSyncService {
         let mut total_new = 0;
 
         for mailbox_info in mailbox_infos {
-            let mailbox = self
-                .sync_mailbox_metadata(&account, &mailbox_info)
-                .await?;
+            let mailbox = self.sync_mailbox_metadata(&account, &mailbox_info).await?;
 
             let (synced, new) = self
                 .sync_mailbox_messages(&mut imap_client, &account, &mailbox)
@@ -91,9 +89,7 @@ impl EmailSyncService {
         }
 
         // Update last sync time
-        self.account_manager
-            .update_last_sync(account_id)
-            .await?;
+        self.account_manager.update_last_sync(account_id).await?;
 
         // Logout
         imap_client.logout().await?;
@@ -111,13 +107,12 @@ impl EmailSyncService {
         info: &MailboxInfo,
     ) -> Result<Mailbox> {
         // Check if mailbox exists
-        let existing: Option<(String,)> = sqlx::query_as(
-            "SELECT id FROM mailboxes WHERE account_id = ? AND path = ?",
-        )
-        .bind(&account.id)
-        .bind(&info.path)
-        .fetch_optional(&self.pool)
-        .await?;
+        let existing: Option<(String,)> =
+            sqlx::query_as("SELECT id FROM mailboxes WHERE account_id = ? AND path = ?")
+                .bind(&account.id)
+                .bind(&info.path)
+                .fetch_optional(&self.pool)
+                .await?;
 
         if let Some((id,)) = existing {
             // Update existing mailbox
@@ -189,23 +184,18 @@ impl EmailSyncService {
         }
 
         // Get existing UIDs from database
-        let existing_uids: Vec<(i64,)> = sqlx::query_as(
-            "SELECT uid FROM emails WHERE account_id = ? AND mailbox_id = ?",
-        )
-        .bind(&account.id)
-        .bind(&mailbox.id)
-        .fetch_all(&self.pool)
-        .await?;
+        let existing_uids: Vec<(i64,)> =
+            sqlx::query_as("SELECT uid FROM emails WHERE account_id = ? AND mailbox_id = ?")
+                .bind(&account.id)
+                .bind(&mailbox.id)
+                .fetch_all(&self.pool)
+                .await?;
 
-        let existing_uid_set: std::collections::HashSet<u32> = existing_uids
-            .into_iter()
-            .map(|(uid,)| uid as u32)
-            .collect();
+        let existing_uid_set: std::collections::HashSet<u32> =
+            existing_uids.into_iter().map(|(uid,)| uid as u32).collect();
 
         // Fetch all UIDs from server
-        let server_uids = imap_client
-            .fetch_uids(&format!("1:{}", exists))
-            .await?;
+        let server_uids = imap_client.fetch_uids(&format!("1:{}", exists)).await?;
 
         // Determine new UIDs to fetch
         let new_uids: Vec<u32> = server_uids
@@ -222,11 +212,7 @@ impl EmailSyncService {
         // Fetch new messages in batches
         const BATCH_SIZE: usize = 50;
         for chunk in new_uids.chunks(BATCH_SIZE) {
-            let uid_range = format!(
-                "{}:{}",
-                chunk.first().unwrap(),
-                chunk.last().unwrap()
-            );
+            let uid_range = format!("{}:{}", chunk.first().unwrap(), chunk.last().unwrap());
 
             let messages = imap_client.fetch_messages(&uid_range).await?;
 
@@ -246,34 +232,44 @@ impl EmailSyncService {
         message: MessageData,
     ) -> Result<()> {
         // Parse the message body if available
-        let (body_text, body_html, from_address, from_name, to_addresses, subject, date, message_id) =
-            if let Some(body_bytes) = message.body {
-                Self::parse_message_body(&body_bytes)?
+        let (
+            body_text,
+            body_html,
+            from_address,
+            from_name,
+            to_addresses,
+            subject,
+            date,
+            message_id,
+        ) = if let Some(body_bytes) = message.body {
+            Self::parse_message_body(&body_bytes)?
+        } else {
+            // Use envelope data as fallback
+            if let Some(envelope) = message.envelope {
+                let from = envelope.from.first();
+                let from_address = from.map(|f| f.email.clone()).unwrap_or_default();
+                let from_name = from.and_then(|f| f.name.clone());
+
+                let to_addresses = serde_json::to_string(&envelope.to)?;
+                let subject = envelope.subject.clone();
+                let message_id = envelope
+                    .message_id
+                    .unwrap_or_else(|| Uuid::new_v4().to_string());
+
+                (
+                    None,
+                    None,
+                    from_address,
+                    from_name,
+                    to_addresses,
+                    subject,
+                    envelope.date.unwrap_or_else(|| Utc::now().to_rfc3339()),
+                    message_id,
+                )
             } else {
-                // Use envelope data as fallback
-                if let Some(envelope) = message.envelope {
-                    let from = envelope.from.first();
-                    let from_address = from.map(|f| f.email.clone()).unwrap_or_default();
-                    let from_name = from.and_then(|f| f.name.clone());
-
-                    let to_addresses = serde_json::to_string(&envelope.to)?;
-                    let subject = envelope.subject.clone();
-                    let message_id = envelope.message_id.unwrap_or_else(|| Uuid::new_v4().to_string());
-
-                    (
-                        None,
-                        None,
-                        from_address,
-                        from_name,
-                        to_addresses,
-                        subject,
-                        envelope.date.unwrap_or_else(|| Utc::now().to_rfc3339()),
-                        message_id,
-                    )
-                } else {
-                    return Ok(()); // Skip messages without envelope
-                }
-            };
+                return Ok(()); // Skip messages without envelope
+            }
+        };
 
         // Parse date first (needed for thread timestamps)
         let parsed_date = chrono::DateTime::parse_from_rfc2822(&date)
@@ -407,8 +403,8 @@ pub struct SyncResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::db::Database;
     use crate::db::models::AuthType;
+    use crate::db::Database;
     use tempfile::TempDir;
 
     async fn create_test_service() -> (EmailSyncService, TempDir, AccountManager) {

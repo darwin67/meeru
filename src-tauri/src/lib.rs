@@ -24,7 +24,9 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-async fn list_accounts(state: State<'_, Arc<Mutex<AppState>>>) -> Result<Vec<db::models::Account>, String> {
+async fn list_accounts(
+    state: State<'_, Arc<Mutex<AppState>>>,
+) -> Result<Vec<db::models::Account>, String> {
     let state = state.lock().await;
     state
         .account_manager
@@ -55,15 +57,7 @@ async fn create_account(
     state
         .account_manager
         .create_account(
-            email,
-            name,
-            provider,
-            imap_host,
-            imap_port,
-            smtp_host,
-            smtp_port,
-            auth_type,
-            password,
+            email, name, provider, imap_host, imap_port, smtp_host, smtp_port, auth_type, password,
         )
         .await
         .map_err(|e| e.to_string())

@@ -10,5 +10,5 @@ pub mod imap_test;
 pub mod smtp_test;
 
 pub use imap::{ImapClient, MailboxInfo, MessageData, MessageEnvelope};
-pub use smtp::{SmtpClient, EmailData};
+pub use smtp::{EmailData, SmtpClient};
 pub use sync::EmailSyncService;

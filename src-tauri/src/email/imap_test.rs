@@ -13,12 +13,7 @@ pub struct ImapTestClient {
 
 impl ImapTestClient {
     /// Connect to IMAP server without TLS (for testing)
-    pub async fn connect_plain(
-        host: &str,
-        port: u16,
-        email: &str,
-        password: &str,
-    ) -> Result<Self> {
+    pub async fn connect_plain(host: &str, port: u16, email: &str, password: &str) -> Result<Self> {
         let addr = format!("{}:{}", host, port);
         let tcp_stream = TcpStream::connect(&addr)
             .await
@@ -103,12 +98,14 @@ impl ImapTestClient {
             return Ok(());
         }
 
-        let uid_set = uids.iter()
+        let uid_set = uids
+            .iter()
             .map(|uid| uid.to_string())
             .collect::<Vec<_>>()
             .join(",");
 
-        let mut stream = self.session
+        let mut stream = self
+            .session
             .uid_store(&uid_set, "+FLAGS (\\Seen)")
             .await
             .context("Failed to mark messages as seen")?;
@@ -124,12 +121,14 @@ impl ImapTestClient {
             return Ok(());
         }
 
-        let uid_set = uids.iter()
+        let uid_set = uids
+            .iter()
             .map(|uid| uid.to_string())
             .collect::<Vec<_>>()
             .join(",");
 
-        let mut stream = self.session
+        let mut stream = self
+            .session
             .uid_store(&uid_set, "+FLAGS (\\Flagged)")
             .await
             .context("Failed to mark messages as flagged")?;
@@ -145,12 +144,14 @@ impl ImapTestClient {
             return Ok(());
         }
 
-        let uid_set = uids.iter()
+        let uid_set = uids
+            .iter()
             .map(|uid| uid.to_string())
             .collect::<Vec<_>>()
             .join(",");
 
-        let mut stream = self.session
+        let mut stream = self
+            .session
             .uid_store(&uid_set, "-FLAGS (\\Seen)")
             .await
             .context("Failed to mark messages as unseen")?;
@@ -166,12 +167,14 @@ impl ImapTestClient {
             return Ok(());
         }
 
-        let uid_set = uids.iter()
+        let uid_set = uids
+            .iter()
             .map(|uid| uid.to_string())
             .collect::<Vec<_>>()
             .join(",");
 
-        let mut stream = self.session
+        let mut stream = self
+            .session
             .uid_store(&uid_set, "-FLAGS (\\Flagged)")
             .await
             .context("Failed to mark messages as unflagged")?;
@@ -183,10 +186,7 @@ impl ImapTestClient {
 
     /// Logout and close connection
     pub async fn logout(mut self) -> Result<()> {
-        self.session
-            .logout()
-            .await
-            .context("Failed to logout")?;
+        self.session.logout().await.context("Failed to logout")?;
         Ok(())
     }
 }

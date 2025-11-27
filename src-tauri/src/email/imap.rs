@@ -11,12 +11,7 @@ pub struct ImapClient {
 
 impl ImapClient {
     /// Connect to IMAP server and authenticate
-    pub async fn connect(
-        host: &str,
-        port: u16,
-        email: &str,
-        password: &str,
-    ) -> Result<Self> {
+    pub async fn connect(host: &str, port: u16, email: &str, password: &str) -> Result<Self> {
         let addr = format!("{}:{}", host, port);
         let tcp_stream = TcpStream::connect(&addr)
             .await
@@ -114,7 +109,8 @@ impl ImapClient {
         }
 
         let uid_set = format_uid_set(uids);
-        let mut stream = self.session
+        let mut stream = self
+            .session
             .uid_store(&uid_set, "+FLAGS (\\Seen)")
             .await
             .context("Failed to mark messages as seen")?;
@@ -132,7 +128,8 @@ impl ImapClient {
         }
 
         let uid_set = format_uid_set(uids);
-        let mut stream = self.session
+        let mut stream = self
+            .session
             .uid_store(&uid_set, "-FLAGS (\\Seen)")
             .await
             .context("Failed to mark messages as unseen")?;
@@ -150,7 +147,8 @@ impl ImapClient {
         }
 
         let uid_set = format_uid_set(uids);
-        let mut stream = self.session
+        let mut stream = self
+            .session
             .uid_store(&uid_set, "+FLAGS (\\Flagged)")
             .await
             .context("Failed to mark messages as flagged")?;
@@ -168,7 +166,8 @@ impl ImapClient {
         }
 
         let uid_set = format_uid_set(uids);
-        let mut stream = self.session
+        let mut stream = self
+            .session
             .uid_store(&uid_set, "-FLAGS (\\Flagged)")
             .await
             .context("Failed to mark messages as unflagged")?;
@@ -187,7 +186,8 @@ impl ImapClient {
 
         let uid_set = format_uid_set(uids);
         {
-            let mut stream = self.session
+            let mut stream = self
+                .session
                 .uid_store(&uid_set, "+FLAGS (\\Deleted)")
                 .await
                 .context("Failed to mark messages as deleted")?;
@@ -196,7 +196,8 @@ impl ImapClient {
             while let Some(_) = stream.next().await {}
         }
 
-        let expunge_stream = self.session
+        let expunge_stream = self
+            .session
             .expunge()
             .await
             .context("Failed to expunge deleted messages")?;
@@ -217,9 +218,7 @@ impl ImapClient {
         let uid_set = format_uid_set(uids);
 
         // Try MOVE command first (RFC 6851)
-        let move_result = self.session
-            .uid_mv(&uid_set, dest_mailbox)
-            .await;
+        let move_result = self.session.uid_mv(&uid_set, dest_mailbox).await;
 
         match move_result {
             Ok(_) => Ok(()),
@@ -238,10 +237,7 @@ impl ImapClient {
 
     /// Logout and close connection
     pub async fn logout(mut self) -> Result<()> {
-        self.session
-            .logout()
-            .await
-            .context("Failed to logout")?;
+        self.session.logout().await.context("Failed to logout")?;
         Ok(())
     }
 }
@@ -343,12 +339,11 @@ impl MessageData {
         let uid = fetch.uid.context("Missing UID in fetch response")?;
         let size = fetch.size.unwrap_or(0);
 
-        let flags: Vec<String> = fetch
-            .flags()
-            .map(|f| format!("{:?}", f))
-            .collect();
+        let flags: Vec<String> = fetch.flags().map(|f| format!("{:?}", f)).collect();
 
-        let envelope = fetch.envelope().map(|env| MessageEnvelope::from_envelope(env));
+        let envelope = fetch
+            .envelope()
+            .map(|env| MessageEnvelope::from_envelope(env));
 
         let body = fetch.body().map(|b| b.to_vec());
 
@@ -379,15 +374,47 @@ pub struct MessageEnvelope {
 impl MessageEnvelope {
     fn from_envelope(env: &imap_proto::Envelope) -> Self {
         Self {
-            date: env.date.as_ref().map(|d| String::from_utf8_lossy(d).to_string()),
-            subject: env.subject.as_ref().map(|s| String::from_utf8_lossy(s).to_string()),
-            from: env.from.as_ref().map(|v| Self::parse_addresses(v)).unwrap_or_default(),
-            to: env.to.as_ref().map(|v| Self::parse_addresses(v)).unwrap_or_default(),
-            cc: env.cc.as_ref().map(|v| Self::parse_addresses(v)).unwrap_or_default(),
-            bcc: env.bcc.as_ref().map(|v| Self::parse_addresses(v)).unwrap_or_default(),
-            reply_to: env.reply_to.as_ref().map(|v| Self::parse_addresses(v)).unwrap_or_default(),
-            message_id: env.message_id.as_ref().map(|m| String::from_utf8_lossy(m).to_string()),
-            in_reply_to: env.in_reply_to.as_ref().map(|i| String::from_utf8_lossy(i).to_string()),
+            date: env
+                .date
+                .as_ref()
+                .map(|d| String::from_utf8_lossy(d).to_string()),
+            subject: env
+                .subject
+                .as_ref()
+                .map(|s| String::from_utf8_lossy(s).to_string()),
+            from: env
+                .from
+                .as_ref()
+                .map(|v| Self::parse_addresses(v))
+                .unwrap_or_default(),
+            to: env
+                .to
+                .as_ref()
+                .map(|v| Self::parse_addresses(v))
+                .unwrap_or_default(),
+            cc: env
+                .cc
+                .as_ref()
+                .map(|v| Self::parse_addresses(v))
+                .unwrap_or_default(),
+            bcc: env
+                .bcc
+                .as_ref()
+                .map(|v| Self::parse_addresses(v))
+                .unwrap_or_default(),
+            reply_to: env
+                .reply_to
+                .as_ref()
+                .map(|v| Self::parse_addresses(v))
+                .unwrap_or_default(),
+            message_id: env
+                .message_id
+                .as_ref()
+                .map(|m| String::from_utf8_lossy(m).to_string()),
+            in_reply_to: env
+                .in_reply_to
+                .as_ref()
+                .map(|i| String::from_utf8_lossy(i).to_string()),
         }
     }
 
@@ -402,7 +429,10 @@ impl MessageEnvelope {
                     String::from_utf8_lossy(mailbox),
                     String::from_utf8_lossy(host)
                 );
-                let name = addr.name.as_ref().map(|n| String::from_utf8_lossy(n).to_string());
+                let name = addr
+                    .name
+                    .as_ref()
+                    .map(|n| String::from_utf8_lossy(n).to_string());
                 Some(EmailAddr { email, name })
             })
             .collect()

@@ -14,12 +14,13 @@ impl SmtpTestClient {
     /// Create a new SMTP client without TLS (for testing)
     pub fn new_plain(host: &str, port: u16, email: &str, from_name: Option<&str>) -> Result<Self> {
         // Create transport without TLS
-        let transport = SmtpTransport::builder_dangerous(host)
-            .port(port)
-            .build();
+        let transport = SmtpTransport::builder_dangerous(host).port(port).build();
 
         let from_address = if let Some(name) = from_name {
-            Mailbox::new(Some(name.to_string()), email.parse().context("Invalid from email")?)
+            Mailbox::new(
+                Some(name.to_string()),
+                email.parse().context("Invalid from email")?,
+            )
         } else {
             Mailbox::new(None, email.parse().context("Invalid from email")?)
         };
@@ -32,8 +33,7 @@ impl SmtpTestClient {
 
     /// Send an email
     pub fn send_email(&self, email_data: EmailData) -> Result<()> {
-        let mut message_builder = Message::builder()
-            .from(self.from_address.clone());
+        let mut message_builder = Message::builder().from(self.from_address.clone());
 
         // Add To recipients
         for to in &email_data.to {

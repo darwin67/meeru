@@ -142,10 +142,10 @@ pub struct Email {
     pub subject: Option<String>,
     pub from_address: String,
     pub from_name: Option<String>,
-    pub to_addresses: String, // JSON
-    pub cc_addresses: Option<String>, // JSON
+    pub to_addresses: String,          // JSON
+    pub cc_addresses: Option<String>,  // JSON
     pub bcc_addresses: Option<String>, // JSON
-    pub reply_to: Option<String>, // JSON
+    pub reply_to: Option<String>,      // JSON
     pub date: DateTime<Utc>,
     pub received_at: DateTime<Utc>,
     pub size: i64,
