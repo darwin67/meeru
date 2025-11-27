@@ -1,11 +1,11 @@
 // Simplified IMAP client for testing (no TLS)
 use anyhow::{Context, Result};
-use async_imap::types::{Fetch, Mailbox as ImapMailbox, Name};
+use async_imap::types::Mailbox as ImapMailbox;
 use async_imap::Session;
 use async_std::net::TcpStream;
 use futures::stream::StreamExt;
 
-use super::imap::{EmailAddr, MailboxInfo, MessageData, MessageEnvelope};
+use super::imap::{MailboxInfo, MessageData};
 
 pub struct ImapTestClient {
     session: Session<TcpStream>,

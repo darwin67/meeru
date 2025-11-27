@@ -1,5 +1,4 @@
 use anyhow::{Context, Result};
-use keyring::Entry;
 use sqlx::SqlitePool;
 
 use crate::db::models::{Account, AuthType};
