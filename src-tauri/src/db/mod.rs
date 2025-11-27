@@ -45,3 +45,34 @@ impl Database {
         self.pool.close().await;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::TempDir;
+
+    async fn create_test_db() -> (Database, TempDir) {
+        let temp_dir = TempDir::new().unwrap();
+        let db_path = temp_dir.path().join("test.db");
+        let db = Database::new(db_path).await.unwrap();
+
+        // run migrations
+        db.migrate().await.unwrap();
+
+        (db, temp_dir)
+    }
+
+    #[tokio::test]
+    async fn test_db_creation() {
+        let (db, _tmpdir) = create_test_db().await;
+
+        // Verify tables exist by querying sqlite_master
+        let result: (i64,) = sqlx::query_as(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN ('accounts')",
+        )
+        .fetch_one(db.pool())
+        .await
+        .unwrap();
+        assert_eq!(result.0, 1, "Expected accounts table to be created");
+    }
+}
