@@ -26,7 +26,7 @@ impl Database {
             .await
             .context("Failed to connect to database")?;
 
-        Ok(Self { pool: pool })
+        Ok(Self { pool })
     }
 
     pub async fn migrate(&self) -> Result<()> {
