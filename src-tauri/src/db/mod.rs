@@ -1,3 +1,5 @@
+pub mod model;
+
 use std::{path::PathBuf, str::FromStr};
 
 use anyhow::{Context, Result};
