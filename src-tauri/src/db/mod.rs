@@ -1,3 +1,4 @@
+pub mod imap;
 pub mod model;
 
 use std::{path::PathBuf, str::FromStr};
