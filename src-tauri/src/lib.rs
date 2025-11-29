@@ -2,6 +2,9 @@ pub mod db;
 pub mod email;
 pub mod state;
 
+#[cfg(test)]
+pub mod test;
+
 use state::AppState;
 use tauri::Manager;
 
