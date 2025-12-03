@@ -42,13 +42,6 @@
             cargo-tauri
             pkg-config
             openssl
-            # webkitgtk_6_0
-            gtk3
-            librsvg
-            libsoup_3
-            atkmm
-            at-spi2-atk
-            webkitgtk_4_1
 
             # Node
             typescript
@@ -63,6 +56,14 @@
             git-cliff
             claude-code
             sqlx-cli # to use with database interactions
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+            # Linux-only deps for Tauri
+            webkitgtk_6_0
+            gtk3
+            librsvg
+            libsoup_3
+            atkmm
+            at-spi2-atk
           ];
 
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
