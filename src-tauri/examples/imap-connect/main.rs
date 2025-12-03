@@ -28,7 +28,10 @@ async fn main() -> Result<()> {
     }
     // Log any errors encountered while loading native certs
     for error in cert_result.errors {
-        eprintln!("Warning: failed to load some native certificates: {}", error);
+        eprintln!(
+            "Warning: failed to load some native certificates: {}",
+            error
+        );
     }
 
     // Load custom certificate from dev/stalwart/tls/cert.pem
@@ -53,6 +56,8 @@ async fn main() -> Result<()> {
 
     let _client = Client::new(tls_stream);
     println!("created IMAP client");
+
+    // TODO create users in stalwart via config and test login here
 
     Ok(())
 }
