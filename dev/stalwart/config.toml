@@ -71,3 +71,8 @@ enable = true
 user = "admin"
 # password => LgWksaD5dD
 secret = "$6$pat2OvoZWGPUN0c3$YWJ7EJRLhf4iXv2bH8syJLnaufBt6u2amlwZRorHQIrPw1Cmuh384Zi3vjMNZw98sflK7tPlmx370I7Ou5bUc."
+
+[certificate."default"]
+cert = "%{file:/opt/stalwart/etc/tls/cert.pem}%"
+private-key = "%{file:/opt/stalwart/etc/tls/key.pem}%"
+default = true

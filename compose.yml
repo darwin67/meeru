@@ -5,7 +5,7 @@ services:
       - mail-network
     volumes:
       - stalwart-data:/opt/stalwart-mail
-      - $PWD/dev/stalwart/config.toml:/opt/stalwart/etc/config.toml
+      - $PWD/dev/stalwart:/opt/stalwart/etc
     restart: unless-stopped
     ports:
       # Web Admin Interface
