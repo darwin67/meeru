@@ -80,7 +80,7 @@ async fn main() -> Result<()> {
 
     // extract the message's body
     let body = message.body().expect("message did not have a body!");
-    let body = std::str::from_utf8(body)
+    let _body = std::str::from_utf8(body)
         .expect("message was not valid utf-8")
         .to_string();
     println!("-- 1 message received, logging out");
