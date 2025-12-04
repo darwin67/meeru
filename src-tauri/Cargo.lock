@@ -2566,6 +2566,7 @@ version = "0.0.1"
 dependencies = [
  "anyhow",
  "async-imap",
+ "futures-util",
  "rustls",
  "rustls-native-certs",
  "rustls-pemfile",

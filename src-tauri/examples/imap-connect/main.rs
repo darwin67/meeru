@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use async_imap::Client;
+use futures_util::TryStreamExt;
 use rustls_native_certs::load_native_certs;
 use std::fs::File;
 use std::io::BufReader;
@@ -54,10 +55,38 @@ async fn main() -> Result<()> {
     let domain = rustls::pki_types::ServerName::try_from(imap_server)?;
     let tls_stream = connector.connect(domain, tcp_stream).await?;
 
-    let _client = Client::new(tls_stream);
+    let client = Client::new(tls_stream);
     println!("created IMAP client");
 
     // TODO create users in stalwart via config and test login here
+    let login = "hello";
+    let mut session = client.login(login, "supersecure").await.map_err(|e| e.0)?;
+    println!("-- logged in a {}", login);
+
+    session.select("INBOX").await?;
+    println!("-- INBOX selected");
+
+    // fetch message number 1 in this mailbox, along with its RFC822 field.
+    // RFC 822 dictates the format of the body of e-mails
+    let messages_stream = session.fetch("1", "RFC822").await?;
+    let messages: Vec<_> = messages_stream.try_collect().await?;
+    let message = if let Some(m) = messages.first() {
+        m
+    } else {
+        println!("-- No messages found in INBOX");
+        session.logout().await?;
+        return Ok(());
+    };
+
+    // extract the message's body
+    let body = message.body().expect("message did not have a body!");
+    let body = std::str::from_utf8(body)
+        .expect("message was not valid utf-8")
+        .to_string();
+    println!("-- 1 message received, logging out");
+
+    // be nice to the server and log out
+    session.logout().await?;
 
     Ok(())
 }
