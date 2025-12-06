@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 use testcontainers::{
     core::{IntoContainerPort, WaitFor},
     runners::AsyncRunner,
-    ContainerAsync, GenericImage,
+    ContainerAsync, GenericImage, ImageExt,
 };
 
 pub struct TestEmailServer {
@@ -26,6 +26,8 @@ pub struct TestEmailServer {
     enable_pop3s: bool,
     // enables GreenMail API port 8080
     enable_api: bool,
+    // users as (user, passwd, domain) tuples
+    users: Vec<(String, String, String)>,
 }
 
 impl Default for TestEmailServer {
@@ -40,6 +42,7 @@ impl Default for TestEmailServer {
             enable_pop3: false,
             enable_pop3s: false,
             enable_api: false,
+            users: Vec::new(),
         }
     }
 }
@@ -74,6 +77,12 @@ impl TestEmailServer {
         self
     }
 
+    pub fn user(mut self, user: &str, passwd: &str, domain: &str) -> Self {
+        self.users
+            .push((user.to_string(), passwd.to_string(), domain.to_string()));
+        self
+    }
+
     pub async fn setup(&self) -> Result<ContainerAsync<GenericImage>> {
         let mut img = GenericImage::new(&self.image, &self.tag);
 
@@ -99,7 +108,20 @@ impl TestEmailServer {
             img = img.with_exposed_port(8080.tcp());
         }
 
+        // Build GREENMAIL_OPTS with base configuration
+        let mut greenmail_opts = "-Dgreenmail.setup.all -Dgreenmail.verbose".to_string();
+        if !self.users.is_empty() {
+            let users_str = self
+                .users
+                .iter()
+                .map(|(user, passwd, domain)| format!("{}:{}@{}", user, passwd, domain))
+                .collect::<Vec<_>>()
+                .join(",");
+            greenmail_opts.push_str(&format!(" -Dgreenmail.users={}", users_str));
+        }
+
         img.with_wait_for(WaitFor::message_on_stdout("Starting GreenMail API server"))
+            .with_env_var("GREENMAIL_OPTS", greenmail_opts)
             .start()
             .await
             .context("Failed to start email server for test")
