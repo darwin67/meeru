@@ -22,11 +22,22 @@ mod test {
 
     #[tokio::test]
     async fn test_plain_client() {
-        let serv = TestEmailServer::new().setup().await.unwrap();
+        let serv = TestEmailServer::new()
+            .user("testuser", "testpass", "example.com")
+            .setup()
+            .await
+            .unwrap();
         let host = "127.0.0.1";
         let imap_port = serv.get_host_port_ipv4(143).await.unwrap();
 
-        let res = plain_client(host, imap_port).await;
-        assert!(res.is_ok());
+        let client = plain_client(host, imap_port).await.unwrap();
+
+        // Authenticate with the custom user (GreenMail uses local_part by default for login)
+        let auth = client.login("testuser", "testpass").await;
+
+        assert!(
+            auth.is_ok(),
+            "Authentication should succeed with custom user"
+        );
     }
 }

@@ -109,7 +109,8 @@ impl TestEmailServer {
         }
 
         // Build GREENMAIL_OPTS with base configuration
-        let mut greenmail_opts = "-Dgreenmail.setup.all -Dgreenmail.verbose".to_string();
+        let mut greenmail_opts =
+            "-Dgreenmail.hostname=0.0.0.0 -Dgreenmail.setup.all -Dgreenmail.verbose".to_string();
         if !self.users.is_empty() {
             let users_str = self
                 .users
