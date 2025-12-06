@@ -1,7 +1,14 @@
 use anyhow::{Context, Result};
+use async_imap::Client;
 use tokio::net::TcpStream;
 
-pub async fn connect(host: &str, port: u16) -> Result<TcpStream> {
+// plain_client creates a plain text IMAP client
+pub async fn plain_client(host: &str, port: u16) -> Result<Client<TcpStream>> {
+    let stream = connect(host, port).await?;
+    Ok(Client::new(stream))
+}
+
+async fn connect(host: &str, port: u16) -> Result<TcpStream> {
     let addr = (host, port);
     TcpStream::connect(addr)
         .await
@@ -14,10 +21,12 @@ mod test {
     use crate::test::email_server;
 
     #[tokio::test]
-    async fn test_connect_imap() {
+    async fn test_plain_client() {
+        let host = "127.0.0.1";
         let serv = email_server().await.unwrap();
         let imap_port = serv.get_host_port_ipv4(3143).await.unwrap();
 
-        assert!(connect("127.0.0.1", imap_port).await.is_ok());
+        let res = plain_client(host, imap_port).await;
+        assert!(res.is_ok());
     }
 }
