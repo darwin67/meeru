@@ -1,3 +1,5 @@
+use std::default::Default;
+
 use anyhow::{Context, Result};
 use testcontainers::{
     core::{IntoContainerPort, WaitFor},
@@ -5,17 +7,101 @@ use testcontainers::{
     ContainerAsync, GenericImage,
 };
 
-pub async fn email_server() -> Result<ContainerAsync<GenericImage>> {
-    GenericImage::new("greenmail/standalone", "2.1.7")
-        .with_exposed_port(3143.tcp()) // IMAP
-        .with_exposed_port(3993.tcp()) // IMAPS
-        .with_exposed_port(3025.tcp()) // SMTP
-        .with_exposed_port(3465.tcp()) // SMTPS
-        .with_exposed_port(3110.tcp()) // POP3
-        .with_exposed_port(3995.tcp()) // POP3s
-        .with_exposed_port(8080.tcp()) // GreenMail API
-        .with_wait_for(WaitFor::message_on_stdout("Starting GreenMail API server"))
-        .start()
-        .await
-        .context("Failed to start email server for test")
+pub struct TestEmailServer {
+    // docker image name (default: "greenmail/standalone")
+    image: String,
+    // docker image tag (default: "2.1.7")
+    tag: String,
+    // enables SMTP port 25
+    enable_smtp: bool,
+    // enables SMTPS port 465
+    enable_smtps: bool,
+    // enables IMAP port 143
+    enable_imap: bool,
+    // enables IMAPS port 993
+    enable_imaps: bool,
+    // enables POP3 port 110
+    enable_pop3: bool,
+    // enables POP3S port 995
+    enable_pop3s: bool,
+    // enables GreenMail API port 8080
+    enable_api: bool,
+}
+
+impl Default for TestEmailServer {
+    fn default() -> Self {
+        TestEmailServer {
+            image: "greenmail/standalone".to_string(),
+            tag: "2.1.7".to_string(),
+            enable_smtp: true,
+            enable_smtps: true,
+            enable_imap: true,
+            enable_imaps: true,
+            enable_pop3: false,
+            enable_pop3s: false,
+            enable_api: false,
+        }
+    }
+}
+
+impl TestEmailServer {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn image(mut self, img: &str) -> Self {
+        self.image = img.to_string();
+        self
+    }
+
+    pub fn tag(mut self, tag: &str) -> Self {
+        self.tag = tag.to_string();
+        self
+    }
+
+    pub fn pop3(mut self) -> Self {
+        self.enable_pop3 = true;
+        self
+    }
+
+    pub fn pop3s(mut self) -> Self {
+        self.enable_pop3s = true;
+        self
+    }
+
+    pub fn api(mut self) -> Self {
+        self.enable_api = true;
+        self
+    }
+
+    pub async fn setup(&self) -> Result<ContainerAsync<GenericImage>> {
+        let mut img = GenericImage::new(&self.image, &self.tag);
+
+        if self.enable_smtp {
+            img = img.with_exposed_port(25.tcp());
+        }
+        if self.enable_smtps {
+            img = img.with_exposed_port(465.tcp());
+        }
+        if self.enable_imap {
+            img = img.with_exposed_port(143.tcp());
+        }
+        if self.enable_imaps {
+            img = img.with_exposed_port(993.tcp());
+        }
+        if self.enable_pop3 {
+            img = img.with_exposed_port(110.tcp());
+        }
+        if self.enable_pop3s {
+            img = img.with_exposed_port(995.tcp());
+        }
+        if self.enable_api {
+            img = img.with_exposed_port(8080.tcp());
+        }
+
+        img.with_wait_for(WaitFor::message_on_stdout("Starting GreenMail API server"))
+            .start()
+            .await
+            .context("Failed to start email server for test")
+    }
 }
