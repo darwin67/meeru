@@ -1,0 +1,16 @@
+From: sender@example.com
+To: testuser@example.com
+Subject: Welcome to Meeru!
+Date: Mon, 1 Jan 2024 10:00:00 +0000
+Message-ID: <welcome-001@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Hello!
+
+Welcome to Meeru, your new email client. We're excited to have you on board!
+
+This is a sample email to help you get started with testing the application.
+
+Best regards,
+The Meeru Team

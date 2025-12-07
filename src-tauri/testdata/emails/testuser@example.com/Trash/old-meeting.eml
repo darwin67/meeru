@@ -1,0 +1,17 @@
+From: scheduler@acme.corp
+To: testuser@example.com
+Subject: Weekly Standup - Canceled
+Date: Mon, 25 Dec 2023 08:00:00 +0000
+Message-ID: <trash-meeting-001@acme.corp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Hi team,
+
+Due to the holiday break, this week's standup meeting has been canceled.
+
+We'll resume our regular schedule on January 2nd.
+
+Enjoy your holidays!
+
+Scheduler Bot

@@ -1,0 +1,46 @@
+From: notifications@github.com
+To: testuser@example.com
+Subject: [meeru-app/meeru] New issue: Email sync fails with IMAP IDLE (#42)
+Date: Fri, 5 Jan 2024 11:22:00 +0000
+Message-ID: <github-notif-005@github.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+New issue opened by @developer123
+
+Repository: meeru-app/meeru
+Issue #42: Email sync fails with IMAP IDLE
+
+---
+
+### Description
+When attempting to use IMAP IDLE for real-time email synchronization,
+the connection times out after approximately 5 minutes.
+
+### Steps to Reproduce
+1. Connect to IMAP server with IDLE support
+2. Enter IDLE mode
+3. Wait for 5+ minutes
+4. Observe connection timeout error
+
+### Expected Behavior
+IMAP IDLE connection should remain active and receive push notifications
+for new emails.
+
+### Actual Behavior
+Connection drops after ~5 minutes with error:
+"TLS connection timeout: no response from server"
+
+### Environment
+- Meeru version: 0.1.0
+- OS: Linux (Ubuntu 22.04)
+- Server: Gmail IMAP
+
+### Possible Solution
+Implement keep-alive packets or NOOP commands to maintain connection.
+
+---
+
+View on GitHub: https://github.com/meeru-app/meeru/issues/42
+Unsubscribe: https://github.com/notifications/unsubscribe/...
+

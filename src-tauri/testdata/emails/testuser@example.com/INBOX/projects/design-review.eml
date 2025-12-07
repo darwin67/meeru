@@ -1,0 +1,34 @@
+From: designer@acme.corp
+To: testuser@example.com
+Subject: Design Review: New Email Composer UI
+Date: Mon, 8 Jan 2024 15:45:00 +0000
+Message-ID: <design-review-006@acme.corp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Hi,
+
+I've finished the mockups for the new email composer interface.
+Here are the key changes:
+
+IMPROVEMENTS:
+- Cleaner, more modern layout
+- Better attachment handling UI
+- Inline formatting toolbar
+- Rich text preview pane
+- Quick access to templates
+
+ACCESSIBILITY:
+- High contrast mode support
+- Keyboard navigation improved
+- Screen reader optimizations
+- ARIA labels added throughout
+
+The Figma file is ready for review:
+https://figma.com/file/abc123/email-composer-v2
+
+Please review by end of week and let me know your feedback!
+
+Best,
+Sarah
+UX Designer

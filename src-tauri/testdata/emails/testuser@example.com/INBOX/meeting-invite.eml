@@ -1,0 +1,26 @@
+From: alice@acme.corp
+To: testuser@example.com
+Subject: Team Meeting - Q1 Planning
+Date: Tue, 2 Jan 2024 14:30:00 +0000
+Message-ID: <meeting-invite-002@acme.corp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Hi there,
+
+I'd like to schedule our Q1 planning meeting for next week.
+
+Proposed time: Thursday, January 11th at 2:00 PM
+Duration: 1 hour
+Location: Conference Room B (or Zoom if remote)
+
+Please let me know if this works for you.
+
+Agenda:
+- Review Q4 achievements
+- Set Q1 goals and objectives
+- Resource allocation
+- Team initiatives
+
+Thanks!
+Alice
