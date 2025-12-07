@@ -31,6 +31,8 @@ pub struct TestEmailServer {
     users: Vec<(String, String, String)>,
     // custom TLS keystore (host_path, keystore_password, key_password)
     tls_keystore: Option<(String, String, Option<String>)>,
+    // preload directory with email data (host_path)
+    preload_dir: Option<String>,
 }
 
 impl Default for TestEmailServer {
@@ -47,6 +49,7 @@ impl Default for TestEmailServer {
             enable_api: false,
             users: Vec::new(),
             tls_keystore: None,
+            preload_dir: None,
         }
     }
 }
@@ -101,6 +104,11 @@ impl TestEmailServer {
         self
     }
 
+    pub fn preload_dir(mut self, host_path: &str) -> Self {
+        self.preload_dir = Some(host_path.to_string());
+        self
+    }
+
     pub async fn setup(&self) -> Result<ContainerAsync<GenericImage>> {
         let mut img = GenericImage::new(&self.image, &self.tag);
 
@@ -150,6 +158,11 @@ impl TestEmailServer {
             }
         }
 
+        // Configure preload directory if provided
+        if self.preload_dir.is_some() {
+            greenmail_opts.push_str(" -Dgreenmail.preload.dir=/home/greenmail/preload");
+        }
+
         // Convert to ContainerRequest
         let mut req = img
             .with_wait_for(WaitFor::message_on_stdout("Starting GreenMail API server"))
@@ -158,6 +171,11 @@ impl TestEmailServer {
         // Copy custom TLS keystore if provided
         if let Some((host_path, _, _)) = &self.tls_keystore {
             req = req.with_copy_to("/home/greenmail/greenmail.p12", Path::new(host_path));
+        }
+
+        // Copy preload directory if provided
+        if let Some(preload_path) = &self.preload_dir {
+            req = req.with_copy_to("/home/greenmail/preload", Path::new(preload_path));
         }
 
         req.start()

@@ -120,7 +120,6 @@ mod test {
         let serv = TestEmailServer::new()
             .user("testuser", "yolo", "example.com")
             .tls_keystore(&keystore_path, "supersecure", None)
-            .api()
             .setup()
             .await
             .unwrap();
@@ -139,5 +138,49 @@ mod test {
             auth.is_ok(),
             "Authentication should succeed with TLS client and custom user"
         );
+    }
+
+    #[tokio::test]
+    async fn test_preload_emails() {
+        // Install default crypto provider for rustls
+        let _ = rustls::crypto::ring::default_provider().install_default();
+
+        // Get absolute paths
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let keystore_path = format!("{}/testdata/certs/greenmail.p12", manifest_dir);
+        let ca_cert_path = format!("{}/testdata/certs/ca-cert.pem", manifest_dir);
+        let preload_path = format!("{}/testdata/emails", manifest_dir);
+
+        let serv = TestEmailServer::new()
+            .tls_keystore(&keystore_path, "supersecure", None)
+            .preload_dir(&preload_path)
+            .setup()
+            .await
+            .unwrap();
+        let host = "127.0.0.1";
+        let imaps_port = serv.get_host_port_ipv4(993).await.unwrap();
+
+        // Connect with TLS
+        let client = tls_client(host, imaps_port, Some(Path::new(&ca_cert_path)))
+            .await
+            .unwrap();
+
+        // Authenticate (password defaults to email address when using preload)
+        let mut session = client
+            .login("testuser@example.com", "testuser@example.com")
+            .await
+            .map_err(|e| e.0)
+            .unwrap();
+
+        // Select INBOX and verify emails were loaded
+        session.select("INBOX").await.unwrap();
+
+        assert!(
+            session.examine("INBOX").await.is_ok(),
+            "INBOX should exist and be accessible"
+        );
+
+        // Logout
+        session.logout().await.unwrap();
     }
 }
