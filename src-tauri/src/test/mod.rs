@@ -1,4 +1,5 @@
 use std::default::Default;
+use std::path::Path;
 
 use anyhow::{Context, Result};
 use testcontainers::{
@@ -28,6 +29,8 @@ pub struct TestEmailServer {
     enable_api: bool,
     // users as (user, passwd, domain) tuples
     users: Vec<(String, String, String)>,
+    // custom TLS keystore (host_path, keystore_password, key_password)
+    tls_keystore: Option<(String, String, Option<String>)>,
 }
 
 impl Default for TestEmailServer {
@@ -43,6 +46,7 @@ impl Default for TestEmailServer {
             enable_pop3s: false,
             enable_api: false,
             users: Vec::new(),
+            tls_keystore: None,
         }
     }
 }
@@ -80,6 +84,20 @@ impl TestEmailServer {
     pub fn user(mut self, user: &str, passwd: &str, domain: &str) -> Self {
         self.users
             .push((user.to_string(), passwd.to_string(), domain.to_string()));
+        self
+    }
+
+    pub fn tls_keystore(
+        mut self,
+        host_path: &str,
+        keystore_password: &str,
+        key_password: Option<&str>,
+    ) -> Self {
+        self.tls_keystore = Some((
+            host_path.to_string(),
+            keystore_password.to_string(),
+            key_password.map(|s| s.to_string()),
+        ));
         self
     }
 
@@ -121,9 +139,28 @@ impl TestEmailServer {
             greenmail_opts.push_str(&format!(" -Dgreenmail.users={}", users_str));
         }
 
-        img.with_wait_for(WaitFor::message_on_stdout("Starting GreenMail API server"))
-            .with_env_var("GREENMAIL_OPTS", greenmail_opts)
-            .start()
+        // Configure custom TLS keystore if provided
+        if let Some((_host_path, keystore_password, key_password)) = &self.tls_keystore {
+            greenmail_opts.push_str(&format!(
+                " -Dgreenmail.tls.keystore.file=/home/greenmail/greenmail.p12 -Dgreenmail.tls.keystore.password={}",
+                keystore_password
+            ));
+            if let Some(key_pwd) = key_password {
+                greenmail_opts.push_str(&format!(" -Dgreenmail.tls.key.password={}", key_pwd));
+            }
+        }
+
+        // Convert to ContainerRequest
+        let mut req = img
+            .with_wait_for(WaitFor::message_on_stdout("Starting GreenMail API server"))
+            .with_env_var("GREENMAIL_OPTS", greenmail_opts);
+
+        // Copy custom TLS keystore if provided
+        if let Some((host_path, _, _)) = &self.tls_keystore {
+            req = req.with_copy_to("/home/greenmail/greenmail.p12", Path::new(host_path));
+        }
+
+        req.start()
             .await
             .context("Failed to start email server for test")
     }

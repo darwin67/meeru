@@ -2,6 +2,9 @@ use anyhow::{Context, Result};
 use async_imap::Client;
 use rustls::ClientConfig;
 use rustls_native_certs::load_native_certs;
+use std::fs::File;
+use std::io::BufReader;
+use std::path::Path;
 use std::sync::Arc;
 use tokio::net::TcpStream;
 use tokio_rustls::{client::TlsStream, TlsConnector};
@@ -12,22 +15,44 @@ pub async fn plain_client(host: &str, port: u16) -> Result<Client<TcpStream>> {
     Ok(Client::new(conn))
 }
 
-pub async fn tls_client(host: &str, port: u16) -> Result<Client<TlsStream<TcpStream>>> {
+pub async fn tls_client(
+    host: &str,
+    port: u16,
+    ca_cert_path: Option<&Path>,
+) -> Result<Client<TlsStream<TcpStream>>> {
     let conn = connect(host, port).await?;
 
     // Create TLS configuration with native certificates
     let mut root_cert_store = rustls::RootCertStore::empty();
-    let cert_result = load_native_certs();
-    for cert in cert_result.certs {
-        root_cert_store.add(cert).context("failed to add cert")?;
-    }
-    // Log any errors encountered while loading native certs
-    // TODO this might potentially need to show to the UI if there are loading issues
-    for error in cert_result.errors {
-        eprintln!(
-            "Warning: failed to load some native certificates: {}",
-            error
-        );
+
+    // Load custom CA certificate if provided
+    if let Some(ca_path) = ca_cert_path {
+        let cert_file = File::open(ca_path)
+            .with_context(|| format!("Failed to open CA certificate file: {:?}", ca_path))?;
+        let mut cert_reader = BufReader::new(cert_file);
+        let certs = rustls_pemfile::certs(&mut cert_reader)
+            .collect::<Result<Vec<_>, _>>()
+            .context("Failed to parse CA certificate file")?;
+
+        for cert in certs {
+            root_cert_store
+                .add(cert)
+                .context("Failed to add custom CA certificate")?;
+        }
+    } else {
+        // Load native certificates only if no custom CA is provided
+        let cert_result = load_native_certs();
+        for cert in cert_result.certs {
+            root_cert_store.add(cert).context("failed to add cert")?;
+        }
+        // Log any errors encountered while loading native certs
+        // TODO this might potentially need to show to the UI if there are loading issues
+        for error in cert_result.errors {
+            eprintln!(
+                "Warning: failed to load some native certificates: {}",
+                error
+            );
+        }
     }
 
     let config = ClientConfig::builder()
@@ -87,16 +112,25 @@ mod test {
         // Install default crypto provider for rustls
         let _ = rustls::crypto::ring::default_provider().install_default();
 
+        // Get absolute paths to certificate files
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let keystore_path = format!("{}/testdata/certs/greenmail.p12", manifest_dir);
+        let ca_cert_path = format!("{}/testdata/certs/ca-cert.pem", manifest_dir);
+
         let serv = TestEmailServer::new()
             .user("testuser", "yolo", "example.com")
+            .tls_keystore(&keystore_path, "supersecure", None)
+            .api()
             .setup()
             .await
             .unwrap();
         let host = "127.0.0.1";
         let imaps_port = serv.get_host_port_ipv4(993).await.unwrap();
 
-        // Use insecure client for testing with GreenMail's self-signed certificate
-        let client = tls_client(host, imaps_port).await.unwrap();
+        // Use custom CA certificate for testing with GreenMail's self-signed certificate
+        let client = tls_client(host, imaps_port, Some(Path::new(&ca_cert_path)))
+            .await
+            .unwrap();
 
         // Authenticate with the custom user (GreenMail uses local_part by default for login)
         let auth = client.login("testuser", "yolo").await;
