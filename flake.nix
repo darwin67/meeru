@@ -35,37 +35,39 @@
         devShells.default = pkgs.mkShell {
           packages = [ corepack ];
 
-          buildInputs = with pkgs; [
-            rustToolchain
+          buildInputs = with pkgs;
+            [
+              rustToolchain
 
-            # deps
-            cargo-tauri
-            pkg-config
-            openssl
+              # deps
+              cargo-tauri
+              pkg-config
+              openssl
 
-            # Node
-            typescript
-            nodejs_24
+              # Node
+              typescript
+              nodejs_24
 
-            # LSPs
-            nodePackages.typescript-language-server
-            nodePackages.vscode-json-languageserver
-            nodePackages.yaml-language-server
+              # LSPs
+              nodePackages.typescript-language-server
+              nodePackages.vscode-json-languageserver
+              nodePackages.yaml-language-server
 
-            # Tools
-            git-cliff
-            claude-code
-            sqlx-cli # to use with database interactions
-            docker-compose
-          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
-            # Linux-only deps for Tauri
-            webkitgtk_6_0
-            gtk3
-            librsvg
-            libsoup_3
-            atkmm
-            at-spi2-atk
-          ];
+              # Tools
+              git-cliff
+              claude-code
+              sqlx-cli # to use with database interactions
+              docker-compose
+              sops
+            ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+              # Linux-only deps for Tauri
+              webkitgtk_6_0
+              gtk3
+              librsvg
+              libsoup_3
+              atkmm
+              at-spi2-atk
+            ];
 
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
         };
