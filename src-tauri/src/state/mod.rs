@@ -10,6 +10,7 @@ pub struct AppState {
 
 impl AppState {
     pub async fn new(app_data_dir: PathBuf) -> Result<Self> {
+        // Use different database names for development and production
         let db_path = app_data_dir.join("meeru.db");
         let db = Database::new(db_path).await?;
 

@@ -1,0 +1,31 @@
+From: testuser@example.com
+To: bob@acme.corp
+Subject: [DRAFT] Feature Proposal: Offline Email Support
+Date: Wed, 10 Jan 2024 09:30:00 +0000
+Message-ID: <draft-feature-001@example.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Hi Bob,
+
+I wanted to propose a new feature for Meeru - offline email support.
+
+OVERVIEW:
+Users should be able to read, compose, and organize emails even when
+offline. Changes would sync automatically when connection is restored.
+
+KEY FEATURES:
+1. Local cache of recent emails
+2. Offline compose and queue sending
+3. Background sync when online
+4. Conflict resolution for folder changes
+
+TECHNICAL APPROACH:
+- SQLite database for local storage
+- Service worker for background sync
+- Delta sync protocol to minimize bandwidth
+
+I'm still working on the implementation details and timeline.
+Would love to discuss this in our next 1:1.
+
+[DRAFT - NOT SENT]

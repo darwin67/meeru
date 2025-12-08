@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# Get the project root directory (parent of scripts/)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Set up database path for development
+DB_DIR="$PROJECT_ROOT/src-tauri/target/debug/db"
+DB_FILE="$DB_DIR/meeru.db"
+export DATABASE_URL="sqlite:$DB_FILE"
+
+# Show usage
+usage() {
+    echo "Usage: $0 <command> [args]"
+    echo ""
+    echo "Commands:"
+    echo "  add <name>      Create a new migration and run all migrations"
+    echo "  run             Run all pending migrations"
+    echo "  reset           Drop the database, recreate it, and run all migrations"
+    echo "  setup           Create the database and run all migrations"
+    echo "  info            Show migration status information"
+    echo "  macros <cmd>    Manage sqlx compile-time macros"
+    echo "    prepare       Generate sqlx-data.json for offline compilation"
+    echo "    check         Verify sqlx-data.json is up to date"
+    echo ""
+    echo "Examples:"
+    echo "  $0 add add_emails"
+    echo "  $0 run"
+    echo "  $0 reset"
+    echo "  $0 setup"
+    echo "  $0 info"
+    echo "  $0 macros prepare"
+    echo "  $0 macros check"
+    exit 1
+}
+
+# Run migrations
+run_migrations() {
+    mkdir -p "$DB_DIR"
+
+    # Create database if it doesn't exist
+    if [ ! -f "$DB_FILE" ]; then
+        echo "Creating database at $DB_FILE..."
+        sqlx database create
+    fi
+
+    echo "Running migrations..."
+    sqlx migrate run --source "$PROJECT_ROOT/src-tauri/migrations"
+    echo "Migrations applied successfully!"
+}
+
+# Reset database (drop and recreate)
+reset_database() {
+    mkdir -p "$DB_DIR"
+    echo "Resetting database..."
+    sqlx database reset --source "$PROJECT_ROOT/src-tauri/migrations" -y
+    echo "Database reset complete!"
+}
+
+# Setup database (create and run migrations)
+setup_database() {
+    mkdir -p "$DB_DIR"
+    echo "Setting up database..."
+    sqlx database setup --source "$PROJECT_ROOT/src-tauri/migrations"
+    echo "Database setup complete!"
+}
+
+# Show migration info
+info_migrations() {
+    sqlx migrate info --source "$PROJECT_ROOT/src-tauri/migrations"
+}
+
+# Prepare sqlx macros for offline compilation
+prepare_macros() {
+    echo "Preparing sqlx macros..."
+    cd "$PROJECT_ROOT/src-tauri"
+    cargo sqlx prepare
+    echo "Macros prepared successfully!"
+}
+
+# Check if sqlx macros are up to date
+check_macros() {
+    echo "Checking sqlx macros..."
+    cd "$PROJECT_ROOT/src-tauri"
+    cargo sqlx prepare --check
+}
+
+# Handle subcommands
+case "${1:-}" in
+    add)
+        if [ $# -lt 2 ]; then
+            echo "Error: Migration name required"
+            echo "Usage: $0 add <migration_name>"
+            exit 1
+        fi
+        shift
+        echo "Creating migration: $*"
+        sqlx migrate add --source "$PROJECT_ROOT/src-tauri/migrations" "$*"
+        run_migrations
+        ;;
+    run)
+        run_migrations
+        ;;
+    reset)
+        reset_database
+        ;;
+    setup)
+        setup_database
+        ;;
+    info)
+        info_migrations
+        ;;
+    macros)
+        case "${2:-}" in
+            prepare)
+                prepare_macros
+                ;;
+            check)
+                check_macros
+                ;;
+            *)
+                echo "Error: Invalid macros subcommand"
+                echo "Usage: $0 macros <prepare|check>"
+                exit 1
+                ;;
+        esac
+        ;;
+    *)
+        usage
+        ;;
+esac

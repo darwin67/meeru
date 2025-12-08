@@ -1,7 +1,12 @@
 pub mod db;
+pub mod email;
 pub mod state;
 
+#[cfg(test)]
+pub mod test;
+
 use state::AppState;
+use std::path::PathBuf;
 use tauri::Manager;
 
 // // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -12,11 +17,19 @@ fn greet(name: &str) -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // install default crypto provider for rustls
+    let _ = rustls::crypto::ring::default_provider().install_default();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            // Get app data directory
-            let app_data_dir = app.path().app_data_dir()?;
+            let app_data_dir = if cfg!(debug_assertions) {
+                // Use target/debug/db for development
+                PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("target/debug/db")
+            } else {
+                // Get app data directory
+                app.path().app_data_dir()?
+            };
 
             // Ensure the directory exists
             std::fs::create_dir_all(&app_data_dir)?;

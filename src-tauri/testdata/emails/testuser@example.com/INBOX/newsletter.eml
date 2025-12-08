@@ -1,0 +1,50 @@
+From: newsletter@techweekly.com
+To: testuser@example.com
+Subject: TechWeekly Digest - Top 5 Stories This Week
+Date: Thu, 4 Jan 2024 08:00:00 +0000
+Message-ID: <newsletter-004@techweekly.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+═══════════════════════════════════════
+   TECHWEEKLY - Your Weekly Tech Digest
+═══════════════════════════════════════
+
+📰 TOP STORIES THIS WEEK
+
+1. RUST 1.75 RELEASED
+   The Rust team announces the latest version with improved async
+   performance and new standard library features.
+   Read more: https://blog.rust-lang.org/...
+
+2. NEW EMAIL PROTOCOLS EMERGING
+   Industry leaders discuss next-generation email protocols
+   focused on security and privacy.
+   Read more: https://techweekly.com/email-future...
+
+3. OPEN SOURCE SUSTAINABILITY
+   Major corporations pledge $50M to support critical open
+   source infrastructure projects.
+   Read more: https://techweekly.com/oss-funding...
+
+4. TAURI 2.0 STABLE RELEASE
+   Cross-platform desktop framework reaches stability with
+   mobile support and enhanced security.
+   Read more: https://tauri.app/blog/...
+
+5. AI CODING ASSISTANTS EVOLVE
+   Latest generation of AI tools show 40% improvement in
+   code quality and developer productivity.
+   Read more: https://techweekly.com/ai-coding...
+
+═══════════════════════════════════════
+
+💡 TIP OF THE WEEK
+Use Rust's #[cfg(test)] attribute to organize test-specific
+code and keep your production binary lean.
+
+═══════════════════════════════════════
+
+Enjoying TechWeekly? Share with a friend!
+Unsubscribe: https://techweekly.com/unsubscribe/...
+

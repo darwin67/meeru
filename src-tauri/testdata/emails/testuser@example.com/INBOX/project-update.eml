@@ -1,0 +1,36 @@
+From: bob@acme.corp
+To: testuser@example.com
+Cc: alice@acme.corp, charlie@acme.corp
+Subject: [PROJECT-123] Sprint Review and Next Steps
+Date: Wed, 3 Jan 2024 09:15:00 +0000
+Message-ID: <project-update-003@acme.corp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Team,
+
+Great work on completing Sprint 12! Here's a quick summary:
+
+COMPLETED:
+✓ User authentication module (PROJ-456)
+✓ Email sync improvements (PROJ-457)
+✓ UI responsiveness fixes (PROJ-458)
+✓ Database migration scripts (PROJ-459)
+
+IN PROGRESS:
+→ TLS certificate handling (PROJ-460) - 80% complete
+→ Attachment preview (PROJ-461) - 60% complete
+
+UPCOMING SPRINT 13:
+- Search functionality
+- Folder management
+- Performance optimization
+- Unit test coverage improvements
+
+Blockers: None at this time.
+
+Next standup: Friday at 10 AM.
+
+Cheers,
+Bob
+Project Lead

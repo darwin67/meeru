@@ -1,0 +1,117 @@
+From: announcements@acme.corp
+To: testuser@example.com
+Subject: New Feature Release: Dark Mode & Performance Improvements
+Date: Wed, 3 Jan 2024 16:00:00 +0000
+Message-ID: <multipart-announce-001@acme.corp>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_12345_67890"
+
+------=_Part_12345_67890
+Content-Type: text/plain; charset=UTF-8
+
+New Feature Release: Dark Mode & Performance Improvements
+
+Hi everyone,
+
+We're excited to announce the latest update to Meeru!
+
+What's New:
+- Dark Mode: Easy on the eyes during late-night email sessions
+- 50% faster email loading
+- Improved search with instant results
+- Better attachment handling
+
+Try it out and let us know what you think!
+
+The Meeru Team
+https://meeru.app/changelog
+
+------=_Part_12345_67890
+Content-Type: text/html; charset=UTF-8
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .banner {
+            background: #1f2937;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .feature {
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            margin: 20px 0;
+            background: #f3f4f6;
+        }
+        .feature h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .cta {
+            text-align: center;
+            padding: 30px;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <h1>🌙 New Feature Release</h1>
+        <p>Dark Mode & Performance Improvements</p>
+    </div>
+
+    <div style="padding: 20px;">
+        <p>Hi everyone,</p>
+        <p>We're excited to announce the latest update to Meeru!</p>
+
+        <div class="feature">
+            <h3>🌙 Dark Mode</h3>
+            <p>Easy on the eyes during late-night email sessions. Automatically switches based on your system preferences.</p>
+        </div>
+
+        <div class="feature">
+            <h3>⚡ 50% Faster Loading</h3>
+            <p>We've optimized our email loading engine. Your inbox now loads in half the time.</p>
+        </div>
+
+        <div class="feature">
+            <h3>🔍 Improved Search</h3>
+            <p>Find anything instantly with our upgraded search that indexes all your emails in real-time.</p>
+        </div>
+
+        <div class="feature">
+            <h3>📎 Better Attachments</h3>
+            <p>Preview attachments without downloading. Support for more file types.</p>
+        </div>
+    </div>
+
+    <div class="cta">
+        <a href="https://meeru.app/changelog" class="button">View Full Changelog</a>
+    </div>
+
+    <div style="text-align: center; color: #666; font-size: 12px; padding: 20px;">
+        <p>The Meeru Team</p>
+        <p><a href="https://meeru.app">meeru.app</a></p>
+    </div>
+</body>
+</html>
+
+------=_Part_12345_67890--

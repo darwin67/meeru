@@ -1,3 +1,6 @@
+pub mod imap;
+pub mod model;
+
 use std::{path::PathBuf, str::FromStr};
 
 use anyhow::{Context, Result};
@@ -68,11 +71,11 @@ mod tests {
 
         // Verify tables exist by querying sqlite_master
         let result: (i64,) = sqlx::query_as(
-            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN ('accounts')",
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN ('accounts', 'account_endpoints', 'folders', 'messages', 'folder_messages', 'imap_folders_state', 'imap_message_state', 'pop3_state', 'pop3_message_state', 'jmap_state', 'jmap_message_state', 'eas_folder_state', 'eas_message_state')",
         )
         .fetch_one(db.pool())
         .await
         .unwrap();
-        assert_eq!(result.0, 1, "Expected accounts table to be created");
+        assert_eq!(result.0, 12, "Expected tables to be created");
     }
 }

@@ -1,0 +1,47 @@
+From: pm@acme.corp
+To: testuser@example.com
+Cc: team@acme.corp
+Subject: [ARCHIVED] Meeru Project Kickoff Meeting Notes
+Date: Mon, 1 Nov 2023 10:00:00 +0000
+Message-ID: <archive-kickoff-001@acme.corp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Team,
+
+Great kickoff meeting this morning! Here are the notes:
+
+PROJECT: Meeru Email Client
+START DATE: November 1, 2023
+TARGET LAUNCH: Q2 2024
+
+TEAM:
+- Product: Alice (PM)
+- Engineering: Bob (Lead), Charlie, testuser
+- Design: Sarah
+- QA: David
+
+KEY MILESTONES:
+- Dec 2023: Core IMAP/SMTP implementation
+- Jan 2024: UI/UX implementation
+- Feb 2024: Testing & bug fixes
+- Mar 2024: Beta release
+- Apr 2024: Production release
+
+TECHNOLOGY STACK:
+- Frontend: Tauri + SvelteKit
+- Backend: Rust
+- Database: SQLite
+- Protocols: IMAP, SMTP, (future: JMAP)
+
+NEXT STEPS:
+1. Set up development environment
+2. Create initial project structure
+3. Define API contracts
+4. Begin sprint planning
+
+Next meeting: Monday, November 8th
+
+Cheers,
+Alice
+Project Manager

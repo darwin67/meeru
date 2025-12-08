@@ -56,6 +56,7 @@
             git-cliff
             claude-code
             sqlx-cli # to use with database interactions
+            docker-compose
           ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             # Linux-only deps for Tauri
             webkitgtk_6_0

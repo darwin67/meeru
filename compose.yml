@@ -1,0 +1,32 @@
+services:
+  stalwart-mail:
+    image: ghcr.io/stalwartlabs/stalwart:v0.14.1
+    networks:
+      - mail-network
+    volumes:
+      - stalwart-data:/opt/stalwart-mail
+      - $PWD/dev/stalwart:/opt/stalwart/etc
+    restart: unless-stopped
+    ports:
+      # Web Admin Interface
+      - "18080:8080" # HTTP Admin
+      - "10443:443" # HTTPS Admin
+      # SMTP
+      - "25:25" # SMTP
+      - "587:587" # SMTP Submission
+      - "465:465" # SMTPS (SMTP over TLS)
+      # IMAP
+      - "143:143" # IMAP
+      - "993:993" # IMAPS (IMAP over TLS)
+      # POP3
+      - "110:110" # POP3
+      - "995:995" # POP3S (POP3 over TLS)
+      # ManageSieve
+      - "4190:4190" # ManageSieve
+
+networks:
+  mail-network:
+    driver: bridge
+
+volumes:
+  stalwart-data:

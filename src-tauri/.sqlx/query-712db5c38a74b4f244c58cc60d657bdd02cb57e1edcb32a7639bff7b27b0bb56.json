@@ -1,0 +1,50 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        SELECT folder_id, uid_validity, highest_modseq, uid_next, highest_uid, last_sync_ts\n        FROM imap_folder_state WHERE folder_id = ?\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "folder_id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "uid_validity",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "highest_modseq",
+        "ordinal": 2,
+        "type_info": "Integer"
+      },
+      {
+        "name": "uid_next",
+        "ordinal": 3,
+        "type_info": "Integer"
+      },
+      {
+        "name": "highest_uid",
+        "ordinal": 4,
+        "type_info": "Integer"
+      },
+      {
+        "name": "last_sync_ts",
+        "ordinal": 5,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "712db5c38a74b4f244c58cc60d657bdd02cb57e1edcb32a7639bff7b27b0bb56"
+}

@@ -1,0 +1,79 @@
+From: deals@super-savings-shop.biz
+To: testuser@example.com
+Subject: 🔥 MEGA SALE! 90% OFF Everything! Limited Time!
+Date: Sat, 6 Jan 2024 05:15:00 +0000
+Message-ID: <spam-promo-html-001@super-savings-shop.biz>
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background: #ff0000;">
+        <tr>
+            <td align="center" style="padding: 50px 20px;">
+                <h1 style="color: #ffff00; font-size: 48px; margin: 0; text-shadow: 2px 2px 4px #000;">
+                    🔥🔥🔥 MEGA SALE 🔥🔥🔥
+                </h1>
+                <h2 style="color: white; font-size: 36px; margin: 10px 0;">
+                    90% OFF EVERYTHING!!!
+                </h2>
+            </td>
+        </tr>
+    </table>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="background: #ffff00;">
+        <tr>
+            <td align="center" style="padding: 30px 20px;">
+                <p style="font-size: 24px; font-weight: bold; margin: 0;">
+                    ⏰ HURRY! ONLY 2 HOURS LEFT! ⏰
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <table width="100%" cellpadding="20" cellspacing="0">
+        <tr>
+            <td align="center">
+                <div style="max-width: 600px; text-align: center;">
+                    <p style="font-size: 20px; color: #ff0000; font-weight: bold;">
+                        DON'T MISS OUT ON THESE INCREDIBLE DEALS!
+                    </p>
+
+                    <div style="background: #f0f0f0; padding: 20px; margin: 20px 0;">
+                        <p style="font-size: 18px; margin: 10px 0;">
+                            ✓ Designer Watches - $5 (was $500!)<br>
+                            ✓ Luxury Handbags - $10 (was $1000!)<br>
+                            ✓ Premium Electronics - $15 (was $2000!)<br>
+                            ✓ And Much More!!!
+                        </p>
+                    </div>
+
+                    <p style="font-size: 16px;">
+                        <a href="http://super-savings-shop.biz/deals"
+                           style="display: inline-block; padding: 20px 40px; background: #ff0000;
+                                  color: white; text-decoration: none; font-size: 24px;
+                                  font-weight: bold; border-radius: 5px; margin: 20px 0;">
+                            🛒 SHOP NOW! 🛒
+                        </a>
+                    </p>
+
+                    <p style="font-size: 12px; color: #666;">
+                        Limited quantities available! These prices won't last!<br>
+                        Free shipping on orders over $5!*
+                    </p>
+
+                    <p style="font-size: 10px; color: #999; margin-top: 30px;">
+                        *Terms and conditions apply. Shipping costs may vary.<br>
+                        Items may not be exactly as pictured. No refunds.<br>
+                        Unsubscribe: Click here (but why would you?)
+                    </p>
+                </div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

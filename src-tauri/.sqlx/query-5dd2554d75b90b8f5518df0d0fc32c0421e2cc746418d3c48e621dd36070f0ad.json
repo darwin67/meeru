@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        INSERT INTO imap_folder_state (folder_id, uid_validity, highest_modseq, uid_next, highest_uid, last_sync_ts)\n        VALUES (?, NULL, NULL, NULL, NULL, NULL)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "5dd2554d75b90b8f5518df0d0fc32c0421e2cc746418d3c48e621dd36070f0ad"
+}
