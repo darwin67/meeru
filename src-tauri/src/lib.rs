@@ -22,6 +22,7 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_google_auth::init())
         .setup(|app| {
             let app_data_dir = if cfg!(debug_assertions) {
                 // Use target/debug/db for development
