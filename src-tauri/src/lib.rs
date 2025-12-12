@@ -9,10 +9,23 @@ use state::AppState;
 use std::path::PathBuf;
 use tauri::Manager;
 
-// // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+// Google OAuth2 configuration
+#[tauri::command]
+fn get_oauth_config() -> Result<serde_json::Value, String> {
+    // In production, load from secure config
+    // For development, return the config values
+    let config = serde_json::json!({
+        "client_id": "913235410408-c6kuf21o8401g7d52rcos51j2708v6dm.apps.googleusercontent.com",
+        "client_secret": "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",
+        "redirect_uri": "http://localhost"
+    });
+    Ok(config)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -47,7 +60,7 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![greet, get_oauth_config])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

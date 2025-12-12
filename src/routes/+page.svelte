@@ -1,13 +1,64 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
+  import { signIn, signOut } from "@choochmeque/tauri-plugin-google-auth-api";
 
   let name = $state("");
   let greetMsg = $state("");
+  let authStatus = $state("");
+  let userInfo = $state<any>(null);
+  let isAuthenticating = $state(false);
 
   async function greet(event: Event) {
     event.preventDefault();
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
     greetMsg = await invoke("greet", { name });
+  }
+
+  async function handleGoogleSignIn() {
+    isAuthenticating = true;
+    authStatus = "Signing in...";
+
+    try {
+      // Get OAuth config from Rust
+      const config = await invoke<{
+        client_id: string;
+        client_secret: string;
+        redirect_uri: string;
+      }>("get_oauth_config");
+
+      // Initiate Google Sign-In
+      const response = await signIn({
+        clientId: config.client_id,
+        clientSecret: config.client_secret,
+        scopes: ["openid", "email", "profile"],
+        redirectUri: config.redirect_uri,
+      });
+
+      userInfo = {
+        idToken: response.idToken,
+        accessToken: response.accessToken,
+        expiresAt: response.expiresAt ? new Date(response.expiresAt) : null,
+      };
+
+      authStatus = "Successfully signed in!";
+      console.log("Authentication successful:", response);
+    } catch (error) {
+      authStatus = `Sign-in failed: ${error}`;
+      console.error("Authentication error:", error);
+    } finally {
+      isAuthenticating = false;
+    }
+  }
+
+  async function handleGoogleSignOut() {
+    try {
+      await signOut();
+      userInfo = null;
+      authStatus = "Signed out successfully";
+    } catch (error) {
+      authStatus = `Sign-out failed: ${error}`;
+      console.error("Sign-out error:", error);
+    }
   }
 </script>
 
@@ -42,6 +93,41 @@
     Click on the Tauri, Vite, and SvelteKit logos to learn more.
   </p>
 
+  <!-- Google OAuth2 Section -->
+  <div class="mb-8 p-6 bg-white dark:bg-gray-900/60 rounded-lg shadow-lg max-w-md w-full">
+    <h2 class="text-xl font-semibold mb-4">Google OAuth2 Authentication</h2>
+
+    {#if !userInfo}
+      <button
+        onclick={handleGoogleSignIn}
+        disabled={isAuthenticating}
+        class="w-full rounded-lg border border-transparent px-5 py-3 text-base font-medium bg-blue-600 text-white shadow-sm cursor-pointer outline-none transition-all hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isAuthenticating ? "Signing in..." : "Sign in with Google"}
+      </button>
+    {:else}
+      <div class="mb-4 p-4 bg-green-100 dark:bg-green-900/30 rounded-lg">
+        <p class="text-green-800 dark:text-green-200 font-semibold mb-2">Authenticated!</p>
+        <p class="text-sm text-gray-700 dark:text-gray-300">
+          Token expires: {userInfo.expiresAt.toLocaleString()}
+        </p>
+      </div>
+      <button
+        onclick={handleGoogleSignOut}
+        class="w-full rounded-lg border border-transparent px-5 py-3 text-base font-medium bg-red-600 text-white shadow-sm cursor-pointer outline-none transition-all hover:bg-red-700 active:bg-red-800"
+      >
+        Sign Out
+      </button>
+    {/if}
+
+    {#if authStatus}
+      <p class="mt-4 text-sm {authStatus.includes('failed') ? 'text-red-600' : 'text-gray-700 dark:text-gray-300'}">
+        {authStatus}
+      </p>
+    {/if}
+  </div>
+
+  <!-- Greet Demo Section -->
   <form class="flex justify-center gap-2 mb-4" onsubmit={greet}>
     <input
       id="greet-input"
