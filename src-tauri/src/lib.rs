@@ -40,6 +40,7 @@ pub fn run() {
         .setup(|app| {
             //
             // Handle stronghold for secure storage
+            //   ref: https://github.com/tauri-apps/plugins-workspace/issues/1959
             //
             let data_dir = if cfg!(debug_assertions) {
                 PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("target/debug/data")
