@@ -5,8 +5,9 @@ pub mod state;
 #[cfg(test)]
 pub mod test;
 
+use rand::RngCore;
 use state::AppState;
-use std::path::PathBuf;
+use std::{fs, io::Write, path::PathBuf};
 use tauri::Manager;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -37,6 +38,31 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_google_auth::init())
         .setup(|app| {
+            //
+            // Handle stronghold for secure storage
+            //
+            let data_dir = if cfg!(debug_assertions) {
+                PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("target/debug/data")
+            } else {
+                app.path().app_local_data_dir()?
+            };
+            std::fs::create_dir_all(&data_dir)?;
+
+            let salt_path = data_dir.join("salt.txt");
+            // create a new random salt if it doesn't exists
+            if !salt_path.exists() {
+                let mut salt = [0u8; 32]; // 265-bit salt
+                rand::rng().fill_bytes(&mut salt);
+                let mut file = fs::File::create(&salt_path)?;
+                file.write_all(&salt)?;
+            }
+
+            app.handle()
+                .plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())?;
+
+            //
+            // Handle database migrations
+            //
             let app_data_dir = if cfg!(debug_assertions) {
                 // Use target/debug/db for development
                 PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("target/debug/db")

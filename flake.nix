@@ -61,7 +61,8 @@
               sops
             ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
               # Linux-only deps for Tauri
-              webkitgtk_6_0
+              # webkitgtk_6_0
+              webkitgtk_4_1 # Required for tauri-plugin-stronghold (javascriptcoregtk-4.1)
               gtk3
               librsvg
               libsoup_3
