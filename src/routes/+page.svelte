@@ -1,36 +1,8 @@
 <main class="flex flex-col items-center justify-center pt-[10vh] text-center text-gray-900 dark:text-gray-100">
   <h1 class="text-3xl font-bold">Meeru</h1>
 
-  <div class="flex justify-center my-6">
-    <a href="https://vitejs.dev" target="_blank" class="mx-2">
-      <img
-        src="/vite.svg"
-        class="h-24 p-6 transition-all duration-700 hover:drop-shadow-[0_0_2em_#747bff]"
-        alt="Vite Logo"
-      />
-    </a>
-    <a href="https://tauri.app" target="_blank" class="mx-2">
-      <img
-        src="/tauri.svg"
-        class="h-24 p-6 transition-all duration-700 hover:drop-shadow-[0_0_2em_#24c8db]"
-        alt="Tauri Logo"
-      />
-    </a>
-    <a href="https://kit.svelte.dev" target="_blank" class="mx-2">
-      <img
-        src="/svelte.svg"
-        class="h-24 p-6 transition-all duration-700 hover:drop-shadow-[0_0_2em_#ff3e00]"
-        alt="SvelteKit Logo"
-      />
-    </a>
-  </div>
-
-  <p class="text-sm mb-6 text-gray-700 dark:text-gray-300">
-    Click on the Tauri, Vite, and SvelteKit logos to learn more.
-  </p>
-
   <!-- Google OAuth2 Section -->
-  <div class="mb-8 p-6 bg-white dark:bg-gray-900/60 rounded-lg shadow-lg max-w-md w-full">
+  <div class="mb-8 p-6 bg-white dark:bg-gray-900/60 rounded-lg shadow-lg max-w-md w-full my-6">
     <h2 class="text-xl font-semibold mb-4">Google OAuth2 Authentication</h2>
 
     {#if !userInfo}
