@@ -1,67 +1,3 @@
-<script lang="ts">
-  import { invoke } from "@tauri-apps/api/core";
-  import { signIn, signOut } from "@choochmeque/tauri-plugin-google-auth-api";
-
-  let name = $state("");
-  let greetMsg = $state("");
-  let authStatus = $state("");
-  let userInfo = $state<any>(null);
-  let isAuthenticating = $state(false);
-
-  async function greet(event: Event) {
-    event.preventDefault();
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    greetMsg = await invoke("greet", { name });
-  }
-
-  async function handleGoogleSignIn() {
-    isAuthenticating = true;
-    authStatus = "Signing in...";
-
-    try {
-      // Get OAuth config from Rust
-      const config = await invoke<{
-        client_id: string;
-        client_secret: string;
-        redirect_uri: string;
-      }>("get_oauth_config");
-
-      // Initiate Google Sign-In
-      const response = await signIn({
-        clientId: config.client_id,
-        clientSecret: config.client_secret,
-        scopes: ["openid", "email", "profile"],
-        redirectUri: config.redirect_uri,
-      });
-
-      userInfo = {
-        idToken: response.idToken,
-        accessToken: response.accessToken,
-        expiresAt: response.expiresAt ? new Date(response.expiresAt) : null,
-      };
-
-      authStatus = "Successfully signed in!";
-      console.log("Authentication successful:", response);
-    } catch (error) {
-      authStatus = `Sign-in failed: ${error}`;
-      console.error("Authentication error:", error);
-    } finally {
-      isAuthenticating = false;
-    }
-  }
-
-  async function handleGoogleSignOut() {
-    try {
-      await signOut();
-      userInfo = null;
-      authStatus = "Signed out successfully";
-    } catch (error) {
-      authStatus = `Sign-out failed: ${error}`;
-      console.error("Sign-out error:", error);
-    }
-  }
-</script>
-
 <main class="flex flex-col items-center justify-center pt-[10vh] text-center text-gray-900 dark:text-gray-100">
   <h1 class="text-3xl font-bold">Meeru</h1>
 
@@ -147,3 +83,67 @@
     <p class="mt-2 text-lg font-semibold text-gray-800 dark:text-gray-200">{greetMsg}</p>
   {/if}
 </main>
+
+<script lang="ts">
+  import { invoke } from "@tauri-apps/api/core";
+  import { signIn, signOut } from "@choochmeque/tauri-plugin-google-auth-api";
+
+  let name = $state("");
+  let greetMsg = $state("");
+  let authStatus = $state("");
+  let userInfo = $state<any>(null);
+  let isAuthenticating = $state(false);
+
+  async function greet(event: Event) {
+    event.preventDefault();
+    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+    greetMsg = await invoke("greet", { name });
+  }
+
+  async function handleGoogleSignIn() {
+    isAuthenticating = true;
+    authStatus = "Signing in...";
+
+    try {
+      // Get OAuth config from Rust
+      const config = await invoke<{
+        client_id: string;
+        client_secret: string;
+        redirect_uri: string;
+      }>("get_oauth_config");
+
+      // Initiate Google Sign-In
+      const response = await signIn({
+        clientId: config.client_id,
+        clientSecret: config.client_secret,
+        scopes: ["openid", "email", "profile"],
+        redirectUri: config.redirect_uri,
+      });
+
+      userInfo = {
+        idToken: response.idToken,
+        accessToken: response.accessToken,
+        expiresAt: response.expiresAt ? new Date(response.expiresAt) : null,
+      };
+
+      authStatus = "Successfully signed in!";
+      console.log("Authentication successful:", response);
+    } catch (error) {
+      authStatus = `Sign-in failed: ${error}`;
+      console.error("Authentication error:", error);
+    } finally {
+      isAuthenticating = false;
+    }
+  }
+
+  async function handleGoogleSignOut() {
+    try {
+      await signOut();
+      userInfo = null;
+      authStatus = "Signed out successfully";
+    } catch (error) {
+      authStatus = `Sign-out failed: ${error}`;
+      console.error("Sign-out error:", error);
+    }
+  }
+</script>
