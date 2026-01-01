@@ -51,5 +51,9 @@ tempfile = "3.23.0"
 # for functional and integration tests
 testcontainers = "0.25.2"
 
+# Added following docs apparently due to upstream bug
+# https://tauri.app/plugin/stronghold/
+#
+# comment: https://github.com/tauri-apps/plugins-workspace/issues/2048#issuecomment-2923529183
 [profile.dev.package.scrypt]
 opt-level = 3
