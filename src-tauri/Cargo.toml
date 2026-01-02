@@ -41,7 +41,6 @@ rustls-pemfile = "2.2"
 sqlx = { version = "0.8", features = ["runtime-tokio", "sqlite", "migrate", "tls-rustls"] }
 futures-util = "0.3.31"
 tauri-plugin-google-auth = "0.3.4"
-tauri-plugin-stronghold = "2"
 rust-argon2 = "3.0.0"
 rand = "0.9.2"
 
@@ -50,10 +49,3 @@ tempfile = "3.23.0"
 
 # for functional and integration tests
 testcontainers = "0.25.2"
-
-# Added following docs apparently due to upstream bug
-# https://tauri.app/plugin/stronghold/
-#
-# comment: https://github.com/tauri-apps/plugins-workspace/issues/2048#issuecomment-2923529183
-[profile.dev.package.scrypt]
-opt-level = 3
