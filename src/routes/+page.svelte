@@ -16,6 +16,11 @@
     {:else}
       <div class="mb-4 p-4 bg-green-100 dark:bg-green-900/30 rounded-lg">
         <p class="text-green-800 dark:text-green-200 font-semibold mb-2">Authenticated!</p>
+        {#if userInfo.email}
+          <p class="text-sm text-gray-700 dark:text-gray-300 mb-1">
+            Email: {userInfo.email}
+          </p>
+        {/if}
         <p class="text-sm text-gray-700 dark:text-gray-300">
           Token expires: {userInfo.expiresAt.toLocaleString()}
         </p>
@@ -59,12 +64,39 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
   import { signIn, signOut } from "@choochmeque/tauri-plugin-google-auth-api";
+  import { onMount } from "svelte";
 
   let name = $state("");
   let greetMsg = $state("");
   let authStatus = $state("");
   let userInfo = $state<any>(null);
   let isAuthenticating = $state(false);
+  let userEmail = $state<string | null>(null);
+
+  // Parse JWT to extract email
+  function parseJWT(token: string): any {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error("Failed to parse JWT:", error);
+      return null;
+    }
+  }
+
+  // Try to restore session from keyring on mount
+  onMount(async () => {
+    // We'll need to implement a way to get the last logged in user
+    // For now, this is a placeholder for future enhancement
+    // In a production app, you might store the last user email in localStorage
+  });
 
   async function greet(event: Event) {
     event.preventDefault();
@@ -92,14 +124,36 @@
         redirectUri: config.redirect_uri,
       });
 
+      // Parse ID token to get user email
+      if (!response.idToken) {
+        throw new Error("No ID token received from Google");
+      }
+
+      const idTokenPayload = parseJWT(response.idToken);
+      userEmail = idTokenPayload?.email || null;
+
+      if (!userEmail) {
+        throw new Error("Failed to extract email from ID token");
+      }
+
       userInfo = {
         idToken: response.idToken,
         accessToken: response.accessToken,
         expiresAt: response.expiresAt ? new Date(response.expiresAt) : null,
+        email: userEmail,
       };
 
+      // Store tokens securely in system keyring
+      await invoke("store_oauth_tokens", {
+        userEmail: userEmail,
+        accessToken: response.accessToken,
+        refreshToken: null, // Google plugin doesn't return refresh token yet
+        idToken: response.idToken,
+        expiresAt: response.expiresAt ? Math.floor(response.expiresAt / 1000) : null,
+      });
+
       authStatus = "Successfully signed in!";
-      console.log("Authentication successful:", response);
+      console.log("Authentication successful and tokens stored securely");
     } catch (error) {
       authStatus = `Sign-in failed: ${error}`;
       console.error("Authentication error:", error);
@@ -111,7 +165,16 @@
   async function handleGoogleSignOut() {
     try {
       await signOut();
+
+      // Delete tokens from keyring
+      if (userEmail) {
+        await invoke("delete_oauth_tokens", {
+          userEmail: userEmail,
+        });
+      }
+
       userInfo = null;
+      userEmail = null;
       authStatus = "Signed out successfully";
     } catch (error) {
       authStatus = `Sign-out failed: ${error}`;

@@ -8,6 +8,7 @@ pub mod test;
 use state::AppState;
 use std::path::PathBuf;
 use tauri::Manager;
+use keyring::Entry;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -26,6 +27,73 @@ fn get_oauth_config() -> Result<serde_json::Value, String> {
         "redirect_uri": "http://localhost"
     });
     Ok(config)
+}
+
+// Keyring token storage commands
+#[derive(serde::Serialize, serde::Deserialize)]
+struct OAuthTokens {
+    access_token: String,
+    refresh_token: Option<String>,
+    id_token: Option<String>,
+    expires_at: Option<i64>,
+}
+
+#[tauri::command]
+fn store_oauth_tokens(
+    user_email: String,
+    access_token: String,
+    refresh_token: Option<String>,
+    id_token: Option<String>,
+    expires_at: Option<i64>,
+) -> Result<(), String> {
+    let tokens = OAuthTokens {
+        access_token,
+        refresh_token,
+        id_token,
+        expires_at,
+    };
+
+    let tokens_json = serde_json::to_string(&tokens)
+        .map_err(|e| format!("Failed to serialize tokens: {}", e))?;
+
+    let entry = Entry::new("meeru", &user_email)
+        .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
+
+    entry.set_password(&tokens_json)
+        .map_err(|e| format!("Failed to store tokens in keyring: {}", e))?;
+
+    Ok(())
+}
+
+#[tauri::command]
+fn get_oauth_tokens(user_email: String) -> Result<OAuthTokens, String> {
+    let entry = Entry::new("meeru", &user_email)
+        .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
+
+    let tokens_json = entry.get_password()
+        .map_err(|e| format!("Failed to retrieve tokens from keyring: {}", e))?;
+
+    let tokens: OAuthTokens = serde_json::from_str(&tokens_json)
+        .map_err(|e| format!("Failed to deserialize tokens: {}", e))?;
+
+    Ok(tokens)
+}
+
+#[tauri::command]
+fn delete_oauth_tokens(user_email: String) -> Result<(), String> {
+    let entry = Entry::new("meeru", &user_email)
+        .map_err(|e| format!("Failed to create keyring entry: {}", e))?;
+
+    // Try to delete the credential. If it doesn't exist, that's fine -
+    // the goal is to ensure no tokens are stored, which is already the case.
+    match entry.delete_credential() {
+        Ok(_) => Ok(()),
+        Err(keyring::Error::NoEntry) => {
+            // Entry doesn't exist, which is fine
+            Ok(())
+        }
+        Err(e) => Err(format!("Failed to delete tokens from keyring: {}", e))
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -63,7 +131,13 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![greet, get_oauth_config])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            get_oauth_config,
+            store_oauth_tokens,
+            get_oauth_tokens,
+            delete_oauth_tokens
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
