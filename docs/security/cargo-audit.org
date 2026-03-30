@@ -14,4 +14,4 @@
 - [X] lru: resolved via dependency upgrades (>=0.16.3)
 
 ** High Complexity
-- [ ] rsa: no patched release; requires dependency replacement, feature gating, or risk acceptance
+- [X] rsa: ignored for now; TODO track https://github.com/launchbadge/sqlx/issues/4082 for resolution
