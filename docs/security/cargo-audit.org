@@ -7,8 +7,8 @@
 
 ** Medium Complexity
 - [ ] async-std: replace runtime (async-std discontinued; suggested alternative smol)
-- [ ] paste: swap to pastey or with_builtin_macros (paste unmaintained)
-- [ ] rustls-pemfile: migrate to rustls-pki-types PemObject API (crate unmaintained)
+- [X] paste: skipped for now (crate complete; no update planned)
+- [X] rustls-pemfile: resolved via reqwest/oauth2 upgrade (no rustls-pemfile)
 
 ** Medium-High Complexity
 - [ ] lru: upgrade to >=0.16.3 (patched range exists; possible API changes)

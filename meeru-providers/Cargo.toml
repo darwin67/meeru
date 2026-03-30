@@ -23,7 +23,7 @@ lettre = { version = "0.11", features = ["tokio1-native-tls", "builder", "hostna
 mail-parser = "0.9"
 
 # OAuth
-oauth2 = "4.4"
+oauth2 = "5.0"
 
 # HTTP client for OAuth
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "0.12", features = ["json"] }
