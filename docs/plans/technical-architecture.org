@@ -1,0 +1,482 @@
+#+TITLE: Meeru Email Client - Technical Architecture
+#+AUTHOR: Meeru Development Team
+#+DATE: 2026-03-30
+
+* Table of Contents                                                     :TOC:
+- [[#system-overview][System Overview]]
+- [[#component-architecture][Component Architecture]]
+- [[#data-flow-architecture][Data Flow Architecture]]
+- [[#sync-engine-architecture][Sync Engine Architecture]]
+  - [[#sync-state-management][Sync State Management]]
+- [[#ai-integration-architecture][AI Integration Architecture]]
+  - [[#ai-provider-interface][AI Provider Interface]]
+- [[#security-architecture][Security Architecture]]
+  - [[#security-implementation-checklist][Security Implementation Checklist]]
+- [[#deployment-architecture][Deployment Architecture]]
+  - [[#build-configuration][Build Configuration]]
+- [[#performance-architecture][Performance Architecture]]
+  - [[#performance-targets][Performance Targets]]
+
+* System Overview
+
+#+begin_src mermaid
+graph TB
+    subgraph "Meeru Desktop Client"
+        UI[Iced UI Layer]
+        Core[Core Business Logic]
+        Storage[(Local Storage)]
+        CLI[CLI Interface]
+        API[Local API Server]
+    end
+
+    subgraph "Email Providers"
+        Gmail[Gmail<br/>IMAP/SMTP]
+        Outlook[Outlook<br/>Exchange]
+        Generic[Generic<br/>IMAP/SMTP]
+    end
+
+    subgraph "AI Services"
+        LocalLLM[Local LLM<br/>Llama/Mistral]
+        CloudAI[Cloud AI<br/>Optional]
+    end
+
+    subgraph "External Agents"
+        Agent1[AI Agent 1]
+        Agent2[AI Agent 2]
+        Agent3[Custom Scripts]
+    end
+
+    UI <--> Core
+    CLI <--> Core
+    API <--> Core
+    Core <--> Storage
+
+    Core <--> Gmail
+    Core <--> Outlook
+    Core <--> Generic
+
+    Core <--> LocalLLM
+    Core <-.-> CloudAI
+
+    API <--> Agent1
+    API <--> Agent2
+    API <--> Agent3
+#+end_src
+
+* Component Architecture
+
+#+begin_src mermaid
+graph LR
+    subgraph "meeru-ui"
+        App[Application]
+        Views[Views]
+        Components[Components]
+        State[State Management]
+    end
+
+    subgraph "meeru-core"
+        AccountManager[Account Manager]
+        SyncEngine[Sync Engine]
+        UnifiedFolder[Unified Folder System]
+        EmailOps[Email Operations]
+        Search[Search Engine]
+    end
+
+    subgraph "meeru-storage"
+        DB[(SQLite)]
+        FileStore[File Storage]
+        Index[Tantivy Index]
+        Cache[Cache Layer]
+    end
+
+    subgraph "meeru-providers"
+        ImapAdapter[IMAP Adapter]
+        GmailAdapter[Gmail Adapter]
+        OutlookAdapter[Outlook Adapter]
+        ProviderInterface[Provider Interface]
+    end
+
+    subgraph "meeru-ai"
+        AIInterface[AI Interface]
+        LocalModel[Local Model Runtime]
+        Categorizer[Email Categorizer]
+        Summarizer[Summarizer]
+    end
+
+    subgraph "meeru-cli"
+        Commands[Command Parser]
+        Output[Output Formatter]
+        Config[Configuration]
+    end
+
+    App --> Views
+    Views --> Components
+    Views <--> State
+    State <--> AccountManager
+
+    AccountManager --> UnifiedFolder
+    AccountManager --> SyncEngine
+    SyncEngine --> ProviderInterface
+    ProviderInterface --> ImapAdapter
+    ProviderInterface --> GmailAdapter
+    ProviderInterface --> OutlookAdapter
+
+    EmailOps --> Storage
+    Search --> Index
+
+    UnifiedFolder --> EmailOps
+    EmailOps --> AIInterface
+    AIInterface --> LocalModel
+    AIInterface --> Categorizer
+    AIInterface --> Summarizer
+
+    Commands --> AccountManager
+    Commands --> EmailOps
+    Output <-- EmailOps
+#+end_src
+
+* Data Flow Architecture
+
+#+begin_src mermaid
+sequenceDiagram
+    participant User
+    participant UI
+    participant Core
+    participant SyncEngine
+    participant Provider
+    participant Storage
+    participant AI
+
+    User->>UI: Open folder
+    UI->>Core: Request folder contents
+    Core->>Storage: Check local cache
+
+    alt Cache miss or stale
+        Core->>SyncEngine: Request sync
+        SyncEngine->>Provider: Fetch updates
+        Provider-->>SyncEngine: Return emails
+        SyncEngine->>Storage: Update cache
+    end
+
+    Storage-->>Core: Return emails
+
+    Core->>AI: Process emails (async)
+    AI-->>Core: Categories, priorities
+
+    Core-->>UI: Display emails
+    UI-->>User: Show folder view
+#+end_src
+
+* Sync Engine Architecture
+
+#+begin_src mermaid
+stateDiagram-v2
+    [*] --> Idle
+
+    Idle --> Checking: Sync triggered
+
+    Checking --> LocalChanges: Has local changes
+    Checking --> RemoteChanges: No local changes
+
+    LocalChanges --> ApplyingLocal: Apply to remote
+    ApplyingLocal --> RemoteChanges: Success
+    ApplyingLocal --> ConflictResolution: Conflict detected
+
+    RemoteChanges --> FetchingRemote: Fetch from provider
+    FetchingRemote --> ApplyingRemote: Changes received
+    FetchingRemote --> Idle: No changes
+
+    ApplyingRemote --> Idle: Success
+    ApplyingRemote --> ConflictResolution: Conflict detected
+
+    ConflictResolution --> ResolvingConflicts: Process conflicts
+    ResolvingConflicts --> ApplyingResolution: Resolution found
+    ApplyingResolution --> Idle: Complete
+
+    state ConflictResolution {
+        [*] --> AnalyzeConflict
+        AnalyzeConflict --> AutoResolve: Simple conflict
+        AnalyzeConflict --> UserResolve: Complex conflict
+        AutoResolve --> [*]
+        UserResolve --> [*]
+    }
+#+end_src
+
+** Sync State Management
+
+*** Sync State Structure
+#+begin_src rust
+pub struct SyncState {
+    last_sync_time: Timestamp,
+    highest_modseq: Option<u64>,  // For IMAP CONDSTORE
+    sync_tokens: HashMap<String, String>,  // For various providers
+    folder_states: HashMap<FolderId, FolderSyncState>,
+}
+#+end_src
+
+*** Conflict Resolution Strategy
+- [ ] Implement last-write-wins for simple conflicts
+- [ ] User preference-based resolution
+- [ ] Smart conflict detection based on change type
+- [ ] Conflict history tracking
+
+* AI Integration Architecture
+
+#+begin_src mermaid
+graph TB
+    subgraph "AI Service Layer"
+        AIRouter[AI Router]
+        TaskQueue[Task Queue]
+        ResultCache[Result Cache]
+    end
+
+    subgraph "AI Providers"
+        LocalProvider[Local LLM Provider]
+        CloudProvider[Cloud AI Provider]
+        CustomProvider[Custom Model Provider]
+    end
+
+    subgraph "AI Features"
+        Categorization[Auto-Categorization]
+        Priority[Priority Detection]
+        Summary[Email Summarization]
+        Compose[Smart Compose]
+        Sentiment[Sentiment Analysis]
+    end
+
+    subgraph "Models"
+        LlamaModel[Llama 3.2]
+        MistralModel[Mistral 7B]
+        CustomModel[Custom Fine-tuned]
+    end
+
+    EmailInput[Email Input] --> AIRouter
+    AIRouter --> TaskQueue
+
+    TaskQueue --> Categorization
+    TaskQueue --> Priority
+    TaskQueue --> Summary
+    TaskQueue --> Compose
+    TaskQueue --> Sentiment
+
+    Categorization --> LocalProvider
+    Priority --> LocalProvider
+    Summary --> LocalProvider
+    Compose --> CloudProvider
+    Sentiment --> CustomProvider
+
+    LocalProvider --> LlamaModel
+    LocalProvider --> MistralModel
+    CustomProvider --> CustomModel
+
+    LocalProvider --> ResultCache
+    CloudProvider --> ResultCache
+    CustomProvider --> ResultCache
+
+    ResultCache --> EmailOutput[Enhanced Email]
+#+end_src
+
+** AI Provider Interface
+#+begin_src rust
+trait AIProvider {
+    async fn summarize(&self, email: &Email) -> Result<Summary>;
+    async fn categorize(&self, email: &Email) -> Result<Category>;
+    async fn detect_priority(&self, email: &Email) -> Result<Priority>;
+    async fn suggest_reply(&self, email: &Email) -> Result<Vec<Suggestion>>;
+}
+#+end_src
+
+* Security Architecture
+
+#+begin_src mermaid
+graph TB
+    subgraph "Authentication Layer"
+        OAuth[OAuth2 Manager]
+        CredStore[Credential Storage]
+        TokenRefresh[Token Refresh]
+    end
+
+    subgraph "Encryption Layer"
+        AtRest[Encryption at Rest]
+        InTransit[TLS/SSL]
+        E2E[E2E Encryption<br/>Optional]
+    end
+
+    subgraph "Access Control"
+        RBAC[Role-Based Access]
+        AgentPerms[Agent Permissions]
+        APIAuth[API Authentication]
+    end
+
+    subgraph "Privacy Layer"
+        LocalOnly[Local-Only Mode]
+        DataAnon[Data Anonymization]
+        Consent[Consent Manager]
+    end
+
+    subgraph "Audit & Compliance"
+        AuditLog[Audit Logging]
+        Compliance[Compliance Rules]
+        DataRetention[Retention Policy]
+    end
+
+    User[User] --> OAuth
+    OAuth --> CredStore
+    OAuth --> TokenRefresh
+
+    CredStore --> AtRest
+
+    EmailData[Email Data] --> AtRest
+    EmailData --> InTransit
+
+    Agent[AI Agent] --> APIAuth
+    APIAuth --> AgentPerms
+
+    AIProcessing[AI Processing] --> LocalOnly
+    AIProcessing --> DataAnon
+    AIProcessing --> Consent
+
+    AllOperations[All Operations] --> AuditLog
+    AuditLog --> Compliance
+    Compliance --> DataRetention
+#+end_src
+
+** Security Implementation Checklist
+- [ ] Implement OS keyring integration for credentials
+- [ ] Set up TLS certificate validation
+- [ ] Create encryption key derivation system
+- [ ] Build permission model for agents
+- [ ] Implement audit logging framework
+
+* Deployment Architecture
+
+#+begin_src mermaid
+graph LR
+    subgraph "Development"
+        Dev[Dev Environment]
+        CI[CI Pipeline]
+        Tests[Test Suite]
+    end
+
+    subgraph "Build Process"
+        RustBuild[Rust Build]
+        Assets[Asset Bundling]
+        Sign[Code Signing]
+    end
+
+    subgraph "Distribution"
+        WinInstaller[Windows MSI]
+        MacInstaller[macOS DMG]
+        LinuxPackage[Linux AppImage]
+        Updates[Auto-Update Server]
+    end
+
+    subgraph "User Systems"
+        Windows[Windows 10/11]
+        macOS[macOS 12+]
+        Linux[Linux Desktop]
+    end
+
+    Dev --> CI
+    CI --> Tests
+    Tests --> RustBuild
+
+    RustBuild --> Assets
+    Assets --> Sign
+
+    Sign --> WinInstaller
+    Sign --> MacInstaller
+    Sign --> LinuxPackage
+
+    WinInstaller --> Windows
+    MacInstaller --> macOS
+    LinuxPackage --> Linux
+
+    Updates -.-> Windows
+    Updates -.-> macOS
+    Updates -.-> Linux
+#+end_src
+
+** Build Configuration
+*** Windows Build
+- [ ] Set up WiX toolset for MSI creation
+- [ ] Configure code signing certificate
+- [ ] Create uninstaller
+- [ ] Add to Windows Store (optional)
+
+*** macOS Build
+- [ ] Set up Apple Developer account
+- [ ] Configure notarization process
+- [ ] Create DMG with custom background
+- [ ] Submit to Mac App Store (optional)
+
+*** Linux Build
+- [ ] Create AppImage for universal compatibility
+- [ ] Build .deb for Debian/Ubuntu
+- [ ] Build .rpm for Fedora/RHEL
+- [ ] Create Flatpak (optional)
+- [ ] Submit to Snap Store (optional)
+
+* Performance Architecture
+
+#+begin_src mermaid
+graph TB
+    subgraph "Caching Strategy"
+        L1[L1: Memory Cache<br/>Hot Emails]
+        L2[L2: SQLite Cache<br/>Recent Emails]
+        L3[L3: File Cache<br/>All Emails]
+    end
+
+    subgraph "Optimization Techniques"
+        LazyLoad[Lazy Loading]
+        Prefetch[Smart Prefetching]
+        Compress[Compression]
+        Index[Search Index]
+    end
+
+    subgraph "Background Tasks"
+        SyncTask[Sync Task]
+        IndexTask[Index Task]
+        AITask[AI Processing]
+        CleanupTask[Cleanup Task]
+    end
+
+    Request[Email Request] --> L1
+    L1 -->|Miss| L2
+    L2 -->|Miss| L3
+    L3 -->|Miss| Provider[Email Provider]
+
+    Provider --> Compress
+    Compress --> L3
+    L3 --> L2
+    L2 --> L1
+
+    L1 --> Response[Email Response]
+
+    LazyLoad --> Request
+    Prefetch --> L1
+
+    SyncTask --> Provider
+    IndexTask --> Index
+    AITask --> L1
+    CleanupTask --> L3
+#+end_src
+
+** Performance Targets
+*** Response Times
+- [ ] Email list load: <100ms
+- [ ] Email open: <50ms
+- [ ] Search results: <500ms
+- [ ] Folder switch: <200ms
+
+*** Resource Usage
+- [ ] Memory usage idle: <100MB
+- [ ] Memory with 100k emails: <500MB
+- [ ] CPU usage idle: <1%
+- [ ] Disk cache size: Configurable limit
+
+*** Scalability
+- [ ] Support 1M+ emails per account
+- [ ] Handle 20+ accounts simultaneously
+- [ ] Background sync without UI impact
+- [ ] Incremental search index updates

@@ -1,0 +1,598 @@
+#+TITLE: Meeru Email Client - Database Schema
+#+AUTHOR: Meeru Development Team
+#+DATE: 2026-03-30
+
+* Overview
+Meeru uses SQLite as its primary database for storing email metadata, account information, and application state. The actual email content is stored in encrypted files on disk with references in the database.
+
+* Schema Version Management
+
+#+begin_src sql
+CREATE TABLE schema_migrations (
+    version INTEGER PRIMARY KEY,
+    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    description TEXT
+);
+#+end_src
+
+* Core Tables
+
+** Accounts Table
+Stores email account configurations and authentication details.
+
+#+begin_src sql
+CREATE TABLE accounts (
+    id TEXT PRIMARY KEY,  -- UUID
+    email TEXT NOT NULL UNIQUE,
+    display_name TEXT,
+    provider_type TEXT NOT NULL CHECK (provider_type IN ('gmail', 'outlook', 'generic')),
+
+    -- Connection settings
+    imap_host TEXT,
+    imap_port INTEGER,
+    imap_security TEXT CHECK (imap_security IN ('tls', 'starttls', 'none')),
+    smtp_host TEXT,
+    smtp_port INTEGER,
+    smtp_security TEXT CHECK (smtp_security IN ('tls', 'starttls', 'none')),
+
+    -- Authentication (encrypted)
+    auth_method TEXT CHECK (auth_method IN ('password', 'oauth2')),
+    encrypted_credentials TEXT,  -- Encrypted JSON with credentials
+    oauth_refresh_token TEXT,    -- Encrypted
+    oauth_access_token TEXT,     -- Encrypted
+    oauth_token_expires TIMESTAMP,
+
+    -- Sync settings
+    sync_enabled BOOLEAN DEFAULT 1,
+    sync_interval_minutes INTEGER DEFAULT 15,
+    last_sync_time TIMESTAMP,
+    last_sync_status TEXT,
+
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT 1,
+
+    -- Provider-specific settings (JSON)
+    provider_settings TEXT
+);
+
+CREATE INDEX idx_accounts_email ON accounts(email);
+CREATE INDEX idx_accounts_active ON accounts(is_active);
+#+end_src
+
+** Unified Folders Table
+Manages the unified folder structure across all accounts.
+
+#+begin_src sql
+CREATE TABLE unified_folders (
+    id TEXT PRIMARY KEY,  -- UUID
+    name TEXT NOT NULL,
+    folder_type TEXT NOT NULL,
+    parent_id TEXT REFERENCES unified_folders(id),
+    icon TEXT,
+    color TEXT,
+    sort_order INTEGER DEFAULT 0,
+
+    -- Smart folder settings
+    is_smart_folder BOOLEAN DEFAULT 0,
+    smart_rules TEXT,  -- JSON rules for smart folders
+
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_unified_folders_parent ON unified_folders(parent_id);
+CREATE INDEX idx_unified_folders_type ON unified_folders(folder_type);
+#+end_src
+
+** Folder Mappings Table
+Maps unified folders to provider-specific folders.
+
+#+begin_src sql
+CREATE TABLE folder_mappings (
+    id TEXT PRIMARY KEY,  -- UUID
+    unified_folder_id TEXT NOT NULL REFERENCES unified_folders(id),
+    account_id TEXT NOT NULL REFERENCES accounts(id),
+    provider_folder_id TEXT NOT NULL,  -- Provider's folder ID/path
+    provider_folder_name TEXT,
+    mapping_type TEXT CHECK (mapping_type IN ('direct', 'label', 'virtual', 'computed')),
+    sync_direction TEXT CHECK (sync_direction IN ('bidirectional', 'to_unified', 'to_provider')),
+
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(account_id, provider_folder_id)
+);
+
+CREATE INDEX idx_folder_mappings_unified ON folder_mappings(unified_folder_id);
+CREATE INDEX idx_folder_mappings_account ON folder_mappings(account_id);
+#+end_src
+
+** Emails Table
+Stores email metadata with references to content files.
+
+#+begin_src sql
+CREATE TABLE emails (
+    id TEXT PRIMARY KEY,  -- UUID
+    account_id TEXT NOT NULL REFERENCES accounts(id),
+    provider_id TEXT NOT NULL,  -- Provider's email ID (UID for IMAP)
+    message_id TEXT,  -- RFC Message-ID header
+    thread_id TEXT,   -- For conversation threading
+
+    -- Email headers
+    subject TEXT,
+    from_address TEXT,
+    from_name TEXT,
+    to_addresses TEXT,    -- JSON array
+    cc_addresses TEXT,    -- JSON array
+    bcc_addresses TEXT,   -- JSON array
+    reply_to TEXT,
+
+    -- Dates
+    date_sent TIMESTAMP,
+    date_received TIMESTAMP,
+    date_internal TIMESTAMP,  -- Internal timestamp for sorting
+
+    -- Content references
+    content_file_path TEXT,   -- Encrypted file path
+    content_hash TEXT,        -- SHA-256 of content
+    size_bytes INTEGER,
+    has_attachments BOOLEAN DEFAULT 0,
+    attachment_count INTEGER DEFAULT 0,
+
+    -- Flags and status
+    is_read BOOLEAN DEFAULT 0,
+    is_starred BOOLEAN DEFAULT 0,
+    is_important BOOLEAN DEFAULT 0,
+    is_draft BOOLEAN DEFAULT 0,
+    is_sent BOOLEAN DEFAULT 0,
+    is_deleted BOOLEAN DEFAULT 0,
+
+    -- AI-generated metadata
+    ai_category TEXT,
+    ai_priority INTEGER,
+    ai_summary TEXT,
+    ai_sentiment TEXT,
+    ai_processed_at TIMESTAMP,
+
+    -- Search and indexing
+    search_text TEXT,  -- Preprocessed searchable content
+    tantivy_doc_id TEXT,  -- Reference to full-text search index
+
+    -- Sync metadata
+    sync_state TEXT CHECK (sync_state IN ('synced', 'pending_local', 'pending_remote', 'conflict')),
+    last_modified TIMESTAMP,
+    provider_labels TEXT,  -- JSON array of provider-specific labels
+
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(account_id, provider_id)
+);
+
+CREATE INDEX idx_emails_account ON emails(account_id);
+CREATE INDEX idx_emails_thread ON emails(thread_id);
+CREATE INDEX idx_emails_message_id ON emails(message_id);
+CREATE INDEX idx_emails_from ON emails(from_address);
+CREATE INDEX idx_emails_date ON emails(date_internal DESC);
+CREATE INDEX idx_emails_unread ON emails(is_read, account_id);
+CREATE INDEX idx_emails_starred ON emails(is_starred, account_id);
+CREATE INDEX idx_emails_search ON emails(subject, from_address, from_name);
+#+end_src
+
+** Email Folder Associations
+Many-to-many relationship between emails and folders.
+
+#+begin_src sql
+CREATE TABLE email_folders (
+    email_id TEXT NOT NULL REFERENCES emails(id),
+    unified_folder_id TEXT NOT NULL REFERENCES unified_folders(id),
+
+    PRIMARY KEY (email_id, unified_folder_id)
+);
+
+CREATE INDEX idx_email_folders_folder ON email_folders(unified_folder_id);
+#+end_src
+
+** Attachments Table
+Stores attachment metadata.
+
+#+begin_src sql
+CREATE TABLE attachments (
+    id TEXT PRIMARY KEY,  -- UUID
+    email_id TEXT NOT NULL REFERENCES emails(id),
+    filename TEXT NOT NULL,
+    mime_type TEXT,
+    size_bytes INTEGER,
+    content_id TEXT,  -- For inline attachments
+    content_disposition TEXT,
+    file_path TEXT,   -- Encrypted file path
+    file_hash TEXT,   -- SHA-256 hash
+
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_attachments_email (email_id)
+);
+#+end_src
+
+** Contacts Table
+Unified contact management across accounts.
+
+#+begin_src sql
+CREATE TABLE contacts (
+    id TEXT PRIMARY KEY,  -- UUID
+    display_name TEXT,
+
+    -- Primary email (most recently used)
+    primary_email TEXT,
+
+    -- All email addresses (JSON array)
+    email_addresses TEXT NOT NULL,
+
+    -- Contact source tracking
+    source_accounts TEXT,  -- JSON array of account IDs
+
+    -- Usage statistics
+    email_count_sent INTEGER DEFAULT 0,
+    email_count_received INTEGER DEFAULT 0,
+    last_email_sent TIMESTAMP,
+    last_email_received TIMESTAMP,
+
+    -- User-defined
+    is_vip BOOLEAN DEFAULT 0,
+    notes TEXT,
+    tags TEXT,  -- JSON array
+
+    -- Avatar
+    avatar_url TEXT,
+    avatar_data BLOB,
+
+    -- Merge tracking
+    merged_from TEXT,  -- JSON array of contact IDs
+
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_contacts_email ON contacts(primary_email);
+CREATE INDEX idx_contacts_name ON contacts(display_name);
+CREATE UNIQUE INDEX idx_contacts_primary_email ON contacts(primary_email);
+#+end_src
+
+** Labels Table
+Unified label system.
+
+#+begin_src sql
+CREATE TABLE labels (
+    id TEXT PRIMARY KEY,  -- UUID
+    name TEXT NOT NULL,
+    color TEXT,
+    icon TEXT,
+
+    -- Hierarchy
+    parent_id TEXT REFERENCES labels(id),
+    path TEXT,  -- Full path like "Work/Projects/ClientA"
+
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(path)
+);
+
+CREATE INDEX idx_labels_parent ON labels(parent_id);
+CREATE INDEX idx_labels_path ON labels(path);
+#+end_src
+
+** Email Labels Association
+Many-to-many relationship between emails and labels.
+
+#+begin_src sql
+CREATE TABLE email_labels (
+    email_id TEXT NOT NULL REFERENCES emails(id),
+    label_id TEXT NOT NULL REFERENCES labels(id),
+
+    PRIMARY KEY (email_id, label_id)
+);
+
+CREATE INDEX idx_email_labels_label ON email_labels(label_id);
+#+end_src
+
+** Sync Queue Table
+Manages offline operations and sync conflicts.
+
+#+begin_src sql
+CREATE TABLE sync_queue (
+    id TEXT PRIMARY KEY,  -- UUID
+    account_id TEXT NOT NULL REFERENCES accounts(id),
+    email_id TEXT REFERENCES emails(id),
+    operation_type TEXT NOT NULL,
+    operation_data TEXT NOT NULL,  -- JSON
+
+    -- Queue management
+    status TEXT CHECK (status IN ('pending', 'processing', 'completed', 'failed', 'cancelled')),
+    priority INTEGER DEFAULT 5,
+    retry_count INTEGER DEFAULT 0,
+    max_retries INTEGER DEFAULT 3,
+
+    -- Dependencies
+    depends_on TEXT,  -- JSON array of other operation IDs
+
+    -- Error tracking
+    last_error TEXT,
+
+    -- Timestamps
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    scheduled_for TIMESTAMP,
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP
+);
+
+CREATE INDEX idx_sync_queue_status ON sync_queue(status, priority, scheduled_for);
+CREATE INDEX idx_sync_queue_account ON sync_queue(account_id, status);
+#+end_src
+
+** AI Tasks Table
+Tracks AI processing tasks.
+
+#+begin_src sql
+CREATE TABLE ai_tasks (
+    id TEXT PRIMARY KEY,  -- UUID
+    email_id TEXT REFERENCES emails(id),
+    task_type TEXT NOT NULL CHECK (task_type IN ('categorize', 'summarize', 'priority', 'sentiment', 'compose')),
+
+    -- Task configuration
+    model_name TEXT,
+    model_version TEXT,
+    parameters TEXT,  -- JSON
+
+    -- Task state
+    status TEXT CHECK (status IN ('queued', 'processing', 'completed', 'failed', 'cancelled')),
+    priority INTEGER DEFAULT 5,
+
+    -- Results
+    result TEXT,  -- JSON
+    confidence REAL,
+    processing_time_ms INTEGER,
+
+    -- Error handling
+    error_message TEXT,
+    retry_count INTEGER DEFAULT 0,
+
+    -- Timestamps
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP
+);
+
+CREATE INDEX idx_ai_tasks_email ON ai_tasks(email_id);
+CREATE INDEX idx_ai_tasks_status ON ai_tasks(status, priority);
+#+end_src
+
+** User Preferences Table
+Stores user settings and preferences.
+
+#+begin_src sql
+CREATE TABLE user_preferences (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    value_type TEXT CHECK (value_type IN ('string', 'number', 'boolean', 'json')),
+    category TEXT,
+    description TEXT,
+
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_preferences_category ON user_preferences(category);
+#+end_src
+
+** Search History Table
+Tracks search queries for suggestions and analytics.
+
+#+begin_src sql
+CREATE TABLE search_history (
+    id TEXT PRIMARY KEY,  -- UUID
+    query TEXT NOT NULL,
+    query_type TEXT CHECK (query_type IN ('simple', 'advanced', 'natural_language')),
+
+    -- Results
+    result_count INTEGER,
+    execution_time_ms INTEGER,
+
+    -- Context
+    account_ids TEXT,  -- JSON array, NULL for all accounts
+    folder_ids TEXT,   -- JSON array, NULL for all folders
+
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_search_history_query ON search_history(query);
+CREATE INDEX idx_search_history_date ON search_history(created_at DESC);
+#+end_src
+
+** Audit Log Table
+Tracks important operations for security and debugging.
+
+#+begin_src sql
+CREATE TABLE audit_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_type TEXT NOT NULL,
+    event_category TEXT NOT NULL,
+
+    -- Context
+    account_id TEXT REFERENCES accounts(id),
+    email_id TEXT REFERENCES emails(id),
+
+    -- Event details
+    description TEXT,
+    details TEXT,  -- JSON
+
+    -- Source
+    source TEXT CHECK (source IN ('ui', 'cli', 'api', 'sync', 'ai', 'system')),
+
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_audit_log_type ON audit_log(event_type);
+CREATE INDEX idx_audit_log_category ON audit_log(event_category);
+CREATE INDEX idx_audit_log_date ON audit_log(created_at DESC);
+CREATE INDEX idx_audit_log_account ON audit_log(account_id);
+#+end_src
+
+* Views
+
+** Email List View
+Optimized view for displaying email lists.
+
+#+begin_src sql
+CREATE VIEW email_list_view AS
+SELECT
+    e.id,
+    e.account_id,
+    a.email as account_email,
+    e.subject,
+    e.from_name,
+    e.from_address,
+    e.date_internal,
+    e.is_read,
+    e.is_starred,
+    e.is_important,
+    e.has_attachments,
+    e.ai_category,
+    e.ai_priority,
+    GROUP_CONCAT(DISTINCT l.name) as labels,
+    GROUP_CONCAT(DISTINCT uf.name) as folders
+FROM emails e
+JOIN accounts a ON e.account_id = a.id
+LEFT JOIN email_labels el ON e.id = el.email_id
+LEFT JOIN labels l ON el.label_id = l.id
+LEFT JOIN email_folders ef ON e.id = ef.email_id
+LEFT JOIN unified_folders uf ON ef.unified_folder_id = uf.id
+WHERE e.is_deleted = 0
+GROUP BY e.id;
+#+end_src
+
+** Contact Statistics View
+Aggregated contact information.
+
+#+begin_src sql
+CREATE VIEW contact_stats_view AS
+SELECT
+    c.id,
+    c.display_name,
+    c.primary_email,
+    c.is_vip,
+    c.email_count_sent + c.email_count_received as total_emails,
+    CASE
+        WHEN c.last_email_received > c.last_email_sent OR c.last_email_sent IS NULL
+        THEN c.last_email_received
+        ELSE c.last_email_sent
+    END as last_contact,
+    COUNT(DISTINCT e.id) as actual_email_count
+FROM contacts c
+LEFT JOIN emails e ON (e.from_address = c.primary_email OR e.to_addresses LIKE '%' || c.primary_email || '%')
+GROUP BY c.id;
+#+end_src
+
+* Indexes Strategy
+
+** Design Principles
+1. *Primary Keys*: All tables use TEXT (UUID) primary keys for distributed systems compatibility
+2. *Foreign Keys*: Enforced for referential integrity
+3. *Search Indexes*: Cover common query patterns (email lists, search, filtering)
+4. *Composite Indexes*: Used where queries filter by multiple columns
+5. *Covering Indexes*: Include frequently accessed columns to avoid table lookups
+
+* Data Integrity Rules
+
+** Constraints
+1. *Cascade Deletes*: Account deletion cascades to emails, folders, etc.
+2. *Soft Deletes*: Emails use ~is_deleted~ flag instead of hard deletion
+3. *Unique Constraints*: Prevent duplicate accounts, provider IDs
+4. *Check Constraints*: Validate enums and business rules at database level
+
+* Migration Strategy
+
+#+begin_src sql
+-- Example migration
+BEGIN TRANSACTION;
+
+-- Add new column
+ALTER TABLE emails ADD COLUMN ai_action_suggested TEXT;
+
+-- Update schema version
+INSERT INTO schema_migrations (version, description)
+VALUES (2, 'Add AI action suggestions to emails');
+
+COMMIT;
+#+end_src
+
+** Migration Best Practices
+- [ ] Always use transactions for schema changes
+- [ ] Test migrations on copy of production data
+- [ ] Include rollback scripts
+- [ ] Version all schema changes
+- [ ] Document breaking changes
+
+* Performance Considerations
+
+** Optimization Strategies
+1. *Partitioning*: Consider partitioning emails table by account_id for large datasets
+2. *Archival*: Move old emails to archive tables after configurable period
+3. *Vacuum*: Regular VACUUM operations to maintain performance
+4. *Statistics*: Keep SQLite statistics updated with ANALYZE
+5. *Connection Pool*: Use connection pooling with appropriate limits
+
+** Query Optimization
+- [ ] Use EXPLAIN QUERY PLAN for complex queries
+- [ ] Monitor slow queries
+- [ ] Add indexes based on actual usage patterns
+- [ ] Consider denormalization for read-heavy operations
+
+* Backup Strategy
+
+** Configuration
+1. *WAL Mode*: Enable Write-Ahead Logging for better concurrency
+2. *Checkpoint*: Regular checkpoints to main database file
+3. *Backup*: Periodic backups using SQLite backup API
+4. *Export*: JSON export functionality for data portability
+
+** Backup Implementation
+#+begin_src sql
+-- Enable WAL mode
+PRAGMA journal_mode=WAL;
+
+-- Set checkpoint interval
+PRAGMA wal_checkpoint(TRUNCATE);
+
+-- Configure auto-checkpoint
+PRAGMA wal_autocheckpoint=1000;
+#+end_src
+
+* Database Size Estimations
+
+** Storage Calculations
+*** Per Email
+- Metadata: ~2KB per email
+- Search index: ~1KB per email
+- Total: ~3KB per email in database
+
+*** Per Account (10,000 emails)
+- Database size: ~30MB
+- Search index: ~10MB
+- File storage: ~1GB (assuming 100KB average email size)
+
+*** Scaling Considerations
+- 100K emails: ~300MB database
+- 1M emails: ~3GB database
+- Consider partitioning at 500K+ emails per account

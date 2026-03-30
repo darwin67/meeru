@@ -1,0 +1,890 @@
+#+TITLE: Meeru Email Client - API Documentation
+#+AUTHOR: Meeru Development Team
+#+DATE: 2026-03-30
+
+* API Overview
+
+The Meeru API provides programmatic access to email operations, enabling AI agents and automation scripts to interact with the email client. The API runs as a local HTTP server on the user's machine.
+
+** Base URL
+#+begin_example
+http://localhost:8080/api/v1
+#+end_example
+
+** Authentication
+All API requests require authentication using a bearer token:
+#+begin_src http
+Authorization: Bearer <api-token>
+#+end_src
+
+** Response Format
+All responses are JSON with the following structure:
+#+begin_src json
+{
+  "success": true,
+  "data": { ... },
+  "error": null,
+  "meta": {
+    "request_id": "uuid",
+    "timestamp": "2026-03-30T12:00:00Z"
+  }
+}
+#+end_src
+
+* Account Management Endpoints
+
+** List Accounts
+Get all configured email accounts.
+
+*** Request
+#+begin_src http
+GET /accounts
+#+end_src
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "accounts": [
+      {
+        "id": "acc_123",
+        "email": "user@gmail.com",
+        "display_name": "John Doe",
+        "provider_type": "gmail",
+        "is_active": true,
+        "last_sync": "2026-03-30T11:00:00Z"
+      }
+    ]
+  }
+}
+#+end_src
+
+** Get Account Details
+Retrieve detailed information about a specific account.
+
+*** Request
+#+begin_src http
+GET /accounts/{account_id}
+#+end_src
+
+*** Parameters
+| Parameter  | Type   | Required | Description                |
+|------------+--------+----------+----------------------------|
+| account_id | string | Yes      | The account ID to retrieve |
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "account": {
+      "id": "acc_123",
+      "email": "user@gmail.com",
+      "display_name": "John Doe",
+      "provider_type": "gmail",
+      "folder_count": 15,
+      "email_count": 12543,
+      "storage_used": 1073741824,
+      "sync_status": {
+        "enabled": true,
+        "interval_minutes": 15,
+        "last_sync": "2026-03-30T11:00:00Z",
+        "next_sync": "2026-03-30T11:15:00Z"
+      }
+    }
+  }
+}
+#+end_src
+
+** Add Account
+Add a new email account.
+
+*** Request
+#+begin_src http
+POST /accounts
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "email": "newuser@example.com",
+  "display_name": "New User",
+  "provider_type": "generic",
+  "imap_host": "imap.example.com",
+  "imap_port": 993,
+  "smtp_host": "smtp.example.com",
+  "smtp_port": 587,
+  "auth_method": "password",
+  "password": "secure_password"
+}
+#+end_src
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "account_id": "acc_456",
+    "message": "Account added successfully"
+  }
+}
+#+end_src
+
+** Delete Account
+Remove an email account.
+
+*** Request
+#+begin_src http
+DELETE /accounts/{account_id}
+#+end_src
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "message": "Account deleted successfully"
+  }
+}
+#+end_src
+
+* Email Operations Endpoints
+
+** List Emails
+Retrieve a list of emails with pagination and filtering.
+
+*** Request
+#+begin_src http
+GET /emails
+#+end_src
+
+*** Query Parameters
+| Parameter    | Type    | Required | Description                           |
+|--------------+---------+----------+---------------------------------------|
+| account_id   | string  | No       | Filter by account (all if omitted)    |
+| folder_id    | string  | No       | Filter by folder                      |
+| unread       | boolean | No       | Filter unread emails                  |
+| starred      | boolean | No       | Filter starred emails                 |
+| has_attachment | boolean | No     | Filter emails with attachments        |
+| from         | string  | No       | Filter by sender                      |
+| to           | string  | No       | Filter by recipient                   |
+| subject      | string  | No       | Search in subject                     |
+| date_from    | date    | No       | Start date (ISO 8601)                 |
+| date_to      | date    | No       | End date (ISO 8601)                   |
+| limit        | integer | No       | Results per page (default: 50)        |
+| offset       | integer | No       | Pagination offset (default: 0)        |
+| sort         | string  | No       | Sort field (date, from, subject)      |
+| order        | string  | No       | Sort order (asc, desc)                |
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "emails": [
+      {
+        "id": "email_789",
+        "account_id": "acc_123",
+        "subject": "Meeting Tomorrow",
+        "from": {
+          "address": "boss@company.com",
+          "name": "Boss Name"
+        },
+        "to": [
+          {
+            "address": "user@gmail.com",
+            "name": "User Name"
+          }
+        ],
+        "date": "2026-03-30T10:00:00Z",
+        "is_read": false,
+        "is_starred": true,
+        "has_attachments": true,
+        "attachment_count": 2,
+        "preview": "Hi, just wanted to confirm our meeting...",
+        "labels": ["important", "work"],
+        "folder": "inbox"
+      }
+    ],
+    "total_count": 1250,
+    "has_more": true
+  }
+}
+#+end_src
+
+** Get Email
+Retrieve a single email with full content.
+
+*** Request
+#+begin_src http
+GET /emails/{email_id}
+#+end_src
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "email": {
+      "id": "email_789",
+      "account_id": "acc_123",
+      "message_id": "<unique@message.id>",
+      "thread_id": "thread_456",
+      "subject": "Meeting Tomorrow",
+      "from": {
+        "address": "boss@company.com",
+        "name": "Boss Name"
+      },
+      "to": [
+        {
+          "address": "user@gmail.com",
+          "name": "User Name"
+        }
+      ],
+      "cc": [],
+      "bcc": [],
+      "date": "2026-03-30T10:00:00Z",
+      "content": {
+        "text": "Plain text content...",
+        "html": "<html>HTML content...</html>"
+      },
+      "attachments": [
+        {
+          "id": "att_123",
+          "filename": "presentation.pdf",
+          "mime_type": "application/pdf",
+          "size": 1048576
+        }
+      ],
+      "headers": {
+        "Return-Path": "boss@company.com",
+        "Received": "..."
+      },
+      "flags": {
+        "is_read": false,
+        "is_starred": true,
+        "is_important": true,
+        "is_draft": false
+      },
+      "labels": ["important", "work"],
+      "ai_metadata": {
+        "category": "work_meeting",
+        "priority": 8,
+        "summary": "Meeting confirmation for tomorrow at 2 PM",
+        "sentiment": "neutral"
+      }
+    }
+  }
+}
+#+end_src
+
+** Send Email
+Send a new email.
+
+*** Request
+#+begin_src http
+POST /emails/send
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "account_id": "acc_123",
+  "to": ["recipient@example.com"],
+  "cc": [],
+  "bcc": [],
+  "subject": "Test Email",
+  "content": {
+    "text": "This is a test email",
+    "html": "<p>This is a <b>test</b> email</p>"
+  },
+  "attachments": [
+    {
+      "filename": "document.pdf",
+      "content": "base64_encoded_content",
+      "mime_type": "application/pdf"
+    }
+  ],
+  "reply_to": "email_456",
+  "save_to_sent": true
+}
+#+end_src
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "email_id": "email_new_123",
+    "message": "Email sent successfully"
+  }
+}
+#+end_src
+
+** Update Email Flags
+Modify email flags (read, starred, etc.).
+
+*** Request
+#+begin_src http
+PATCH /emails/{email_id}/flags
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "is_read": true,
+  "is_starred": false,
+  "is_important": true
+}
+#+end_src
+
+** Move Email
+Move email to a different folder.
+
+*** Request
+#+begin_src http
+POST /emails/{email_id}/move
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "folder_id": "folder_archive"
+}
+#+end_src
+
+** Delete Email
+Move email to trash or permanently delete.
+
+*** Request
+#+begin_src http
+DELETE /emails/{email_id}
+#+end_src
+
+*** Query Parameters
+| Parameter | Type    | Required | Description                    |
+|-----------+---------+----------+--------------------------------|
+| permanent | boolean | No       | Permanently delete (default: false) |
+
+* Folder Management Endpoints
+
+** List Folders
+Get folder hierarchy for accounts.
+
+*** Request
+#+begin_src http
+GET /folders
+#+end_src
+
+*** Query Parameters
+| Parameter  | Type   | Required | Description                        |
+|------------+--------+----------+------------------------------------|
+| account_id | string | No       | Filter by account (all if omitted) |
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "folders": [
+      {
+        "id": "folder_inbox",
+        "name": "Inbox",
+        "type": "inbox",
+        "icon": "inbox",
+        "color": null,
+        "unread_count": 15,
+        "total_count": 1250,
+        "children": [],
+        "account_mappings": {
+          "acc_123": "INBOX",
+          "acc_456": "Inbox"
+        }
+      }
+    ]
+  }
+}
+#+end_src
+
+** Create Folder
+Create a new unified folder.
+
+*** Request
+#+begin_src http
+POST /folders
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "name": "Projects",
+  "parent_id": null,
+  "color": "#FF5733",
+  "icon": "folder",
+  "apply_to_accounts": ["acc_123", "acc_456"]
+}
+#+end_src
+
+* Search Endpoints
+
+** Search Emails
+Advanced email search across accounts.
+
+*** Request
+#+begin_src http
+POST /search
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "query": "from:boss@company.com has:attachment",
+  "account_ids": ["acc_123"],
+  "date_range": {
+    "from": "2026-01-01",
+    "to": "2026-03-30"
+  },
+  "include_fields": ["subject", "from", "date", "preview"],
+  "limit": 100
+}
+#+end_src
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "results": [...],
+    "total_count": 45,
+    "execution_time_ms": 123,
+    "query_interpretation": {
+      "from": "boss@company.com",
+      "has_attachment": true
+    }
+  }
+}
+#+end_src
+
+** Natural Language Search
+Search using natural language queries.
+
+*** Request
+#+begin_src http
+POST /search/natural
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "query": "emails from my boss last week about the project",
+  "context": {
+    "known_contacts": {
+      "boss": "boss@company.com"
+    }
+  }
+}
+#+end_src
+
+* AI Features Endpoints
+
+** Summarize Email
+Get AI-generated summary of an email or thread.
+
+*** Request
+#+begin_src http
+POST /ai/summarize
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "email_id": "email_789",
+  "include_thread": true,
+  "max_length": 200
+}
+#+end_src
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "summary": "Meeting confirmation for tomorrow at 2 PM to discuss Q2 project milestones. Boss requests preparation of status report.",
+    "key_points": [
+      "Meeting tomorrow at 2 PM",
+      "Topic: Q2 project milestones",
+      "Action: Prepare status report"
+    ],
+    "model_used": "llama-3.2-8b",
+    "confidence": 0.92
+  }
+}
+#+end_src
+
+** Categorize Emails
+Batch categorize emails using AI.
+
+*** Request
+#+begin_src http
+POST /ai/categorize
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "email_ids": ["email_789", "email_790"],
+  "use_custom_categories": true,
+  "categories": ["work", "personal", "newsletter", "important"]
+}
+#+end_src
+
+** Generate Reply
+Get AI-suggested email replies.
+
+*** Request
+#+begin_src http
+POST /ai/compose/reply
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "email_id": "email_789",
+  "tone": "professional",
+  "length": "medium",
+  "include_context": true,
+  "key_points": ["confirm attendance", "mention report deadline"]
+}
+#+end_src
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "suggestions": [
+      {
+        "content": "Thank you for the meeting invitation...",
+        "confidence": 0.88,
+        "tone_match": 0.95
+      }
+    ]
+  }
+}
+#+end_src
+
+* Contact Management Endpoints
+
+** List Contacts
+Get unified contact list.
+
+*** Request
+#+begin_src http
+GET /contacts
+#+end_src
+
+*** Query Parameters
+| Parameter | Type   | Required | Description              |
+|-----------+--------+----------+--------------------------|
+| search    | string | No       | Search by name or email  |
+| vip_only  | boolean| No       | Filter VIP contacts      |
+| limit     | integer| No       | Results per page         |
+
+** Get Contact
+Get detailed contact information.
+
+*** Request
+#+begin_src http
+GET /contacts/{contact_id}
+#+end_src
+
+** Merge Contacts
+Merge duplicate contacts.
+
+*** Request
+#+begin_src http
+POST /contacts/merge
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "primary_contact_id": "contact_123",
+  "merge_contact_ids": ["contact_456", "contact_789"],
+  "keep_fields": {
+    "display_name": "contact_123",
+    "avatar": "contact_456"
+  }
+}
+#+end_src
+
+* Webhook Management Endpoints
+
+** Register Webhook
+Register a webhook for email events.
+
+*** Request
+#+begin_src http
+POST /webhooks
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "url": "http://localhost:3000/email-webhook",
+  "events": ["email.received", "email.sent", "email.flagged"],
+  "filters": {
+    "account_ids": ["acc_123"],
+    "from_addresses": ["important@sender.com"]
+  },
+  "secret": "webhook_secret_key"
+}
+#+end_src
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "webhook_id": "webhook_123",
+    "active": true
+  }
+}
+#+end_src
+
+** Webhook Events
+*** email.received
+#+begin_src json
+{
+  "event": "email.received",
+  "timestamp": "2026-03-30T12:00:00Z",
+  "data": {
+    "email_id": "email_789",
+    "account_id": "acc_123",
+    "from": "sender@example.com",
+    "subject": "New Email",
+    "preview": "This is a new email..."
+  }
+}
+#+end_src
+
+* Agent Integration Endpoints
+
+** Create Agent Session
+Initialize an agent session with specific permissions.
+
+*** Request
+#+begin_src http
+POST /agents/session
+#+end_src
+
+*** Body
+#+begin_src json
+{
+  "agent_name": "EmailOrganizer",
+  "permissions": [
+    "emails.read",
+    "emails.move",
+    "labels.create",
+    "ai.categorize"
+  ],
+  "session_duration": 3600
+}
+#+end_src
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "session_id": "session_abc123",
+    "api_token": "agent_token_xyz",
+    "expires_at": "2026-03-30T13:00:00Z"
+  }
+}
+#+end_src
+
+** Agent Capabilities
+Query what operations an agent can perform.
+
+*** Request
+#+begin_src http
+GET /agents/capabilities
+#+end_src
+
+*** Response
+#+begin_src json
+{
+  "success": true,
+  "data": {
+    "capabilities": {
+      "email_operations": ["read", "search", "move", "flag"],
+      "ai_features": ["summarize", "categorize"],
+      "folder_operations": ["list", "create"],
+      "rate_limits": {
+        "requests_per_minute": 60,
+        "ai_operations_per_hour": 100
+      }
+    }
+  }
+}
+#+end_src
+
+* Error Handling
+
+** Error Response Format
+#+begin_src json
+{
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid email address format",
+    "details": {
+      "field": "to",
+      "value": "invalid-email"
+    }
+  }
+}
+#+end_src
+
+** Common Error Codes
+| Code                  | HTTP Status | Description                    |
+|-----------------------+-------------+--------------------------------|
+| UNAUTHORIZED          | 401         | Invalid or missing auth token  |
+| FORBIDDEN             | 403         | Insufficient permissions       |
+| NOT_FOUND             | 404         | Resource not found             |
+| VALIDATION_ERROR      | 400         | Invalid request data           |
+| RATE_LIMIT_EXCEEDED   | 429         | Too many requests              |
+| INTERNAL_ERROR        | 500         | Server error                   |
+| ACCOUNT_SYNC_REQUIRED | 409         | Account needs sync first       |
+| AI_SERVICE_UNAVAILABLE| 503         | AI service temporarily down    |
+
+* Rate Limiting
+
+** Headers
+#+begin_example
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 45
+X-RateLimit-Reset: 1711800000
+#+end_example
+
+** Rate Limit Tiers
+| Tier          | Requests/Min | AI Ops/Hour | Concurrent Connections |
+|---------------+--------------+-------------+------------------------|
+| Default       | 60           | 100         | 5                      |
+| Agent         | 120          | 500         | 10                     |
+| Power User    | 300          | 1000        | 20                     |
+
+* WebSocket API
+
+** Connection
+#+begin_example
+ws://localhost:8080/api/v1/ws
+#+end_example
+
+** Authentication
+#+begin_src json
+{
+  "type": "auth",
+  "token": "bearer_token"
+}
+#+end_src
+
+** Subscribe to Events
+#+begin_src json
+{
+  "type": "subscribe",
+  "events": ["email.received", "sync.progress"],
+  "filters": {
+    "account_ids": ["acc_123"]
+  }
+}
+#+end_src
+
+** Event Format
+#+begin_src json
+{
+  "type": "event",
+  "event": "email.received",
+  "timestamp": "2026-03-30T12:00:00Z",
+  "data": {
+    "email_id": "email_789",
+    "account_id": "acc_123"
+  }
+}
+#+end_src
+
+* SDK Examples
+
+** JavaScript/TypeScript
+#+begin_src typescript
+import { MeeruClient } from '@meeru/sdk';
+
+const client = new MeeruClient({
+  apiKey: 'your_api_key',
+  baseUrl: 'http://localhost:8080/api/v1'
+});
+
+// List emails
+const emails = await client.emails.list({
+  unread: true,
+  limit: 50
+});
+
+// Send email
+const sent = await client.emails.send({
+  accountId: 'acc_123',
+  to: ['recipient@example.com'],
+  subject: 'Hello from Meeru SDK',
+  content: {
+    text: 'This email was sent using the Meeru SDK!'
+  }
+});
+#+end_src
+
+** Python
+#+begin_src python
+from meeru import MeeruClient
+
+client = MeeruClient(
+    api_key='your_api_key',
+    base_url='http://localhost:8080/api/v1'
+)
+
+# Search emails
+results = client.search(
+    query='from:boss@company.com',
+    date_range={'from': '2026-01-01', 'to': '2026-03-30'}
+)
+
+# AI summarization
+summary = client.ai.summarize(
+    email_id='email_789',
+    include_thread=True
+)
+#+end_src
+
+** Rust
+#+begin_src rust
+use meeru_sdk::{MeeruClient, EmailFilter};
+
+let client = MeeruClient::new(
+    "your_api_key",
+    "http://localhost:8080/api/v1"
+)?;
+
+// List unread emails
+let emails = client.emails()
+    .filter(EmailFilter::Unread)
+    .limit(50)
+    .list()
+    .await?;
+
+// Move to folder
+client.emails()
+    .id("email_789")
+    .move_to("folder_archive")
+    .await?;
+#+end_src
