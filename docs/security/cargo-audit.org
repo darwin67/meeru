@@ -1,0 +1,17 @@
+#+title: Cargo Audit Tracking
+
+* 2026-03-30 Audit Results
+** Low Complexity
+- [ ] instant: migrate to web-time (unmaintained; recommended replacement)
+- [ ] number_prefix: switch to unit-prefix (unmaintained; recommended replacement)
+
+** Medium Complexity
+- [ ] async-std: replace runtime (async-std discontinued; suggested alternative smol)
+- [ ] paste: swap to pastey or with_builtin_macros (paste unmaintained)
+- [ ] rustls-pemfile: migrate to rustls-pki-types PemObject API (crate unmaintained)
+
+** Medium-High Complexity
+- [ ] lru: upgrade to >=0.16.3 (patched range exists; possible API changes)
+
+** High Complexity
+- [ ] rsa: no patched release; requires dependency replacement, feature gating, or risk acceptance
