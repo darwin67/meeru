@@ -1,0 +1,29 @@
+[package]
+name = "meeru-providers"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+# Workspace dependencies
+tokio.workspace = true
+async-trait.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+
+# Email protocols
+async-imap = { version = "0.11.2", default-features = false, features = ["runtime-tokio"] }
+lettre = { version = "0.11", features = ["tokio1-native-tls", "builder", "hostname"] }
+mail-parser = "0.9"
+
+# OAuth
+oauth2 = "5.0"
+
+# HTTP client for OAuth
+reqwest = { version = "0.12", features = ["json"] }

@@ -1,0 +1,17 @@
+#+title: Cargo Audit Tracking
+
+* 2026-03-30 Audit Results
+** Low Complexity
+- [X] instant: migrate to web-time (unmaintained; recommended replacement)
+- [X] number_prefix: switch to unit-prefix (unmaintained; recommended replacement)
+
+** Medium Complexity
+- [X] async-std: resolved via async-imap tokio runtime
+- [X] paste: skipped for now (crate complete; no update planned)
+- [X] rustls-pemfile: resolved via reqwest/oauth2 upgrade (no rustls-pemfile)
+
+** Medium-High Complexity
+- [X] lru: resolved via dependency upgrades (>=0.16.3)
+
+** High Complexity
+- [X] rsa: ignored for now; TODO track https://github.com/launchbadge/sqlx/issues/4082 for resolution

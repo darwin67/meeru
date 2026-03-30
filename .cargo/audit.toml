@@ -1,0 +1,7 @@
+[advisories]
+ignore = [
+    # TODO: track https://github.com/launchbadge/sqlx/issues/4082 for rsa patch
+    "RUSTSEC-2023-0071",
+    # paste is unmaintained; tracking decision in docs/security/cargo-audit.org
+    "RUSTSEC-2024-0436",
+]
