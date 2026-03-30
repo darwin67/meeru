@@ -6,7 +6,7 @@
 - [X] number_prefix: switch to unit-prefix (unmaintained; recommended replacement)
 
 ** Medium Complexity
-- [ ] async-std: replace runtime (async-std discontinued; suggested alternative smol)
+- [X] async-std: resolved via async-imap tokio runtime
 - [X] paste: skipped for now (crate complete; no update planned)
 - [X] rustls-pemfile: resolved via reqwest/oauth2 upgrade (no rustls-pemfile)
 

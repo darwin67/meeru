@@ -18,7 +18,7 @@ uuid.workspace = true
 chrono.workspace = true
 
 # Email protocols
-async-imap = "0.9"
+async-imap = { version = "0.11.2", default-features = false, features = ["runtime-tokio"] }
 lettre = { version = "0.11", features = ["tokio1-native-tls", "builder", "hostname"] }
 mail-parser = "0.9"
 
