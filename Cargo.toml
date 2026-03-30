@@ -34,7 +34,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Database
-sqlx = { version = "0.7", features = ["runtime-tokio", "sqlite", "uuid", "chrono"] }
+sqlx = { version = "0.8.1", features = ["runtime-tokio", "sqlite", "uuid", "chrono"] }
 
 # UUID generation
 uuid = { version = "1.7", features = ["v4", "serde"] }
