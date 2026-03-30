@@ -1,0 +1,23 @@
+[package]
+name = "meeru-storage"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+# Workspace dependencies
+tokio.workspace = true
+async-trait.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+sqlx.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+
+# Storage specific
+tantivy = "0.21"
+directories = "5.0"

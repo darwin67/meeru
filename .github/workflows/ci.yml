@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   fmt:
     name: Format
@@ -103,27 +106,38 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      # Cache Pdfium library
-      - name: Cache Pdfium library
-        id: cache-pdfium
+      - run: cargo test --workspace
+
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      # Cache Cargo dependencies
+      - name: Cache Cargo dependencies
         uses: actions/cache@v4
         with:
-          path: pdfium.dll
-          key: pdfium-win-x64-${{ hashFiles('.github/workflows/ci.yml') }}
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-check-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-check-cargo-
+            ${{ runner.os }}-cargo-
 
-      # Download pre-built Pdfium library for Windows (only if not cached)
-      - name: Download Pdfium library
-        if: steps.cache-pdfium.outputs.cache-hit != 'true'
-        shell: pwsh
-        run: |
-          $url = "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-win-x64.tgz"
-          Invoke-WebRequest -Uri $url -OutFile "pdfium-win-x64.tgz"
-          tar -xzf pdfium-win-x64.tgz
-          Copy-Item "bin/pdfium.dll" -Destination "./"
+      - run: nix develop --command cargo check --workspace --all-targets
 
-      # Add pdfium.dll to PATH so LoadLibraryExW can find it
-      - name: Add Pdfium to PATH
-        shell: pwsh
-        run: echo "${{ github.workspace }}" | Out-File -FilePath $env:GITHUB_PATH -Append
-
-      - run: cargo test
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
