@@ -66,10 +66,10 @@ macro_rules! log_error {
 #[macro_export]
 macro_rules! error_with_context {
     ($msg:expr) => {
-        crate::Error::Other(anyhow::anyhow!($msg))
+        $crate::Error::Other(anyhow::anyhow!($msg))
     };
     ($fmt:expr, $($arg:tt)*) => {
-        crate::Error::Other(anyhow::anyhow!($fmt, $($arg)*))
+        $crate::Error::Other(anyhow::anyhow!($fmt, $($arg)*))
     };
 }
 
