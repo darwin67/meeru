@@ -19,5 +19,5 @@ uuid.workspace = true
 chrono.workspace = true
 
 # Storage specific
-tantivy = "0.21"
+tantivy = "0.22"
 directories = "5.0"

@@ -6,8 +6,10 @@
 pub mod account;
 pub mod email;
 pub mod error;
+pub mod logging;
 pub mod sync;
 pub mod unified;
+pub mod utils;
 
 pub use error::{Error, Result};
 

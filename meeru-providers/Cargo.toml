@@ -19,7 +19,7 @@ chrono.workspace = true
 
 # Email protocols
 async-imap = "0.9"
-lettre = { version = "0.11", features = ["tokio1-native-tls", "builder"] }
+lettre = { version = "0.11", features = ["tokio1-native-tls", "builder", "hostname"] }
 mail-parser = "0.9"
 
 # OAuth

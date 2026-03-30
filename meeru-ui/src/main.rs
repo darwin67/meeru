@@ -3,7 +3,9 @@
 use iced::{Application, Command, Element, Settings, Theme};
 
 pub fn main() -> iced::Result {
-    tracing_subscriber::fmt::init();
+    meeru_core::logging::init_logging();
+
+    tracing::info!("Starting Meeru desktop application");
 
     Meeru::run(Settings::default())
 }
@@ -35,7 +37,7 @@ impl Application for Meeru {
         Command::none()
     }
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<'_, Message> {
         "Hello, Meeru!".into()
     }
 }
