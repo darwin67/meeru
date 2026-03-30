@@ -121,7 +121,8 @@ graph LR
     ProviderInterface --> GmailAdapter
     ProviderInterface --> OutlookAdapter
 
-    EmailOps --> Storage
+    EmailOps --> DB
+    EmailOps --> FileStore
     Search --> Index
 
     UnifiedFolder --> EmailOps
