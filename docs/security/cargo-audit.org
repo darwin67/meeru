@@ -11,7 +11,7 @@
 - [X] rustls-pemfile: resolved via reqwest/oauth2 upgrade (no rustls-pemfile)
 
 ** Medium-High Complexity
-- [ ] lru: upgrade to >=0.16.3 (patched range exists; possible API changes)
+- [X] lru: resolved via dependency upgrades (>=0.16.3)
 
 ** High Complexity
 - [ ] rsa: no patched release; requires dependency replacement, feature gating, or risk acceptance
