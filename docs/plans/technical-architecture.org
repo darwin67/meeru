@@ -133,7 +133,7 @@ graph LR
 
     Commands --> AccountManager
     Commands --> EmailOps
-    Output <-- EmailOps
+    EmailOps --> Output
 #+end_src
 
 * Data Flow Architecture
