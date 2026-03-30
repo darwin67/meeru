@@ -28,6 +28,7 @@
           rustToolchain
 
           # tools
+          cargo-audit
           git-cliff
 
           # build deps
