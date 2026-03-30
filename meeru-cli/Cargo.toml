@@ -24,7 +24,6 @@ meeru-core = { path = "../meeru-core" }
 # CLI specific
 clap = { version = "4.5", features = ["derive", "env"] }
 colored = "2.1"
-indicatif = "0.17"
 dialoguer = "0.11"
 comfy-table = "7.1"
 

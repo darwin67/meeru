@@ -21,5 +21,5 @@ tracing.workspace = true
 meeru-core = { path = "../meeru-core" }
 
 # GUI framework
-iced = { version = "0.12", features = ["tokio", "svg", "canvas", "image"] }
+iced = { version = "0.14", features = ["tokio", "svg", "canvas", "image"] }
 # iced_aw = "0.9"  # Additional widgets - uncomment when needed

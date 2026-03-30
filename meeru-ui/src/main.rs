@@ -1,43 +1,34 @@
 //! Meeru Desktop Application
 
-use iced::{Application, Command, Element, Settings, Theme};
+use iced::{Element, Task};
 
 pub fn main() -> iced::Result {
     meeru_core::logging::init_logging();
 
     tracing::info!("Starting Meeru desktop application");
 
-    Meeru::run(Settings::default())
+    iced::application(Meeru::new, Meeru::update, Meeru::view)
+        .title("Meeru Email Client")
+        .run()
 }
 
-struct Meeru {
-    // Application state will go here
-}
+struct Meeru;
 
 #[derive(Debug, Clone)]
 enum Message {
     // Application messages will go here
 }
 
-impl Application for Meeru {
-    type Executor = iced::executor::Default;
-    type Message = Message;
-    type Theme = Theme;
-    type Flags = ();
-
-    fn new(_flags: ()) -> (Self, Command<Message>) {
-        (Self {}, Command::none())
+impl Meeru {
+    fn new() -> Self {
+        Self
     }
 
-    fn title(&self) -> String {
-        String::from("Meeru Email Client")
-    }
-
-    fn update(&mut self, _message: Message) -> Command<Message> {
-        Command::none()
+    fn update(&mut self, _message: Message) -> Task<Message> {
+        Task::none()
     }
 
     fn view(&self) -> Element<'_, Message> {
-        "Hello, Meeru!".into()
+        iced::widget::text("Hello, Meeru!").into()
     }
 }

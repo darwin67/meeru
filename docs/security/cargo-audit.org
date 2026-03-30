@@ -2,8 +2,8 @@
 
 * 2026-03-30 Audit Results
 ** Low Complexity
-- [ ] instant: migrate to web-time (unmaintained; recommended replacement)
-- [ ] number_prefix: switch to unit-prefix (unmaintained; recommended replacement)
+- [X] instant: migrate to web-time (unmaintained; recommended replacement)
+- [X] number_prefix: switch to unit-prefix (unmaintained; recommended replacement)
 
 ** Medium Complexity
 - [ ] async-std: replace runtime (async-std discontinued; suggested alternative smol)
