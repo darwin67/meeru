@@ -36,31 +36,33 @@ Meeru is a modern, unified desktop email client built with Rust and Iced that pr
 * Phase 1: Core Foundation (Months 1-2)
 ** Week 1-2: Project Setup and Architecture
 *** Project Infrastructure
-- [ ] Initialize Rust project with workspace structure
-- [ ] Set up Git repository and branching strategy
-- [ ] Configure CI/CD pipeline (GitHub Actions)
-- [ ] Set up development environment documentation
-- [ ] Create initial project structure:
-  - [ ] ~meeru-core~ - Core email logic
-  - [ ] ~meeru-ui~ - Iced-based UI
-  - [ ] ~meeru-cli~ - CLI interface
-  - [ ] ~meeru-storage~ - Storage layer
+- [X] Initialize Rust project with workspace structure
+- [X] Set up Git repository and branching strategy
+- [X] Configure CI/CD pipeline (GitHub Actions)
+- [X] Set up development environment documentation
+- [X] Create initial project structure:
+  - [X] ~meeru-core~ - Core email logic
+  - [X] ~meeru-ui~ - Iced-based UI
+  - [X] ~meeru-cli~ - CLI interface
+  - [X] ~meeru-storage~ - Storage layer
+  - [X] ~meeru-providers~ - Provider adapters
+  - [X] ~meeru-ai~ - AI features
 
 *** Development Tooling
-- [ ] Set up Rust formatting (rustfmt)
-- [ ] Configure clippy for linting
-- [ ] Set up pre-commit hooks
-- [ ] Configure logging infrastructure
-- [ ] Set up error handling patterns
+- [X] Set up Rust formatting (rustfmt)
+- [X] Configure clippy for linting
+- [X] Add cargo-audit security checks
+- [X] Configure logging infrastructure
+- [X] Set up error handling patterns
 
 ** Week 3-4: Basic Storage Layer
 *** Database Schema Design
-- [ ] Design SQLite schema for:
-  - [ ] Accounts table
-  - [ ] Emails table
-  - [ ] Folders table
-  - [ ] Contacts table
-  - [ ] Attachments table
+- [X] Design SQLite schema for:
+  - [X] Accounts table
+  - [X] Emails table
+  - [X] Folders table
+  - [X] Contacts table
+  - [X] Attachments table
 - [ ] Implement database migrations system
 - [ ] Create database connection pool
 - [ ] Write unit tests for database operations
