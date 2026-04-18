@@ -12,6 +12,26 @@ dev-cli:
 dev-ui:
 	cargo run -p meeru-ui
 
+## Build desktop installer artifacts for the current host platform
+.PHONY: package-desktop
+package-desktop:
+	bash scripts/package-desktop.sh auto
+
+## Build macOS desktop installer artifacts on macOS
+.PHONY: package-macos
+package-macos:
+	bash scripts/package-desktop.sh macos
+
+## Build Linux desktop installer artifacts on Linux
+.PHONY: package-linux
+package-linux:
+	bash scripts/package-desktop.sh linux
+
+## Build Windows desktop installer artifacts on Windows
+.PHONY: package-windows
+package-windows:
+	bash scripts/package-desktop.sh windows
+
 ## Run the API server
 .PHONY: dev-api
 dev-api:
@@ -83,6 +103,7 @@ install-dev-tools:
 	cargo install cargo-tarpaulin
 	cargo install cargo-audit
 	cargo install cargo-outdated
+	cargo install cargo-bundle
 
 ## Check for security vulnerabilities
 .PHONY: audit
