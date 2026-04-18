@@ -9,9 +9,9 @@ This plan should produce the first executable storage slice for Meeru. The outco
 ** Goals For This Plan
 - [X] Bootstrap a local storage runtime that can open an app data directory, create a SQLite database, and run migrations automatically
 - [X] Persist account metadata, unified folder metadata, email metadata, and attachment metadata in SQLite
-- [ ] Persist email bodies and attachment payloads in the local file system with stable references from SQLite
+- [X] Persist email bodies and attachment payloads in the local file system with stable references from SQLite
 - [X] Expose storage traits and a concrete SQLite implementation that ~meeru-core~, ~meeru-cli~, and future provider adapters can call
-- [ ] Cover the storage layer with integration tests that exercise a real database and real on-disk content storage
+- [X] Cover the storage layer with integration tests that exercise a real database and real on-disk content storage
 
 ** Scope For V1
 *** Included In V1
@@ -26,8 +26,8 @@ This plan should produce the first executable storage slice for Meeru. The outco
 - [X] Database bootstrap and connection pool management
 - [X] Storage traits for account, folder, email, and attachment operations
 - [X] SQLite-backed repositories for the V1 entities
-- [ ] File-system blob storage for email content and attachment bytes
-- [ ] Integration tests for migration, CRUD, query, and blob round-trip behavior
+- [X] File-system blob storage for email content and attachment bytes
+- [X] Integration tests for migration, CRUD, query, and blob round-trip behavior
 
 *** Deferred From V1
 - [ ] Encryption at rest for stored email content
@@ -97,20 +97,20 @@ Acceptance criteria:
 - [X] Can persist and fetch attachment metadata linked to an email
 
 *** 6. File-System Blob Store
-- [ ] Implement local blob storage for raw email bodies
-- [ ] Implement local blob storage for attachment payloads
-- [ ] Store stable relative references in SQLite rather than embedding large payloads in the database
-- [ ] Define cleanup behavior for blob writes that fail partway through a transaction
+- [X] Implement local blob storage for raw email bodies
+- [X] Implement local blob storage for attachment payloads
+- [X] Store stable relative references in SQLite rather than embedding large payloads in the database
+- [X] Define cleanup behavior for blob writes that fail partway through a transaction
 
 Acceptance criteria:
-- [ ] Email body content can be written and read back by reference
-- [ ] Attachment payloads can be written and read back by reference
-- [ ] Blob paths are deterministic or otherwise traceable for debugging
+- [X] Email body content can be written and read back by reference
+- [X] Attachment payloads can be written and read back by reference
+- [X] Blob paths are deterministic or otherwise traceable for debugging
 
 *** 7. Test Coverage
 - [X] Replace placeholder crate tests with storage-focused unit and integration tests
 - [X] Use temp directories and a real SQLite database in tests
-- [ ] Cover migration bootstrap, account CRUD, email CRUD, folder mapping, attachment metadata, and blob round-trip behavior
+- [X] Cover migration bootstrap, account CRUD, email CRUD, folder mapping, attachment metadata, and blob round-trip behavior
 
 Acceptance criteria:
 - [X] ~cargo test~ exercises real storage behavior rather than placeholder assertions
@@ -118,7 +118,7 @@ Acceptance criteria:
 
 ** Exit Criteria
 - [ ] ~meeru-storage~ exposes a documented bootstrap API and concrete storage implementation
-- [ ] The workspace has a real migration-backed SQLite database instead of empty module files
+- [X] The workspace has a real migration-backed SQLite database instead of empty module files
 - [ ] The storage layer supports the minimum data flows needed for generic account setup and first-pass email sync work
 - [ ] Plan 003 can build on the storage interfaces without redefining schemas or persistence primitives
 

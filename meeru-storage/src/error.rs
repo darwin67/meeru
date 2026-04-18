@@ -7,6 +7,9 @@ pub enum Error {
     #[error("Configuration error: {0}")]
     Configuration(String),
 
+    #[error("Invalid path: {0}")]
+    InvalidPath(String),
+
     #[error("Database error: {0}")]
     Database(#[from] sqlx::Error),
 

@@ -46,13 +46,14 @@ impl StoragePaths {
     }
 
     /// Directories that must exist before the storage runtime can open.
-    pub fn required_directories(&self) -> [&Path; 5] {
+    pub fn required_directories(&self) -> [&Path; 6] {
         [
             self.root.as_path(),
             self.blobs.as_path(),
             self.email_bodies.as_path(),
             self.attachments.as_path(),
             self.temp.as_path(),
+            self.backups.as_path(),
         ]
     }
 }
