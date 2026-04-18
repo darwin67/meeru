@@ -134,16 +134,18 @@ jobs:
       - name: Create PR body
         if: steps.skip.outputs.skip == 'false' && steps.changes.outputs.ahead != '0' && steps.version-check.outputs.skip == 'false'
         env:
-          RELEASE_TAG: ${{ steps.next-version.outputs.content }}
           AHEAD: ${{ steps.changes.outputs.ahead }}
+          LATEST_TAG: ${{ steps.changes.outputs.latest_tag }}
         run: |
+          previous_tag="${LATEST_TAG:-none}"
+
           cat > /tmp/release-pr-body.md <<EOF
           <!-- auto-release-pr -->
-          ## Release
+          ## Release State
 
-          This PR prepares \`${RELEASE_TAG}\`.
-
+          - Previous tag: \`${previous_tag}\`
           - Commits since last tag: ${AHEAD}
+          - Updated files: \`Cargo.toml\`, \`CHANGELOG.md\`
           - Source branch: \`release/next\`
           - Base branch: \`${{ github.event.repository.default_branch }}\`
 
