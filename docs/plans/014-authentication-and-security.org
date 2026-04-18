@@ -1,6 +1,7 @@
 #+TITLE: Authentication And Security
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
+#+STATUS: Draft
 
 * Authentication and Security
 ** OAuth2 Implementation

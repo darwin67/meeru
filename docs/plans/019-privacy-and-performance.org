@@ -1,6 +1,7 @@
 #+TITLE: Privacy And Performance
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
+#+STATUS: Draft
 
 * Privacy and Performance
 ** Privacy Features

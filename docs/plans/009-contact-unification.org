@@ -1,6 +1,7 @@
 #+TITLE: Contact Unification
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
+#+STATUS: Draft
 
 * Contact Unification
 ** Contact Merging System

@@ -1,6 +1,7 @@
 #+TITLE: Performance And Scalability
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
+#+STATUS: Draft
 
 * Performance and Scalability
 - [ ] Implement full-text search optimization

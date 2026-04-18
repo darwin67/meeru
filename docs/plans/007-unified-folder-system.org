@@ -1,6 +1,7 @@
 #+TITLE: Unified Folder System
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
+#+STATUS: Draft
 
 * Unified Folder System
 ** Virtual Folder Implementation
