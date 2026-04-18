@@ -1,0 +1,28 @@
+#+TITLE: Basic Storage Layer
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+#+STATUS: Active
+
+* Basic Storage Layer
+** Database Schema Design
+- [X] Design SQLite schema for:
+  - [X] Accounts table
+  - [X] Emails table
+  - [X] Folders table
+  - [X] Contacts table
+  - [X] Attachments table
+- [ ] Implement database migrations system
+- [ ] Create database connection pool
+- [ ] Write unit tests for database operations
+
+** Storage Abstraction Layer
+- [ ] Define storage traits for email operations
+- [ ] Implement SQLite-based storage backend
+- [ ] Create file system storage for email content
+- [ ] Implement basic encryption for stored emails
+- [ ] Create backup/restore functionality
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]
+- [[file:../database-schema.org][Database Schema]]

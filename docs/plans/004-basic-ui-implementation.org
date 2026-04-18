@@ -1,0 +1,23 @@
+#+TITLE: Basic UI Implementation
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+#+STATUS: Draft
+
+* Basic UI Implementation
+** Iced Application Setup
+- [ ] Create basic Iced application structure
+- [ ] Implement application state management
+- [ ] Create routing between views
+- [ ] Implement theme system basics
+
+** Core UI Components
+- [ ] Create account setup wizard
+- [ ] Implement email list view
+- [ ] Create email reader view
+- [ ] Build compose email view
+- [ ] Add basic folder navigation
+- [ ] Implement settings page framework
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]

@@ -50,6 +50,30 @@ make dev-ui
 make dev-cli
 ```
 
+### Desktop Installers
+
+Build installer artifacts for the current host platform:
+
+```bash
+make package-desktop
+```
+
+Platform-specific targets:
+
+```bash
+make package-macos
+make package-linux
+make package-windows
+```
+
+Expected outputs:
+
+- macOS: `.app` bundle and `.dmg` in `target/release/bundle/osx/`
+- Linux: `.deb` and `.AppImage` in `target/release/bundle/`
+- Windows: `.msi` in `target/release/bundle/msi/`
+
+The tag-based GitHub release workflow also builds these desktop installers on native GitHub runners and uploads them to the GitHub release assets.
+
 ### Development
 
 ```bash
@@ -68,7 +92,7 @@ make docs
 
 ## Roadmap
 
-See [docs/plans/roadmap.org](docs/plans/roadmap.org) for the detailed development roadmap.
+See the project overview in [docs/project-overview.org](docs/project-overview.org) and the numbered development plans under [docs/plans](docs/plans), starting with [docs/plans/001-project-setup-and-architecture.org](docs/plans/001-project-setup-and-architecture.org).
 
 ### Phase 1: Core Foundation (Current)
 - [x] Project setup and architecture

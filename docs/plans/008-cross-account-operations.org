@@ -1,0 +1,27 @@
+#+TITLE: Cross-Account Operations
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+#+STATUS: Draft
+
+* Cross-Account Operations
+** Unified Operations Engine
+- [ ] Implement cross-account search:
+  - [ ] Search query parser
+  - [ ] Parallel search execution
+  - [ ] Result aggregation
+  - [ ] Search result ranking
+- [ ] Build unified move/copy operations
+- [ ] Create cross-account threading
+- [ ] Implement bulk operations
+
+** Label and Tag Management
+- [ ] Design unified label system
+- [ ] Create label mapping for different providers
+- [ ] Implement label sync logic
+- [ ] Build label management UI
+- [ ] Add color coding support
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]
+- [[file:../database-schema.org][Database Schema]]

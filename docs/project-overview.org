@@ -1,0 +1,39 @@
+#+TITLE: Meeru Project Overview And Stack
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+
+* Project Overview
+Meeru is a modern, unified desktop email client built with Rust and Iced that provides transparent multi-account management, AI-powered features, and a CLI interface for automation.
+
+** Core Goals
+- [ ] Unified view across all email accounts
+- [ ] Transparent operations (archiving, labeling) across providers
+- [ ] Local AI integration for privacy-focused features
+- [ ] CLI interface for automation and AI agent access
+- [ ] Cross-platform support (Windows, macOS, Linux)
+
+* Technology Stack
+** Backend
+- [ ] Rust as primary language
+- [ ] ~async-imap~ for IMAP connections
+- [ ] ~lettre~ for SMTP operations
+- [ ] ~mail-parser~ for email parsing
+- [ ] ~oauth2~ for authentication
+- [ ] ~tantivy~ for full-text search
+- [ ] ~sqlx~ with SQLite for metadata storage
+- [ ] ~tokio~ for async runtime
+
+** Frontend
+- [ ] Iced GUI framework
+- [ ] Custom email display widgets
+- [ ] Native performance
+
+** Storage
+- [ ] SQLite for email metadata
+- [ ] Encrypted file system storage for email content
+- [ ] Tantivy index for search capabilities
+
+* References
+- [[file:technical-architecture.org][Technical Architecture]]
+- [[file:database-schema.org][Database Schema]]
+- [[file:security/cargo-audit.org][Cargo Audit Tracking]]

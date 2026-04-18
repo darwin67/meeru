@@ -1,0 +1,14 @@
+#+TITLE: Technical Risks
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+#+STATUS: Draft
+
+* Technical Risks
+- [ ] IMAP provider compatibility issues
+- [ ] Performance with large email volumes
+- [ ] Cross-platform GUI consistency
+- [ ] AI model size and performance
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]

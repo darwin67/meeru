@@ -1,5 +1,5 @@
 #+TITLE: Meeru Email Client - Technical Architecture
-#+AUTHOR: Meeru Development Team
+#+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
 
 * Table of Contents                                                     :TOC:

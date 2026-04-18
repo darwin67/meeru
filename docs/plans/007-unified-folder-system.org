@@ -1,0 +1,32 @@
+#+TITLE: Unified Folder System
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+#+STATUS: Draft
+
+* Unified Folder System
+** Virtual Folder Implementation
+- [ ] Design unified folder data model
+- [ ] Create folder mapping engine
+- [ ] Implement standard folder auto-detection:
+  - [ ] Inbox mapping
+  - [ ] Sent folder mapping
+  - [ ] Drafts mapping
+  - [ ] Archive mapping
+  - [ ] Trash mapping
+- [ ] Build custom folder creation system
+- [ ] Add folder synchronization logic
+
+** Smart Folders
+- [ ] Design smart folder rule engine
+- [ ] Implement basic smart folder types:
+  - [ ] Unread across accounts
+  - [ ] Flagged/Starred
+  - [ ] Has attachments
+  - [ ] From VIPs
+- [ ] Create smart folder UI
+- [ ] Add real-time smart folder updates
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]
+- [[file:../database-schema.org][Database Schema]]

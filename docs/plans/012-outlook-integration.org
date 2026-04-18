@@ -1,0 +1,23 @@
+#+TITLE: Outlook Integration
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+#+STATUS: Draft
+
+* Outlook Integration
+** Outlook/Exchange Support
+- [ ] Implement Outlook OAuth2 flow
+- [ ] Add Exchange ActiveSync support
+- [ ] Implement Outlook categories
+- [ ] Handle Outlook folder types
+- [ ] Support Outlook rules
+
+** Outlook-Specific Features
+- [ ] Add calendar preview integration
+- [ ] Implement focused inbox support
+- [ ] Handle Outlook contact groups
+- [ ] Support Outlook search folders
+- [ ] Add Outlook-specific shortcuts
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]

@@ -29,6 +29,7 @@
 
           # tools
           cargo-audit
+          cargo-bundle
           git-cliff
 
           # build deps

@@ -4,10 +4,34 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
+repository.workspace = true
+description = "Meeru desktop email client"
 
 [[bin]]
 name = "meeru"
 path = "src/main.rs"
+
+[package.metadata.bundle]
+name = "Meeru"
+identifier = "io.github.darwin67.meeru"
+short_description = "Unified desktop email client"
+long_description = """
+Meeru is a modern desktop email client built with Rust and Iced.
+It aims to provide a unified multi-account experience, privacy-first
+local AI features, and CLI/API automation support.
+"""
+category = "public.app-category.productivity"
+copyright = "Copyright (c) Meeru Development Team"
+deb_depends = [
+    "libasound2",
+    "libc6",
+    "libfontconfig1",
+    "libfreetype6",
+    "libgcc-s1",
+    "libwayland-client0",
+    "libx11-6",
+    "libxkbcommon0",
+]
 
 [dependencies]
 # Workspace dependencies

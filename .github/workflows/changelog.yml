@@ -1,0 +1,175 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-release:
+    name: Validate release tag
+    runs-on: ubuntu-latest
+    outputs:
+      crate_version: ${{ steps.version.outputs.crate_version }}
+    steps:
+      - name: Checkout tagged commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Validate tag matches workspace version
+        id: version
+        run: |
+          tag_version="${GITHUB_REF_NAME#v}"
+          crate_version="$(sed -n 's/^version = \"\(.*\)\"/\1/p' Cargo.toml | head -n 1)"
+
+          if [ -z "${crate_version}" ]; then
+            echo "Failed to read version from Cargo.toml"
+            exit 1
+          fi
+
+          if [ "${tag_version}" != "${crate_version}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match Cargo.toml version ${crate_version}"
+            exit 1
+          fi
+
+          echo "crate_version=${crate_version}" >> "$GITHUB_OUTPUT"
+
+  build-installers:
+    name: Build desktop installers
+    needs: validate-release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: linux-installers
+          - os: macos-latest
+            artifact_name: macos-installers
+          - os: windows-latest
+            artifact_name: windows-installers
+    steps:
+      - name: Checkout tagged commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Linux packaging dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            desktop-file-utils \
+            file \
+            libasound2-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            libgl1-mesa-dev \
+            libssl-dev \
+            libwayland-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxkbcommon-dev \
+            libxrandr-dev \
+            patchelf \
+            pkg-config \
+            squashfs-tools \
+            zsync
+
+      - name: Install cargo-bundle
+        run: cargo install cargo-bundle --locked
+
+      - name: Build installers
+        shell: bash
+        run: |
+          bash scripts/package-desktop.sh auto
+
+      - name: Collect Linux installers
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          mkdir -p dist
+          find target/release/bundle/deb -maxdepth 1 -type f -name '*.deb' -exec cp {} dist/ \;
+          find target/release/bundle/appimage -maxdepth 1 -type f -name '*.AppImage' -exec cp {} dist/ \;
+
+      - name: Collect macOS installers
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p dist
+          app_path="$(find target/release/bundle/osx -maxdepth 1 -type d -name '*.app' -print -quit)"
+          if [ -z "${app_path}" ]; then
+            echo "No macOS app bundle found"
+            exit 1
+          fi
+          app_name="$(basename "${app_path%.app}")"
+          ditto -c -k --sequesterRsrc --keepParent "${app_path}" "dist/${app_name}.app.zip"
+          find target/release/bundle/osx -maxdepth 1 -type f -name '*.dmg' -exec cp {} dist/ \;
+
+      - name: Collect Windows installers
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          mkdir -p dist
+          find target/release/bundle/msi -maxdepth 1 -type f -name '*.msi' -exec cp {} dist/ \;
+
+      - name: Upload packaged installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/
+          if-no-files-found: error
+
+  publish-release:
+    name: Publish GitHub release
+    needs:
+      - validate-release
+      - build-installers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tagged commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Generate release notes
+        uses: orhun/git-cliff-action@v4
+        id: release-notes
+        with:
+          config: cliff.toml
+          args: --latest --strip header
+        env:
+          OUTPUT: RELEASE_NOTES.md
+          GITHUB_REPO: ${{ github.repository }}
+
+      - name: Download packaged installers
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Flatten release asset paths
+        run: |
+          mkdir -p release-files
+          find release-assets -type f -exec cp {} release-files/ \;
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          body: ${{ steps.release-notes.outputs.content }}
+          files: release-files/*

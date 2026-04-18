@@ -1,0 +1,18 @@
+#+TITLE: AI Features Deliverables
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+#+STATUS: Draft
+
+* AI Features Deliverables
+- [ ] Local LLM support working
+- [ ] Auto-categorization functional
+- [ ] Priority detection active
+- [ ] Email summarization available
+- [ ] Smart compose operational
+- [ ] Privacy controls implemented
+
+* References
+- [[file:016-ai-infrastructure.org][AI Infrastructure]]
+- [[file:017-email-intelligence.org][Email Intelligence]]
+- [[file:018-ai-powered-features.org][AI-Powered Features]]
+- [[file:019-privacy-and-performance.org][Privacy And Performance]]
