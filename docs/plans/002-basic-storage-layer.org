@@ -7,7 +7,7 @@
 This plan should produce the first executable storage slice for Meeru. The outcome is not "schema written on paper"; it is a working local persistence layer that later IMAP sync, UI, and CLI work can use without redesigning storage a second time.
 
 ** Goals For This Plan
-- [ ] Bootstrap a local storage runtime that can open an app data directory, create a SQLite database, and run migrations automatically
+- [X] Bootstrap a local storage runtime that can open an app data directory, create a SQLite database, and run migrations automatically
 - [ ] Persist account metadata, unified folder metadata, email metadata, and attachment metadata in SQLite
 - [ ] Persist email bodies and attachment payloads in the local file system with stable references from SQLite
 - [ ] Expose storage traits and a concrete SQLite implementation that ~meeru-core~, ~meeru-cli~, and future provider adapters can call
@@ -15,15 +15,15 @@ This plan should produce the first executable storage slice for Meeru. The outco
 
 ** Scope For V1
 *** Included In V1
-- [ ] SQLite schema and migration runner for:
-  - [ ] ~schema_migrations~
-  - [ ] ~accounts~
-  - [ ] ~unified_folders~
-  - [ ] ~folder_mappings~
-  - [ ] ~emails~
-  - [ ] ~email_folders~
-  - [ ] ~attachments~
-- [ ] Database bootstrap and connection pool management
+- [X] SQLite schema and migration runner for:
+  - [X] ~schema_migrations~
+  - [X] ~accounts~
+  - [X] ~unified_folders~
+  - [X] ~folder_mappings~
+  - [X] ~emails~
+  - [X] ~email_folders~
+  - [X] ~attachments~
+- [X] Database bootstrap and connection pool management
 - [ ] Storage traits for account, folder, email, and attachment operations
 - [ ] SQLite-backed repositories for the V1 entities
 - [ ] File-system blob storage for email content and attachment bytes
@@ -38,29 +38,29 @@ This plan should produce the first executable storage slice for Meeru. The outco
 
 ** Implementation Plan
 *** 1. Storage Bootstrap
-- [ ] Define storage path conventions for database, blob content, temporary files, and future backups
-- [ ] Implement a storage configuration type that can open a workspace-local or user-data-local storage root
-- [ ] Add a database bootstrap API in ~meeru-storage~ that:
-  - [ ] creates required directories
-  - [ ] opens the SQLite database
-  - [ ] configures SQLite pragmas appropriate for a desktop app
-  - [ ] creates a reusable connection pool
+- [X] Define storage path conventions for database, blob content, temporary files, and future backups
+- [X] Implement a storage configuration type that can open a workspace-local or user-data-local storage root
+- [X] Add a database bootstrap API in ~meeru-storage~ that:
+  - [X] creates required directories
+  - [X] opens the SQLite database
+  - [X] configures SQLite pragmas appropriate for a desktop app
+  - [X] creates a reusable connection pool
 
 Acceptance criteria:
-- [ ] Starting from an empty directory creates the required storage folders and database file
-- [ ] Opening the same directory twice reuses the existing schema without data loss
+- [X] Starting from an empty directory creates the required storage folders and database file
+- [X] Opening the same directory twice reuses the existing schema without data loss
 - [ ] Bootstrap failures return typed errors with actionable context
 
 *** 2. Migration System
-- [ ] Implement a migration runner in ~meeru-storage::migrations~
-- [ ] Create an initial executable V1 migration derived from ~docs/database-schema.org~
-- [ ] Keep migrations idempotent and versioned through ~schema_migrations~
+- [X] Implement a migration runner in ~meeru-storage::migrations~
+- [X] Create an initial executable V1 migration derived from ~docs/database-schema.org~
+- [X] Keep migrations idempotent and versioned through ~schema_migrations~
 - [ ] Validate the documented schema against actual SQLite syntax before checking off the migration work
 
 Acceptance criteria:
-- [ ] A fresh database applies all migrations successfully
-- [ ] Re-running migrations on an up-to-date database is a no-op
-- [ ] The migration runner records applied versions and descriptions
+- [X] A fresh database applies all migrations successfully
+- [X] Re-running migrations on an up-to-date database is a no-op
+- [X] The migration runner records applied versions and descriptions
 - [ ] Migration tests fail if the documented schema and executable migration drift in incompatible ways
 
 *** 3. Storage Model Alignment

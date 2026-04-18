@@ -4,6 +4,9 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum Error {
+    #[error("Configuration error: {0}")]
+    Configuration(String),
+
     #[error("Database error: {0}")]
     Database(#[from] sqlx::Error),
 
