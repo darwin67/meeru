@@ -1,0 +1,28 @@
+#+TITLE: CLI Foundation
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+
+* CLI Foundation
+** CLI Framework
+- [ ] Set up clap for argument parsing
+- [ ] Design command structure
+- [ ] Implement CLI authentication
+- [ ] Create output formatters (JSON, table, etc.)
+- [ ] Add shell completion scripts
+
+** Core CLI Commands
+- [ ] Implement account management commands:
+  - [ ] ~meeru accounts add~
+  - [ ] ~meeru accounts list~
+  - [ ] ~meeru accounts remove~
+  - [ ] ~meeru accounts sync~
+- [ ] Create email operation commands:
+  - [ ] ~meeru search~
+  - [ ] ~meeru read~
+  - [ ] ~meeru compose~
+  - [ ] ~meeru reply~
+  - [ ] ~meeru forward~
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]

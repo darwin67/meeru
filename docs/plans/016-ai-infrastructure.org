@@ -1,0 +1,22 @@
+#+TITLE: AI Infrastructure
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+
+* AI Infrastructure
+** AI Provider Interface
+- [ ] Design AI provider trait system
+- [ ] Create plugin architecture for AI providers
+- [ ] Implement provider configuration system
+- [ ] Build AI task queue system
+- [ ] Add AI response caching
+
+** Local LLM Integration
+- [ ] Research and select local LLM runtime (candle/ort)
+- [ ] Implement model loading system
+- [ ] Create model management UI
+- [ ] Add model download functionality
+- [ ] Implement inference pipeline
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]

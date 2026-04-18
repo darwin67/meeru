@@ -68,7 +68,7 @@ make docs
 
 ## Roadmap
 
-See [docs/plans/roadmap.org](docs/plans/roadmap.org) for the detailed development roadmap.
+See the project overview in [docs/project-overview.org](docs/project-overview.org) and the numbered development plans under [docs/plans](docs/plans), starting with [docs/plans/001-project-setup-and-architecture.org](docs/plans/001-project-setup-and-architecture.org).
 
 ### Phase 1: Core Foundation (Current)
 - [x] Project setup and architecture

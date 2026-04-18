@@ -1,0 +1,23 @@
+#+TITLE: API Server
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+
+* API Server
+** Local API Implementation
+- [ ] Design RESTful API
+- [ ] Implement API server (Axum/Actix)
+- [ ] Create API authentication
+- [ ] Add rate limiting
+- [ ] Implement WebSocket support
+
+** API Endpoints
+- [ ] Account management endpoints
+- [ ] Email CRUD operations
+- [ ] Search and filter endpoints
+- [ ] AI feature endpoints
+- [ ] Webhook management endpoints
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]
+- [[file:../api-documentation-template.org][API Documentation Template]]

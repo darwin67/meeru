@@ -1,0 +1,23 @@
+#+TITLE: Contact Unification
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+
+* Contact Unification
+** Contact Merging System
+- [ ] Design contact data model
+- [ ] Implement contact extraction from emails
+- [ ] Create contact deduplication algorithm
+- [ ] Build contact merging UI
+- [ ] Add manual merge/split functionality
+
+** Contact Integration
+- [ ] Create unified address book
+- [ ] Implement auto-complete for compose
+- [ ] Add contact import/export
+- [ ] Build contact details view
+- [ ] Create contact groups/lists
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]
+- [[file:../database-schema.org][Database Schema]]

@@ -1,0 +1,25 @@
+#+TITLE: Gmail Integration
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+
+* Gmail Integration
+** Gmail-Specific Features
+- [ ] Implement Gmail OAuth2 authentication
+- [ ] Add Gmail label support:
+  - [ ] Fetch all labels
+  - [ ] Create/update/delete labels
+  - [ ] Label hierarchy support
+- [ ] Implement Gmail categories
+- [ ] Add Gmail-specific search operators
+- [ ] Support Gmail threading model
+
+** Gmail Optimization
+- [ ] Implement Gmail push notifications (IDLE)
+- [ ] Add Gmail-specific batch operations
+- [ ] Optimize label-to-folder mapping
+- [ ] Handle Gmail quota and limits
+- [ ] Add Gmail settings sync
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]

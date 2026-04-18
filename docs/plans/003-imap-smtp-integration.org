@@ -1,0 +1,28 @@
+#+TITLE: IMAP SMTP Integration
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+
+* IMAP/SMTP Integration
+** Email Protocol Implementation
+- [ ] Create IMAP connection manager
+- [ ] Implement basic IMAP operations:
+  - [ ] Connect and authenticate
+  - [ ] List folders
+  - [ ] Fetch email headers
+  - [ ] Fetch email bodies
+  - [ ] Search emails
+- [ ] Create SMTP client wrapper
+- [ ] Implement email sending functionality
+- [ ] Add connection pooling for performance
+
+** Email Parsing and Storage
+- [ ] Integrate mail-parser library
+- [ ] Create email model structures
+- [ ] Implement MIME handling
+- [ ] Handle attachments extraction
+- [ ] Create email serialization/deserialization
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]
+- [[file:../database-schema.org][Database Schema]]

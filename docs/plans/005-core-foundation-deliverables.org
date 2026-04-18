@@ -1,0 +1,17 @@
+#+TITLE: Core Foundation Deliverables
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+
+* Core Foundation Deliverables
+- [ ] Working IMAP email client
+- [ ] Can add generic email accounts
+- [ ] Can view and send emails
+- [ ] Basic folder navigation
+- [ ] Persistent storage of emails
+- [ ] Cross-platform binary builds
+
+* References
+- [[file:001-project-setup-and-architecture.org][Project Setup And Architecture]]
+- [[file:002-basic-storage-layer.org][Basic Storage Layer]]
+- [[file:003-imap-smtp-integration.org][IMAP SMTP Integration]]
+- [[file:004-basic-ui-implementation.org][Basic UI Implementation]]
