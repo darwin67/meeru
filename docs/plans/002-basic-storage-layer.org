@@ -8,9 +8,9 @@ This plan should produce the first executable storage slice for Meeru. The outco
 
 ** Goals For This Plan
 - [X] Bootstrap a local storage runtime that can open an app data directory, create a SQLite database, and run migrations automatically
-- [ ] Persist account metadata, unified folder metadata, email metadata, and attachment metadata in SQLite
+- [X] Persist account metadata, unified folder metadata, email metadata, and attachment metadata in SQLite
 - [ ] Persist email bodies and attachment payloads in the local file system with stable references from SQLite
-- [ ] Expose storage traits and a concrete SQLite implementation that ~meeru-core~, ~meeru-cli~, and future provider adapters can call
+- [X] Expose storage traits and a concrete SQLite implementation that ~meeru-core~, ~meeru-cli~, and future provider adapters can call
 - [ ] Cover the storage layer with integration tests that exercise a real database and real on-disk content storage
 
 ** Scope For V1
@@ -24,8 +24,8 @@ This plan should produce the first executable storage slice for Meeru. The outco
   - [X] ~email_folders~
   - [X] ~attachments~
 - [X] Database bootstrap and connection pool management
-- [ ] Storage traits for account, folder, email, and attachment operations
-- [ ] SQLite-backed repositories for the V1 entities
+- [X] Storage traits for account, folder, email, and attachment operations
+- [X] SQLite-backed repositories for the V1 entities
 - [ ] File-system blob storage for email content and attachment bytes
 - [ ] Integration tests for migration, CRUD, query, and blob round-trip behavior
 
@@ -64,7 +64,7 @@ Acceptance criteria:
 - [ ] Migration tests fail if the documented schema and executable migration drift in incompatible ways
 
 *** 3. Storage Model Alignment
-- [ ] Define storage-layer record types or mapping functions for the current core models in ~meeru-core~
+- [X] Define storage-layer record types or mapping functions for the current core models in ~meeru-core~
 - [ ] Resolve mismatches between the current lightweight domain structs and the richer storage schema
 - [ ] Document which fields are required in V1, optional in V1, or deferred to later plans
 
@@ -74,27 +74,27 @@ Acceptance criteria:
 
 *** 4. Storage Traits
 - [ ] Define focused traits or repository interfaces for:
-  - [ ] account CRUD
-  - [ ] unified folder CRUD and folder mapping lookup
+  - [X] account CRUD
+  - [X] unified folder CRUD and folder mapping lookup
   - [ ] email insert/update/get/list operations
-  - [ ] attachment insert/list operations
+  - [X] attachment insert/list operations
   - [ ] content blob put/get/delete operations
-- [ ] Keep trait boundaries small enough that future provider sync code can compose them cleanly
+- [X] Keep trait boundaries small enough that future provider sync code can compose them cleanly
 
 Acceptance criteria:
-- [ ] ~meeru-core~ can depend on storage interfaces without importing SQLite-specific types
-- [ ] Trait methods map to realistic workflows needed by plan 003 and plan 004
+- [X] ~meeru-core~ can depend on storage interfaces without importing SQLite-specific types
+- [X] Trait methods map to realistic workflows needed by plan 003 and plan 004
 
 *** 5. SQLite Backend
-- [ ] Implement the V1 repository traits using ~sqlx~ and SQLite
+- [X] Implement the V1 repository traits using ~sqlx~ and SQLite
 - [ ] Support basic transactional operations for writing an email record and its related folder and attachment metadata
-- [ ] Add list/query methods needed for an initial inbox or folder view
+- [X] Add list/query methods needed for an initial inbox or folder view
 
 Acceptance criteria:
 - [ ] Can create, list, fetch, update, and delete accounts
-- [ ] Can insert and fetch email metadata by account and folder
-- [ ] Can associate emails to unified folders
-- [ ] Can persist and fetch attachment metadata linked to an email
+- [X] Can insert and fetch email metadata by account and folder
+- [X] Can associate emails to unified folders
+- [X] Can persist and fetch attachment metadata linked to an email
 
 *** 6. File-System Blob Store
 - [ ] Implement local blob storage for raw email bodies
@@ -108,13 +108,13 @@ Acceptance criteria:
 - [ ] Blob paths are deterministic or otherwise traceable for debugging
 
 *** 7. Test Coverage
-- [ ] Replace placeholder crate tests with storage-focused unit and integration tests
-- [ ] Use temp directories and a real SQLite database in tests
+- [X] Replace placeholder crate tests with storage-focused unit and integration tests
+- [X] Use temp directories and a real SQLite database in tests
 - [ ] Cover migration bootstrap, account CRUD, email CRUD, folder mapping, attachment metadata, and blob round-trip behavior
 
 Acceptance criteria:
-- [ ] ~cargo test~ exercises real storage behavior rather than placeholder assertions
-- [ ] Tests can run repeatedly without manual cleanup
+- [X] ~cargo test~ exercises real storage behavior rather than placeholder assertions
+- [X] Tests can run repeatedly without manual cleanup
 
 ** Exit Criteria
 - [ ] ~meeru-storage~ exposes a documented bootstrap API and concrete storage implementation

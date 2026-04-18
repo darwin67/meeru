@@ -6,6 +6,14 @@
 pub mod database;
 pub mod error;
 pub mod migrations;
+pub mod model;
+pub mod store;
 
 pub use database::{Storage, StorageConfig, StoragePaths};
 pub use error::{Error, Result};
+pub use model::{
+    AccountRecord, AttachmentRecord, EmailAddress, EmailRecord, FolderMappingRecord, NewAccount,
+    NewAttachment, NewEmail, NewFolderMapping, NewUnifiedFolder, ProviderType, UnifiedFolderRecord,
+    UnifiedFolderType,
+};
+pub use store::{AccountStore, AttachmentStore, EmailStore, FolderStore};
