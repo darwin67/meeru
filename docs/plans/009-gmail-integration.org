@@ -7,7 +7,7 @@
 Gmail should be treated as a label-first provider. Its provider-native labels should map into Meeru's label model without forcing them through folder mappings, while Gmail system semantics such as Inbox, Trash, and Spam can still inform unified folder placement where appropriate.
 
 ** Gmail-Specific Features
-- [ ] Integrate Gmail with the shared OAuth2 and credential infrastructure from plan 014
+- [ ] Integrate Gmail with the shared OAuth2 and credential infrastructure from plan 012
 - [ ] Add Gmail label support:
   - [ ] Fetch all labels
   - [ ] Create/update/delete labels
@@ -27,10 +27,10 @@ Gmail should be treated as a label-first provider. Its provider-native labels sh
 ** Explicitly Out Of Scope
 - Generic OAuth2 infrastructure shared across providers
 - Generic IMAP and SMTP baseline behavior already owned by plan 003
-- Cross-provider unified folder and label model owned by plan 007
+- Cross-provider unified folder and label model owned by plan 006
 
 * References
 - [[file:../project-overview.org][Project Overview]]
 - [[file:../technical-architecture.org][Technical Architecture]]
-- [[file:014-authentication-and-security.org][Authentication Credential Storage And Transport Security]]
-- [[file:007-unified-folder-system.org][Unified Folder And Label System]]
+- [[file:012-authentication-and-security.org][Authentication Credential Storage And Transport Security]]
+- [[file:006-unified-folder-system.org][Unified Folder And Label System]]

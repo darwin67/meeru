@@ -19,7 +19,7 @@ This is a roadmap prospect, not an execution plan.
 - [ ] 95% folder and label mapping accuracy
 
 * References
-- [[file:../plans/006-account-abstraction-layer.org][Account Abstraction Layer]]
-- [[file:../plans/007-unified-folder-system.org][Unified Folder And Label System]]
-- [[file:../plans/008-cross-account-operations.org][Cross-Account Operations]]
-- [[file:../plans/009-contact-unification.org][Contact Unification]]
+- [[file:../plans/005-account-abstraction-layer.org][Account Abstraction Layer]]
+- [[file:../plans/006-unified-folder-system.org][Unified Folder And Label System]]
+- [[file:../plans/007-cross-account-operations.org][Cross-Account Operations]]
+- [[file:../plans/008-contact-unification.org][Contact Unification]]

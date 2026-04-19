@@ -19,6 +19,6 @@ This is a roadmap prospect, not an execution plan.
 - [ ] Support 10+ concurrent agents
 
 * References
-- [[file:../plans/021-cli-foundation.org][CLI And Automation Foundation]]
-- [[file:../plans/023-api-server.org][API Server]]
-- [[file:../plans/024-agent-integration.org][Agent Integration]]
+- [[file:../plans/013-cli-foundation.org][CLI And Automation Foundation]]
+- [[file:../plans/014-api-server.org][API Server]]
+- [[file:../plans/015-agent-integration.org][Agent Integration]]

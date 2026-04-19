@@ -11,7 +11,7 @@ This plan should produce the first usable provider slice for generic email accou
 - [ ] Parse fetched RFC822 message bytes with ~mail-parser~ and convert them into the storage-ready email shape used by ~meeru-core~
 - [ ] Persist first-pass synced messages, bodies, folder membership, and attachment payloads through the existing storage interfaces from plan 002
 - [ ] Implement a basic SMTP send path for generic accounts
-- [ ] Keep the slice intentionally narrow enough that plan 006 can build account orchestration and multi-account sync on top without reworking provider primitives
+- [ ] Keep the slice intentionally narrow enough that plan 005 can build account orchestration and multi-account sync on top without reworking provider primitives
 
 ** Scope For V1
 *** Included In V1
@@ -47,7 +47,7 @@ This plan should produce the first usable provider slice for generic email accou
 
 Acceptance criteria:
 - [ ] The generic adapter can be constructed from the shared account/runtime configuration without SQLite-specific types
-- [ ] Plan 006 can reuse the adapter without changing its public contract
+- [ ] Plan 005 can reuse the adapter without changing its public contract
 
 *** 2. IMAP Fetch Slice
 - [ ] Implement connection establishment, authentication, and folder listing
@@ -97,7 +97,7 @@ Acceptance criteria:
 - [ ] ~meeru-providers~ exposes a working generic IMAP and SMTP baseline rather than empty modules
 - [ ] Generic account sync can populate local storage using the plan 002 interfaces
 - [ ] Generic email sending works for the supported authentication/configuration shape
-- [ ] Plan 006 can focus on account orchestration instead of redesigning provider primitives
+- [ ] Plan 005 can focus on account orchestration instead of redesigning provider primitives
 
 * References
 - [[file:../project-overview.org][Project Overview]]

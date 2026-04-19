@@ -22,5 +22,5 @@ This is a roadmap prospect, not an execution plan.
 - [[file:../plans/001-project-setup-and-architecture.org][Project Setup And Architecture]]
 - [[file:../plans/002-basic-storage-layer.org][Basic Storage Layer]]
 - [[file:../plans/003-imap-smtp-integration.org][Generic IMAP SMTP Baseline]]
-- [[file:../plans/006-account-abstraction-layer.org][Account Abstraction Layer]]
+- [[file:../plans/005-account-abstraction-layer.org][Account Abstraction Layer]]
 - [[file:../plans/004-basic-ui-implementation.org][Basic UI Implementation]]

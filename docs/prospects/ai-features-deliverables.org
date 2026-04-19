@@ -19,5 +19,5 @@ This is a roadmap prospect, not an execution plan. AI work is intentionally sequ
 - [ ] Privacy mode 100% local
 
 * References
-- [[file:../plans/016-ai-infrastructure.org][AI Infrastructure Privacy And Performance]]
-- [[file:../plans/017-email-intelligence.org][Email Intelligence And AI Features]]
+- [[file:../prospects/ai-infrastructure-privacy-and-performance.org][AI Infrastructure Privacy And Performance]]
+- [[file:../prospects/email-intelligence-and-ai-features.org][Email Intelligence And AI Features]]

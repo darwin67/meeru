@@ -22,8 +22,8 @@ This plan owns the shared authentication, credential handling, and transport sec
 
 ** Consumers
 - [ ] Provide reusable auth and credential services for generic accounts from plan 003
-- [ ] Provide reusable auth and credential services for Gmail from plan 011
-- [ ] Provide reusable auth and credential services for Outlook from plan 012
+- [ ] Provide reusable auth and credential services for Gmail from plan 009
+- [ ] Provide reusable auth and credential services for Outlook from plan 010
 
 * References
 - [[file:../project-overview.org][Project Overview]]

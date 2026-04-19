@@ -15,12 +15,12 @@
 - [ ] Implement bulk operations
 
 ** Dependencies And Boundaries
-- [ ] Build on the unified folder and label model from plan 007 instead of redefining it here
-- [ ] Consume account orchestration from plan 006 rather than embedding provider lifecycle logic in cross-account operations
+- [ ] Build on the unified folder and label model from plan 006 instead of redefining it here
+- [ ] Consume account orchestration from plan 005 rather than embedding provider lifecycle logic in cross-account operations
 - [ ] Keep cross-account execution focused on search, bulk actions, and result aggregation
 
 * References
 - [[file:../project-overview.org][Project Overview]]
 - [[file:../technical-architecture.org][Technical Architecture]]
 - [[file:../database-schema.org][Database Schema]]
-- [[file:007-unified-folder-system.org][Unified Folder And Label System]]
+- [[file:006-unified-folder-system.org][Unified Folder And Label System]]

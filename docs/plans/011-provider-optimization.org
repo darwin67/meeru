@@ -22,8 +22,8 @@ This plan owns advanced runtime and sync optimizations that should land only aft
 
 ** Explicitly Out Of Scope
 - Baseline generic IMAP/SMTP functionality from plan 003
-- Shared OAuth2 and credential storage infrastructure from plan 014
-- Gmail-only or Outlook-only product features owned by plans 011 and 012
+- Shared OAuth2 and credential storage infrastructure from plan 012
+- Gmail-only or Outlook-only product features owned by plans 009 and 010
 
 * References
 - [[file:../project-overview.org][Project Overview]]
