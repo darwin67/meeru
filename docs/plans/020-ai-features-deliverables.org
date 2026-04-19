@@ -17,7 +17,5 @@
 - [ ] Privacy mode 100% local
 
 * References
-- [[file:016-ai-infrastructure.org][AI Infrastructure]]
-- [[file:017-email-intelligence.org][Email Intelligence]]
-- [[file:018-ai-powered-features.org][AI-Powered Features]]
-- [[file:019-privacy-and-performance.org][Privacy And Performance]]
+- [[file:016-ai-infrastructure.org][AI Infrastructure Privacy And Performance]]
+- [[file:017-email-intelligence.org][Email Intelligence And AI Features]]

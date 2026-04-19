@@ -1,9 +1,9 @@
-#+TITLE: Email Intelligence
+#+TITLE: Email Intelligence And AI Features
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
 #+STATUS: Draft
 
-* Email Intelligence
+* Email Intelligence and AI Features
 ** Auto-Categorization
 - [ ] Design category system
 - [ ] Train/integrate email classifier
@@ -17,6 +17,20 @@
 - [ ] Add VIP sender detection
 - [ ] Build priority inbox view
 - [ ] Implement priority notifications
+
+** Email Summarization
+- [ ] Implement thread summarization
+- [ ] Create email TL;DR generation
+- [ ] Add attachment summary
+- [ ] Build summary UI component
+- [ ] Add customization options
+
+** Smart Compose
+- [ ] Implement context extraction
+- [ ] Create reply suggestion engine
+- [ ] Build autocomplete UI
+- [ ] Add template learning
+- [ ] Implement style adaptation
 
 * References
 - [[file:../project-overview.org][Project Overview]]

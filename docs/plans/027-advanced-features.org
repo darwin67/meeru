@@ -1,14 +1,19 @@
-#+TITLE: Advanced Features
+#+TITLE: Advanced And Enterprise Features
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
 #+STATUS: Draft
 
-* Advanced Features
+* Advanced and Enterprise Features
 - [ ] Email encryption (PGP/S/MIME)
 - [ ] Advanced filtering rules
 - [ ] Email templates system
 - [ ] Collaborative features
 - [ ] Mobile companion app
+- [ ] Multi-user support
+- [ ] Centralized management
+- [ ] Compliance features
+- [ ] Advanced audit logging
+- [ ] SSO integration
 
 * References
 - [[file:../project-overview.org][Project Overview]]

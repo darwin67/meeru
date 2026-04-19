@@ -11,6 +11,8 @@ This file is the cross-cutting risk register for the roadmap. Each execution pla
   Mitigation: extensive provider fixture coverage, protocol capability detection, and fallback behavior in the generic provider baseline
 - [ ] Risk: performance with large email volumes
   Mitigation: benchmarking, bounded sync slices, lazy body loading, and later optimization work in the provider/runtime plans
+- [ ] Risk: search and storage performance regresses as the local corpus grows
+  Mitigation: full-text search optimization, archival strategies, selective compression, lazy loading, and routine profiling in the owning execution plans
 
 ** Unified Experience
 - [ ] Risk: cross-platform GUI consistency
