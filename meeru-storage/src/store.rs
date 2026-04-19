@@ -42,6 +42,11 @@ pub trait EmailStore {
     async fn update_email(&self, email: EmailRecord) -> Result<EmailRecord>;
     async fn insert_email_graph(&self, graph: NewEmailGraph) -> Result<EmailRecord>;
     async fn get_email(&self, email_id: Uuid) -> Result<EmailRecord>;
+    async fn get_email_by_provider_id(
+        &self,
+        account_id: Uuid,
+        provider_id: &str,
+    ) -> Result<EmailRecord>;
     async fn list_emails_for_account(
         &self,
         account_id: Uuid,
@@ -438,6 +443,43 @@ WHERE id = ?
         match row {
             Some(row) => email_from_row(row),
             None => Err(Error::NotFound(format!("email {email_id}"))),
+        }
+    }
+
+    async fn get_email_by_provider_id(
+        &self,
+        account_id: Uuid,
+        provider_id: &str,
+    ) -> Result<EmailRecord> {
+        let row = sqlx::query(
+            r#"
+SELECT
+    id,
+    account_id,
+    provider_id,
+    message_id,
+    subject,
+    from_address,
+    from_name,
+    to_addresses,
+    date_internal,
+    content_file_path,
+    has_attachments,
+    attachment_count
+FROM emails
+WHERE account_id = ? AND provider_id = ?
+            "#,
+        )
+        .bind(account_id)
+        .bind(provider_id)
+        .fetch_optional(self.pool())
+        .await?;
+
+        match row {
+            Some(row) => email_from_row(row),
+            None => Err(Error::NotFound(format!(
+                "email account={account_id} provider_id={provider_id}"
+            ))),
         }
     }
 

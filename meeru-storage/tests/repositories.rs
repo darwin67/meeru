@@ -162,6 +162,10 @@ async fn folder_email_and_attachment_queries_round_trip() {
         .list_emails_for_account(account.id, 10)
         .await
         .expect("list account emails");
+    let fetched_by_provider_id = storage
+        .get_email_by_provider_id(account.id, "43")
+        .await
+        .expect("get email by provider id");
     let folder_emails = storage
         .list_emails_in_folder(inbox.id, 10)
         .await
@@ -177,6 +181,7 @@ async fn folder_email_and_attachment_queries_round_trip() {
 
     assert_eq!(mappings, vec![mapping]);
     assert_eq!(attachments, vec![attachment]);
+    assert_eq!(fetched_by_provider_id.id, newer_email.id);
     assert_eq!(account_emails.len(), 2);
     assert_eq!(folder_emails.len(), 2);
     assert_eq!(account_emails[0].id, newer_email.id);

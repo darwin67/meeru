@@ -4,7 +4,7 @@ use meeru_core::{
     storage::{StorageService, SyncedAttachment, SyncedEmail},
     unified::{UnifiedFolder, UnifiedFolderType},
 };
-use meeru_providers::parse_rfc822_message;
+use meeru_providers::{parse_rfc822_message, FetchedMessage, ImapMessageIdentity};
 use tempfile::TempDir;
 use uuid::Uuid;
 
@@ -175,4 +175,69 @@ fn synced_email_can_be_built_from_parsed_provider_data() {
     assert_eq!(synced.email.to.len(), 1);
     assert_eq!(synced.email.to[0].address, "recipient@example.com");
     assert_eq!(synced.attachments.len(), 0);
+}
+
+#[tokio::test]
+async fn storage_service_syncs_fetched_messages_idempotently() {
+    let temp_dir = TempDir::new().expect("temp dir");
+    let service = StorageService::open(meeru_storage::StorageConfig::new(temp_dir.path()))
+        .await
+        .expect("open service");
+
+    let account = service
+        .add_account(Account {
+            id: Uuid::new_v4(),
+            email: "sync@example.com".to_string(),
+            display_name: Some("Sync".to_string()),
+            provider_type: ProviderType::Generic,
+        })
+        .await
+        .expect("create account");
+
+    let inbox = service
+        .create_unified_folder(UnifiedFolder {
+            id: Uuid::new_v4(),
+            name: "Inbox".to_string(),
+            folder_type: UnifiedFolderType::Inbox,
+            parent_id: None,
+        })
+        .await
+        .expect("create folder");
+
+    let raw_message = concat!(
+        "From: Sender <sender@example.com>\r\n",
+        "To: Sync <sync@example.com>\r\n",
+        "Subject: Synced once\r\n",
+        "Message-ID: <sync-once@example.com>\r\n",
+        "Date: Sat, 19 Apr 2026 10:30:00 +0000\r\n",
+        "Content-Type: text/plain; charset=\"utf-8\"\r\n",
+        "\r\n",
+        "idempotent sync body\r\n"
+    )
+    .as_bytes()
+    .to_vec();
+
+    let fetched = FetchedMessage {
+        identity: ImapMessageIdentity::new("INBOX", 99, 7),
+        raw_message,
+    };
+
+    let first = service
+        .sync_fetched_messages(account.id, inbox.id, vec![fetched.clone()])
+        .await
+        .expect("first sync");
+    let second = service
+        .sync_fetched_messages(account.id, inbox.id, vec![fetched])
+        .await
+        .expect("second sync");
+    let listed = service
+        .list_folder_emails(inbox.id, 10)
+        .await
+        .expect("list folder emails");
+
+    assert_eq!(first.len(), 1);
+    assert_eq!(second.len(), 1);
+    assert_eq!(first[0].id, second[0].id);
+    assert_eq!(listed.len(), 1);
+    assert_eq!(listed[0].subject.as_deref(), Some("Synced once"));
 }

@@ -9,7 +9,7 @@ use crate::{
     unified::{UnifiedFolder, UnifiedFolderType},
     Result,
 };
-use meeru_providers::{parse_rfc822_message, ParsedMessage};
+use meeru_providers::{parse_rfc822_message, FetchedMessage, ParsedMessage};
 use meeru_storage::{
     AccountStore, AttachmentStore, BlobStore, EmailStore, FolderStore, NewAttachment, NewEmail,
     NewEmailGraph, NewUnifiedFolder, Storage, StorageConfig,
@@ -186,6 +186,48 @@ impl StorageService {
     pub async fn list_folder_emails(&self, folder_id: Uuid, limit: usize) -> Result<Vec<Email>> {
         let emails = self.storage.list_emails_in_folder(folder_id, limit).await?;
         Ok(emails.into_iter().map(Into::into).collect())
+    }
+
+    pub async fn sync_fetched_messages(
+        &self,
+        account_id: Uuid,
+        folder_id: Uuid,
+        fetched_messages: Vec<FetchedMessage>,
+    ) -> Result<Vec<Email>> {
+        let mut synced_emails = Vec::with_capacity(fetched_messages.len());
+
+        for fetched in fetched_messages {
+            let provider_id = fetched.identity.provider_id();
+
+            match self
+                .storage
+                .get_email_by_provider_id(account_id, &provider_id)
+                .await
+            {
+                Ok(existing) => {
+                    self.storage
+                        .assign_email_to_folder(existing.id, folder_id)
+                        .await?;
+                    synced_emails.push(existing.into());
+                },
+                Err(meeru_storage::Error::NotFound(_)) => {
+                    let parsed = parse_rfc822_message(&fetched.raw_message)?;
+                    let synced = SyncedEmail::from_parsed_message(
+                        Uuid::new_v4(),
+                        account_id,
+                        provider_id,
+                        vec![folder_id],
+                        fetched.raw_message,
+                        parsed,
+                        Utc::now(),
+                    );
+                    synced_emails.push(self.cache_synced_email(synced).await?);
+                },
+                Err(error) => return Err(error.into()),
+            }
+        }
+
+        Ok(synced_emails)
     }
 
     pub async fn load_email_body(&self, email: &Email) -> Result<EmailContent> {
