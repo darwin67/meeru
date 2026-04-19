@@ -1,5 +1,6 @@
 //! Generic IMAP/SMTP runtime configuration and identifiers.
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::{Error, Result};
@@ -112,8 +113,10 @@ pub struct GenericMailbox {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ImapEnvelopeSummary {
     pub uid: u32,
+    pub provider_id: String,
     pub message_id: Option<String>,
     pub subject: Option<String>,
+    pub internal_date: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -142,6 +145,46 @@ impl ImapMessageIdentity {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FetchedMessage {
+    pub identity: ImapMessageIdentity,
+    pub raw_message: Vec<u8>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OutgoingMessage {
+    pub from: Option<String>,
+    pub reply_to: Option<String>,
+    pub to: Vec<String>,
+    pub subject: String,
+    pub text_body: String,
+    pub html_body: Option<String>,
+}
+
+impl OutgoingMessage {
+    pub fn validate(&self) -> Result<()> {
+        if self.to.is_empty() {
+            return Err(Error::InvalidConfiguration(
+                "outgoing message must include at least one recipient".to_string(),
+            ));
+        }
+
+        if self.subject.trim().is_empty() {
+            return Err(Error::InvalidConfiguration(
+                "outgoing message subject must not be empty".to_string(),
+            ));
+        }
+
+        if self.text_body.is_empty() {
+            return Err(Error::InvalidConfiguration(
+                "outgoing message text body must not be empty".to_string(),
+            ));
+        }
+
+        Ok(())
+    }
+}
+
 fn validate_endpoint(kind: &str, host: &str, port: u16) -> Result<()> {
     if host.trim().is_empty() {
         return Err(Error::InvalidConfiguration(format!(
@@ -165,8 +208,8 @@ fn escape_mailbox_path(path: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::{
-        GenericAccountConfig, GenericCredentials, ImapEndpoint, ImapMessageIdentity, SmtpEndpoint,
-        TransportSecurity,
+        GenericAccountConfig, GenericCredentials, ImapEndpoint, ImapMessageIdentity,
+        OutgoingMessage, SmtpEndpoint, TransportSecurity,
     };
 
     #[test]
@@ -223,5 +266,19 @@ mod tests {
         let identity = ImapMessageIdentity::new("Archive:2026", 42, 7);
 
         assert_eq!(identity.provider_id(), "Archive\\:2026:42:7");
+    }
+
+    #[test]
+    fn validates_outgoing_message() {
+        let message = OutgoingMessage {
+            from: None,
+            reply_to: None,
+            to: vec!["bob@example.com".to_string()],
+            subject: "Hello".to_string(),
+            text_body: "Hello, world!".to_string(),
+            html_body: Some("<p>Hello, world!</p>".to_string()),
+        };
+
+        message.validate().expect("message should be valid");
     }
 }
