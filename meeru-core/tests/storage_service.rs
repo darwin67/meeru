@@ -171,7 +171,10 @@ fn synced_email_can_be_built_from_parsed_provider_data() {
     );
 
     assert_eq!(synced.email.subject.as_deref(), Some("Parsed conversion"));
-    assert_eq!(synced.email.message_id.as_deref(), Some("parsed@example.com"));
+    assert_eq!(
+        synced.email.message_id.as_deref(),
+        Some("parsed@example.com")
+    );
     assert_eq!(synced.email.to.len(), 1);
     assert_eq!(synced.email.to[0].address, "recipient@example.com");
     assert_eq!(synced.attachments.len(), 0);

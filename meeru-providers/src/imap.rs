@@ -108,9 +108,9 @@ pub async fn fetch_mailbox_page(
         .select(mailbox_path)
         .await
         .map_err(|error| Error::Protocol(error.to_string()))?;
-    let uidvalidity = mailbox
-        .uid_validity
-        .ok_or_else(|| Error::Protocol(format!("mailbox {mailbox_path} did not report UIDVALIDITY")))?;
+    let uidvalidity = mailbox.uid_validity.ok_or_else(|| {
+        Error::Protocol(format!("mailbox {mailbox_path} did not report UIDVALIDITY"))
+    })?;
 
     if mailbox.exists == 0 || page_size == 0 {
         session
@@ -151,9 +151,9 @@ pub async fn search_mailbox(
         .select(mailbox_path)
         .await
         .map_err(|error| Error::Protocol(error.to_string()))?;
-    let uidvalidity = mailbox
-        .uid_validity
-        .ok_or_else(|| Error::Protocol(format!("mailbox {mailbox_path} did not report UIDVALIDITY")))?;
+    let uidvalidity = mailbox.uid_validity.ok_or_else(|| {
+        Error::Protocol(format!("mailbox {mailbox_path} did not report UIDVALIDITY"))
+    })?;
 
     let mut uids = session
         .uid_search(query)
@@ -207,9 +207,9 @@ pub async fn fetch_messages(
         .select(mailbox_path)
         .await
         .map_err(|error| Error::Protocol(error.to_string()))?;
-    let uidvalidity = mailbox
-        .uid_validity
-        .ok_or_else(|| Error::Protocol(format!("mailbox {mailbox_path} did not report UIDVALIDITY")))?;
+    let uidvalidity = mailbox.uid_validity.ok_or_else(|| {
+        Error::Protocol(format!("mailbox {mailbox_path} did not report UIDVALIDITY"))
+    })?;
 
     let fetches = session
         .uid_fetch(join_uids(uids), "(UID RFC822)")
@@ -262,7 +262,9 @@ fn summary_from_fetch(
         subject: envelope
             .and_then(|envelope| envelope.subject.as_ref())
             .map(|value| String::from_utf8_lossy(value.as_ref()).into_owned()),
-        internal_date: fetch.internal_date().map(|date| date.with_timezone(&chrono::Utc)),
+        internal_date: fetch
+            .internal_date()
+            .map(|date| date.with_timezone(&chrono::Utc)),
     })
 }
 
@@ -273,11 +275,18 @@ async fn connect_and_login(config: &GenericAccountConfig) -> Result<Session<Imap
         TransportSecurity::Tls => {
             let tcp_stream = connect_tcp(config).await?;
             let tls_stream = connect_tls(&config.imap.host, tcp_stream).await?;
-            login_client(client_with_greeting(ImapNetworkStream::Tls(tls_stream)).await?, config)
-                .await
+            login_client(
+                client_with_greeting(ImapNetworkStream::Tls(tls_stream)).await?,
+                config,
+            )
+            .await
         },
         TransportSecurity::None => {
-            login_client(client_with_greeting(ImapNetworkStream::Plain(connect_tcp(config).await?)).await?, config).await
+            login_client(
+                client_with_greeting(ImapNetworkStream::Plain(connect_tcp(config).await?)).await?,
+                config,
+            )
+            .await
         },
         TransportSecurity::StartTls => {
             let mut client =

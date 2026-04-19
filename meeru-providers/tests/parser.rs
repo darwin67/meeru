@@ -37,7 +37,10 @@ fn parses_text_html_and_attachments_from_rfc822() {
 
     assert_eq!(parsed.message_id.as_deref(), Some("welcome@example.com"));
     assert_eq!(parsed.subject.as_deref(), Some("Welcome"));
-    assert_eq!(parsed.from.as_ref().map(|from| from.address.as_str()), Some("sender@example.com"));
+    assert_eq!(
+        parsed.from.as_ref().map(|from| from.address.as_str()),
+        Some("sender@example.com")
+    );
     assert_eq!(parsed.to.len(), 1);
     assert_eq!(parsed.to[0].address, "recipient@example.com");
     assert_eq!(parsed.text_body.as_deref(), Some("Hello from text."));
@@ -65,13 +68,14 @@ fn html_only_messages_still_produce_text_and_html_bodies() {
 
     let parsed = parse_rfc822_message(raw).expect("message should parse");
 
-    assert!(parsed.text_body.as_deref().is_some_and(|text| text.contains("HTML only body.")));
-    assert!(
-        parsed
-            .html_body
-            .as_deref()
-            .is_some_and(|html| html.contains("HTML only body."))
-    );
+    assert!(parsed
+        .text_body
+        .as_deref()
+        .is_some_and(|text| text.contains("HTML only body.")));
+    assert!(parsed
+        .html_body
+        .as_deref()
+        .is_some_and(|html| html.contains("HTML only body.")));
 }
 
 #[test]
@@ -90,7 +94,10 @@ fn parses_text_only_messages() {
     let parsed = parse_rfc822_message(raw).expect("message should parse");
 
     assert_eq!(parsed.text_body.as_deref(), Some("text only body\r\n"));
-    assert!(parsed.html_body.as_deref().is_some_and(|html| html.contains("text only body")));
+    assert!(parsed
+        .html_body
+        .as_deref()
+        .is_some_and(|html| html.contains("text only body")));
 }
 
 #[test]

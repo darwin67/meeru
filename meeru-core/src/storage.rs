@@ -158,7 +158,10 @@ impl StorageService {
         &self,
         account_id: Uuid,
     ) -> Result<Vec<FolderMappingRecord>> {
-        Ok(self.storage.list_folder_mappings_for_account(account_id).await?)
+        Ok(self
+            .storage
+            .list_folder_mappings_for_account(account_id)
+            .await?)
     }
 
     pub async fn cache_synced_email(&self, synced: SyncedEmail) -> Result<Email> {
@@ -263,7 +266,10 @@ impl StorageService {
         provider_folder_id: &str,
         fetched_messages: Vec<FetchedMessage>,
     ) -> Result<Vec<Email>> {
-        let mappings = self.storage.list_folder_mappings_for_account(account_id).await?;
+        let mappings = self
+            .storage
+            .list_folder_mappings_for_account(account_id)
+            .await?;
         let mapping = mappings
             .into_iter()
             .find(|mapping| mapping.provider_folder_id == provider_folder_id)

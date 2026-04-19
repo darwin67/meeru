@@ -31,7 +31,9 @@ fn build_message(config: &GenericAccountConfig, message: &OutgoingMessage) -> Re
         .map(parse_mailbox)
         .transpose()?
         .unwrap_or_else(|| default_sender(config));
-    let mut builder = Message::builder().from(from).subject(message.subject.clone());
+    let mut builder = Message::builder()
+        .from(from)
+        .subject(message.subject.clone());
 
     if let Some(reply_to) = message.reply_to.as_deref() {
         builder = builder.reply_to(parse_mailbox(reply_to)?);
@@ -65,10 +67,10 @@ fn build_transport(config: &GenericAccountConfig) -> Result<AsyncSmtpTransport<T
                 .map_err(|error| Error::Connection(error.to_string()))?
                 .port(config.smtp.port)
         },
-        TransportSecurity::None => AsyncSmtpTransport::<Tokio1Executor>::builder_dangerous(
-            &config.smtp.host,
-        )
-        .port(config.smtp.port),
+        TransportSecurity::None => {
+            AsyncSmtpTransport::<Tokio1Executor>::builder_dangerous(&config.smtp.host)
+                .port(config.smtp.port)
+        },
     };
 
     let builder = match &config.credentials {
@@ -89,7 +91,10 @@ fn build_transport(config: &GenericAccountConfig) -> Result<AsyncSmtpTransport<T
 fn default_sender(config: &GenericAccountConfig) -> Mailbox {
     Mailbox::new(
         config.display_name.clone(),
-        config.email_address.parse().expect("validated email address"),
+        config
+            .email_address
+            .parse()
+            .expect("validated email address"),
     )
 }
 

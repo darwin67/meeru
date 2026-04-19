@@ -59,7 +59,10 @@ pub fn parse_rfc822_message(raw_message: &[u8]) -> Result<ParsedMessage> {
     Ok(ParsedMessage {
         message_id: message.message_id().map(ToOwned::to_owned),
         subject: message.subject().map(ToOwned::to_owned),
-        from: message.from().and_then(|from| from.first()).and_then(address_from_mail),
+        from: message
+            .from()
+            .and_then(|from| from.first())
+            .and_then(address_from_mail),
         to: message
             .to()
             .map(|addresses| addresses.iter().filter_map(address_from_mail).collect())
