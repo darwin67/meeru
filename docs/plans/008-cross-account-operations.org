@@ -16,10 +16,11 @@
 
 ** Label and Tag Management
 - [ ] Design unified label system
-- [ ] Create label mapping for different providers
+- [ ] Create provider-label mappings that remain separate from folder mappings
 - [ ] Implement label sync logic
 - [ ] Build label management UI
 - [ ] Add color coding support
+- [ ] Define how unified folders and unified labels interact in cross-account views without collapsing one into the other
 
 * References
 - [[file:../project-overview.org][Project Overview]]
