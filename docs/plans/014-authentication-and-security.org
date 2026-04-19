@@ -1,22 +1,29 @@
-#+TITLE: Authentication And Security
+#+TITLE: Authentication Credential Storage And Transport Security
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
 #+STATUS: Draft
 
-* Authentication and Security
-** OAuth2 Implementation
+* Authentication Credential Storage and Transport Security
+This plan owns the shared authentication, credential handling, and transport security infrastructure used by generic and provider-specific account integrations. Provider-specific plans should consume this infrastructure instead of re-implementing it.
+
+** Shared OAuth2 Infrastructure
 - [ ] Create OAuth2 flow manager
 - [ ] Implement secure token storage
 - [ ] Add token refresh logic
 - [ ] Build authentication UI
 - [ ] Handle authentication errors
 
-** Security Features
+** Credential and Transport Security
 - [ ] Implement secure credential storage
 - [ ] Add two-factor authentication support
 - [ ] Create app-specific password support
 - [ ] Implement certificate pinning
 - [ ] Add security audit logging
+
+** Consumers
+- [ ] Provide reusable auth and credential services for generic accounts from plan 003
+- [ ] Provide reusable auth and credential services for Gmail from plan 011
+- [ ] Provide reusable auth and credential services for Outlook from plan 012
 
 * References
 - [[file:../project-overview.org][Project Overview]]

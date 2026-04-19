@@ -11,6 +11,11 @@
 - [ ] Automation features active
 - [ ] Comprehensive documentation
 
+** Success Metrics
+- [ ] CLI command latency <500ms
+- [ ] API response time <100ms
+- [ ] Support 10+ concurrent agents
+
 * References
 - [[file:021-cli-foundation.org][CLI Foundation]]
 - [[file:022-advanced-cli-features.org][Advanced CLI Features]]

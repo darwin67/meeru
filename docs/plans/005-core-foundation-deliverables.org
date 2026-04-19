@@ -11,8 +11,14 @@
 - [ ] Persistent storage of emails
 - [ ] Cross-platform binary builds
 
+** Success Metrics
+- [ ] Successfully sync 10k+ emails
+- [ ] Sub-second email display
+- [ ] <100MB memory usage while idle
+
 * References
 - [[file:001-project-setup-and-architecture.org][Project Setup And Architecture]]
 - [[file:002-basic-storage-layer.org][Basic Storage Layer]]
-- [[file:003-imap-smtp-integration.org][IMAP SMTP Integration]]
+- [[file:003-imap-smtp-integration.org][Generic IMAP SMTP Baseline]]
+- [[file:006-account-abstraction-layer.org][Account Abstraction Layer]]
 - [[file:004-basic-ui-implementation.org][Basic UI Implementation]]

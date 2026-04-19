@@ -4,21 +4,31 @@
 #+STATUS: Draft
 
 * Account Abstraction Layer
+This plan should define how Meeru manages multiple configured accounts and orchestrates provider adapters at runtime. It should build on the generic provider baseline from plan 003 and the storage foundation from plan 002 rather than introducing a second provider architecture.
+
 ** Multi-Account Architecture
 - [ ] Design account manager system
-- [ ] Create account abstraction interface
+- [ ] Create shared account runtime abstraction interface
 - [ ] Implement account switching logic
 - [ ] Build concurrent account sync system
 - [ ] Add account status monitoring
 
 ** Provider Adapter Pattern
 - [ ] Define provider adapter trait
-- [ ] Create generic IMAP adapter
-- [ ] Build folder mapping system
+- [ ] Integrate the generic IMAP adapter from plan 003 behind the provider adapter trait
+- [ ] Route account runtime configuration into provider adapters
 - [ ] Implement operation translation layer
 - [ ] Add provider capability detection
+
+** Explicitly Out Of Scope
+- Provider-specific Gmail or Outlook feature work
+- Low-level IMAP or SMTP protocol implementation
+- Unified folder or unified label domain modeling
+- Search ranking, bulk cross-account actions, or smart folder UI
 
 * References
 - [[file:../project-overview.org][Project Overview]]
 - [[file:../technical-architecture.org][Technical Architecture]]
 - [[file:../database-schema.org][Database Schema]]
+- [[file:003-imap-smtp-integration.org][Generic IMAP SMTP Baseline]]
+- [[file:002-basic-storage-layer.org][Basic Storage Layer]]

@@ -1,18 +1,28 @@
-#+TITLE: Provider Integration Deliverables
+#+TITLE: Provider Integration Program
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
 #+STATUS: Draft
 
-* Provider Integration Deliverables
-- [ ] Full Gmail integration with labels
-- [ ] Complete Outlook support
-- [ ] OAuth2 authentication working
-- [ ] Provider-specific optimizations
-- [ ] Enhanced security features
-- [ ] Real-time email updates
+* Provider Integration Program
+This file is the coordination index for provider work, not a separate implementation plan. Execution lives in the referenced plans below.
+
+** Sequence
+- [ ] Establish the generic provider baseline in plan 003
+- [ ] Land shared auth and credential infrastructure in plan 014
+- [ ] Add account and provider orchestration in plan 006
+- [ ] Implement Gmail-specific behavior in plan 011
+- [ ] Implement Outlook-specific behavior in plan 012
+- [ ] Layer advanced runtime optimizations from plan 013 after the baseline provider slices are stable
+
+** Success Metrics
+- [ ] Support 90% of targeted Gmail workflows
+- [ ] Real-time or near-real-time sync latency <5 seconds where the provider supports push or IDLE behavior
+- [ ] OAuth2 authentication success rate >99%
 
 * References
+- [[file:003-imap-smtp-integration.org][Generic IMAP SMTP Baseline]]
+- [[file:006-account-abstraction-layer.org][Account Abstraction Layer]]
 - [[file:011-gmail-integration.org][Gmail Integration]]
 - [[file:012-outlook-integration.org][Outlook Integration]]
 - [[file:013-provider-optimization.org][Provider Optimization]]
-- [[file:014-authentication-and-security.org][Authentication And Security]]
+- [[file:014-authentication-and-security.org][Authentication Credential Storage And Transport Security]]

@@ -11,8 +11,13 @@
 - [ ] Unified contact management
 - [ ] Seamless account switching
 
+** Success Metrics
+- [ ] Handle 5+ accounts simultaneously
+- [ ] Cross-account search <2 seconds
+- [ ] 95% folder and label mapping accuracy
+
 * References
 - [[file:006-account-abstraction-layer.org][Account Abstraction Layer]]
-- [[file:007-unified-folder-system.org][Unified Folder System]]
+- [[file:007-unified-folder-system.org][Unified Folder And Label System]]
 - [[file:008-cross-account-operations.org][Cross-Account Operations]]
 - [[file:009-contact-unification.org][Contact Unification]]

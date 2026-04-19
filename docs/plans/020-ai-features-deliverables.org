@@ -11,6 +11,11 @@
 - [ ] Smart compose operational
 - [ ] Privacy controls implemented
 
+** Success Metrics
+- [ ] AI categorization accuracy >85%
+- [ ] Local LLM inference <3 seconds
+- [ ] Privacy mode 100% local
+
 * References
 - [[file:016-ai-infrastructure.org][AI Infrastructure]]
 - [[file:017-email-intelligence.org][Email Intelligence]]

@@ -4,6 +4,8 @@
 #+STATUS: Draft
 
 * Provider Optimization
+This plan owns advanced runtime and sync optimizations that should land only after the baseline provider slices are functional. It should improve latency, bandwidth, and reliability for existing providers rather than define the initial provider architecture.
+
 ** Performance Improvements
 - [ ] Implement provider-specific caching
 - [ ] Add intelligent prefetching
@@ -17,6 +19,11 @@
 - [ ] Implement COMPRESS for bandwidth saving
 - [ ] Add provider health monitoring
 - [ ] Create provider-specific error handling
+
+** Explicitly Out Of Scope
+- Baseline generic IMAP/SMTP functionality from plan 003
+- Shared OAuth2 and credential storage infrastructure from plan 014
+- Gmail-only or Outlook-only product features owned by plans 011 and 012
 
 * References
 - [[file:../project-overview.org][Project Overview]]
