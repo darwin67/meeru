@@ -4,6 +4,8 @@
 #+STATUS: Draft
 
 * Core Foundation Deliverables
+This is a roadmap prospect, not an execution plan.
+
 - [ ] Working IMAP email client
 - [ ] Can add generic email accounts
 - [ ] Can view and send emails
@@ -17,8 +19,8 @@
 - [ ] <100MB memory usage while idle
 
 * References
-- [[file:001-project-setup-and-architecture.org][Project Setup And Architecture]]
-- [[file:002-basic-storage-layer.org][Basic Storage Layer]]
-- [[file:003-imap-smtp-integration.org][Generic IMAP SMTP Baseline]]
-- [[file:006-account-abstraction-layer.org][Account Abstraction Layer]]
-- [[file:004-basic-ui-implementation.org][Basic UI Implementation]]
+- [[file:../plans/001-project-setup-and-architecture.org][Project Setup And Architecture]]
+- [[file:../plans/002-basic-storage-layer.org][Basic Storage Layer]]
+- [[file:../plans/003-imap-smtp-integration.org][Generic IMAP SMTP Baseline]]
+- [[file:../plans/006-account-abstraction-layer.org][Account Abstraction Layer]]
+- [[file:../plans/004-basic-ui-implementation.org][Basic UI Implementation]]

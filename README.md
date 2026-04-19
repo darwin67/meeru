@@ -92,7 +92,7 @@ make docs
 
 ## Roadmap
 
-See the project overview in [docs/project-overview.org](docs/project-overview.org) and the numbered development plans under [docs/plans](docs/plans), starting with [docs/plans/001-project-setup-and-architecture.org](docs/plans/001-project-setup-and-architecture.org).
+See the project overview in [docs/project-overview.org](docs/project-overview.org), the execution-focused development plans under [docs/plans](docs/plans), and the broader roadmap/prospect docs under [docs/prospects](docs/prospects), starting with [docs/plans/001-project-setup-and-architecture.org](docs/plans/001-project-setup-and-architecture.org).
 
 ### Phase 1: Core Foundation (Current)
 - [x] Project setup and architecture
@@ -111,16 +111,16 @@ See the project overview in [docs/project-overview.org](docs/project-overview.or
 - [ ] Outlook support
 - [ ] OAuth authentication
 
-### Phase 4: AI Features
+### Phase 4: CLI & Automation
+- [ ] Complete CLI interface
+- [ ] Local API server
+- [ ] Agent integration
+
+### Phase 5: AI Features
 - [ ] Local LLM integration
 - [ ] Email categorization
 - [ ] Smart compose
 - [ ] Priority detection
-
-### Phase 5: CLI & Automation
-- [ ] Complete CLI interface
-- [ ] Local API server
-- [ ] Agent integration
 
 ## Contributing
 

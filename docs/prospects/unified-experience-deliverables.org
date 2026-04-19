@@ -4,6 +4,8 @@
 #+STATUS: Draft
 
 * Unified Experience Deliverables
+This is a roadmap prospect, not an execution plan.
+
 - [ ] Unified inbox across all accounts
 - [ ] Transparent folder operations
 - [ ] Cross-account search working
@@ -17,7 +19,7 @@
 - [ ] 95% folder and label mapping accuracy
 
 * References
-- [[file:006-account-abstraction-layer.org][Account Abstraction Layer]]
-- [[file:007-unified-folder-system.org][Unified Folder And Label System]]
-- [[file:008-cross-account-operations.org][Cross-Account Operations]]
-- [[file:009-contact-unification.org][Contact Unification]]
+- [[file:../plans/006-account-abstraction-layer.org][Account Abstraction Layer]]
+- [[file:../plans/007-unified-folder-system.org][Unified Folder And Label System]]
+- [[file:../plans/008-cross-account-operations.org][Cross-Account Operations]]
+- [[file:../plans/009-contact-unification.org][Contact Unification]]

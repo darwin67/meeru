@@ -20,9 +20,9 @@ This file is the coordination index for provider work, not a separate implementa
 - [ ] OAuth2 authentication success rate >99%
 
 * References
-- [[file:003-imap-smtp-integration.org][Generic IMAP SMTP Baseline]]
-- [[file:006-account-abstraction-layer.org][Account Abstraction Layer]]
-- [[file:011-gmail-integration.org][Gmail Integration]]
-- [[file:012-outlook-integration.org][Outlook Integration]]
-- [[file:013-provider-optimization.org][Provider Optimization]]
-- [[file:014-authentication-and-security.org][Authentication Credential Storage And Transport Security]]
+- [[file:../plans/003-imap-smtp-integration.org][Generic IMAP SMTP Baseline]]
+- [[file:../plans/006-account-abstraction-layer.org][Account Abstraction Layer]]
+- [[file:../plans/011-gmail-integration.org][Gmail Integration]]
+- [[file:../plans/012-outlook-integration.org][Outlook Integration]]
+- [[file:../plans/013-provider-optimization.org][Provider Optimization]]
+- [[file:../plans/014-authentication-and-security.org][Authentication Credential Storage And Transport Security]]

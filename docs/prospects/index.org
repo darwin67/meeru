@@ -1,0 +1,17 @@
+#+TITLE: Meeru Prospects
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-04-19
+
+* Prospects
+This directory holds roadmap summaries, phase-level outcome docs, risk registers, and longer-range backlog items that help guide sequencing but are not execution plans.
+
+Execution-focused work stays under [[file:../plans/][docs/plans]]. Prospects summarize where those plans are intended to lead and which broader themes remain open.
+
+** Recommended Sequence
+- [[file:core-foundation-deliverables.org][Core Foundation Deliverables]]
+- [[file:unified-experience-deliverables.org][Unified Experience Deliverables]]
+- [[file:provider-integration-program.org][Provider Integration Program]]
+- [[file:cli-and-automation-deliverables.org][CLI And Automation Deliverables]]
+- [[file:ai-features-deliverables.org][AI Features Deliverables]]
+- [[file:advanced-and-enterprise-features.org][Advanced And Enterprise Features]]
+- [[file:technical-risks-and-mitigations.org][Technical Risks And Mitigations]]

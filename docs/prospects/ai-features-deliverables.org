@@ -4,6 +4,8 @@
 #+STATUS: Draft
 
 * AI Features Deliverables
+This is a roadmap prospect, not an execution plan. AI work is intentionally sequenced after the core email experience, provider coverage, and automation foundations.
+
 - [ ] Local LLM support working
 - [ ] Auto-categorization functional
 - [ ] Priority detection active
@@ -17,5 +19,5 @@
 - [ ] Privacy mode 100% local
 
 * References
-- [[file:016-ai-infrastructure.org][AI Infrastructure Privacy And Performance]]
-- [[file:017-email-intelligence.org][Email Intelligence And AI Features]]
+- [[file:../plans/016-ai-infrastructure.org][AI Infrastructure Privacy And Performance]]
+- [[file:../plans/017-email-intelligence.org][Email Intelligence And AI Features]]

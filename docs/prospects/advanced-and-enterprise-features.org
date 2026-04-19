@@ -4,6 +4,8 @@
 #+STATUS: Draft
 
 * Advanced and Enterprise Features
+This is a longer-range prospect backlog, not an execution plan.
+
 - [ ] Email encryption (PGP/S/MIME)
 - [ ] Advanced filtering rules
 - [ ] Email templates system
