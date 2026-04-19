@@ -1,0 +1,82 @@
+#+TITLE: Storage V1 Field Mapping
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-04-18
+
+* Purpose
+This document records which storage fields are actively mapped in plan 002 and which columns are intentionally deferred to later plans. The goal is to make storage/core alignment explicit instead of silently ignoring columns that exist in the schema.
+
+* Accounts
+** Required In V1
+- ~id~
+- ~email~
+- ~provider_type~
+
+** Optional In V1
+- ~display_name~
+
+** Deferred Beyond V1
+- IMAP/SMTP connection settings
+- Authentication and token columns
+- Sync interval and status metadata
+- Provider-specific JSON settings
+
+* Unified Folders
+** Required In V1
+- ~id~
+- ~name~
+- ~folder_type~
+
+** Optional In V1
+- ~parent_id~
+
+** Deferred Beyond V1
+- Icons, colors, sort order
+- Smart-folder flags and rules
+
+* Emails
+** Required In V1
+- ~id~
+- ~account_id~
+- ~provider_id~
+- ~to_addresses~
+- ~date_internal~
+
+** Optional In V1
+- ~message_id~
+- ~subject~
+- ~from_address~
+- ~from_name~
+- ~content_file_path~
+- ~has_attachments~
+- ~attachment_count~
+
+** Deferred Beyond V1
+- Threading, cc/bcc, reply-to
+- Sent/received timestamps beyond ~date_internal~
+- Content hash and message size
+- Read/starred/important/draft/sent/deleted flags
+- AI metadata
+- Search metadata
+- Conflict and provider-label metadata
+
+* Attachments
+** Required In V1
+- ~id~
+- ~email_id~
+- ~filename~
+
+** Optional In V1
+- ~mime_type~
+- ~size_bytes~
+- ~file_path~
+- ~file_hash~
+
+** Deferred Beyond V1
+- ~content_id~
+- ~content_disposition~
+
+* Core Alignment
+- ~meeru-core::account::Account~ maps directly to the active V1 account subset.
+- ~meeru-core::email::Email~ now carries storage-aligned metadata fields such as ~provider_id~, optional header fields, ~content_ref~, and attachment summary fields.
+- ~meeru-core::unified::UnifiedFolder~ maps directly to the active V1 folder subset.
+- Blob content is loaded lazily through the storage service rather than embedded in the primary email metadata record.

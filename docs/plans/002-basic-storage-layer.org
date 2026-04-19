@@ -1,7 +1,7 @@
 #+TITLE: Basic Storage Layer
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
-#+STATUS: Active
+#+STATUS: Done
 
 * Basic Storage Layer
 This plan should produce the first executable storage slice for Meeru. The outcome is not "schema written on paper"; it is a working local persistence layer that later IMAP sync, UI, and CLI work can use without redesigning storage a second time.
@@ -30,11 +30,11 @@ This plan should produce the first executable storage slice for Meeru. The outco
 - [X] Integration tests for migration, CRUD, query, and blob round-trip behavior
 
 *** Deferred From V1
-- [ ] Encryption at rest for stored email content
-- [ ] Backup and restore workflows
-- [ ] Tantivy search index integration
-- [ ] Contacts, labels, AI task tables, audit log, search history, and other non-core metadata tables
-- [ ] Conflict resolution and sync queue persistence
+- Encryption at rest for stored email content
+- Backup and restore workflows
+- Tantivy search index integration
+- Contacts, labels, AI task tables, audit log, search history, and other non-core metadata tables
+- Conflict resolution and sync queue persistence
 
 ** Implementation Plan
 *** 1. Storage Bootstrap
@@ -65,15 +65,15 @@ Acceptance criteria:
 
 *** 3. Storage Model Alignment
 - [X] Define storage-layer record types or mapping functions for the current core models in ~meeru-core~
-- [ ] Resolve mismatches between the current lightweight domain structs and the richer storage schema
-- [ ] Document which fields are required in V1, optional in V1, or deferred to later plans
+- [X] Resolve mismatches between the current lightweight domain structs and the richer storage schema
+- [X] Document which fields are required in V1, optional in V1, or deferred to later plans
 
 Acceptance criteria:
-- [ ] Account and email records can be converted between storage and core types without lossy ad-hoc parsing
-- [ ] Deferred columns are explicit rather than silently unused
+- [X] Account and email records can be converted between storage and core types without lossy ad-hoc parsing
+- [X] Deferred columns are explicit rather than silently unused
 
 *** 4. Storage Traits
-- [ ] Define focused traits or repository interfaces for:
+- [X] Define focused traits or repository interfaces for:
   - [X] account CRUD
   - [X] unified folder CRUD and folder mapping lookup
   - [X] email insert/update/get/list operations
@@ -117,17 +117,18 @@ Acceptance criteria:
 - [X] Tests can run repeatedly without manual cleanup
 
 ** Exit Criteria
-- [ ] ~meeru-storage~ exposes a documented bootstrap API and concrete storage implementation
+- [X] ~meeru-storage~ exposes a documented bootstrap API and concrete storage implementation
 - [X] The workspace has a real migration-backed SQLite database instead of empty module files
-- [ ] The storage layer supports the minimum data flows needed for generic account setup and first-pass email sync work
-- [ ] Plan 003 can build on the storage interfaces without redefining schemas or persistence primitives
+- [X] The storage layer supports the minimum data flows needed for generic account setup and first-pass email sync work
+- [X] Plan 003 can build on the storage interfaces without redefining schemas or persistence primitives
 
 ** Notes
-- [ ] Keep this plan intentionally narrower than the full schema document. The schema doc is a design reference, not a requirement to implement every table before the first usable storage layer exists.
-- [ ] Do not mark schema design items done solely because SQL exists in documentation; the executable migration is the source of truth for implementation status.
-- [ ] Treat encryption, backup, search indexing, and broader metadata tables as follow-on work unless one becomes a hard dependency for the first sync or read flow.
+- Keep this plan intentionally narrower than the full schema document. The schema doc is a design reference, not a requirement to implement every table before the first usable storage layer exists.
+- Do not mark schema design items done solely because SQL exists in documentation; the executable migration is the source of truth for implementation status.
+- Treat encryption, backup, search indexing, and broader metadata tables as follow-on work unless one becomes a hard dependency for the first sync or read flow.
 
 * References
 - [[file:../project-overview.org][Project Overview]]
 - [[file:../technical-architecture.org][Technical Architecture]]
 - [[file:../database-schema.org][Database Schema]]
+- [[file:../storage-v1-field-mapping.org][Storage V1 Field Mapping]]
