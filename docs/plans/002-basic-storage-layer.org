@@ -5,6 +5,7 @@
 
 * Basic Storage Layer
 This plan should produce the first executable storage slice for Meeru. The outcome is not "schema written on paper"; it is a working local persistence layer that later IMAP sync, UI, and CLI work can use without redesigning storage a second time.
+The storage model for Meeru should support both folder-based and label-based providers. Folders are the primary navigation container; labels are separate many-to-many classification metadata. Provider-native folder IDs and label IDs should be preserved independently so sync adapters can round-trip Gmail-style labels and IMAP-style folders without collapsing one concept into the other.
 
 ** Goals For This Plan
 - [X] Bootstrap a local storage runtime that can open an app data directory, create a SQLite database, and run migrations automatically
@@ -12,6 +13,7 @@ This plan should produce the first executable storage slice for Meeru. The outco
 - [X] Persist email bodies and attachment payloads in the local file system with stable references from SQLite
 - [X] Expose storage traits and a concrete SQLite implementation that ~meeru-core~, ~meeru-cli~, and future provider adapters can call
 - [X] Cover the storage layer with integration tests that exercise a real database and real on-disk content storage
+- [X] Keep the V1 storage slice compatible with a later first-class label model instead of baking label semantics into folder-only abstractions
 
 ** Scope For V1
 *** Included In V1
@@ -28,12 +30,14 @@ This plan should produce the first executable storage slice for Meeru. The outco
 - [X] SQLite-backed repositories for the V1 entities
 - [X] File-system blob storage for email content and attachment bytes
 - [X] Integration tests for migration, CRUD, query, and blob round-trip behavior
+- [X] A storage shape that treats folders as navigation containers and leaves room for later ~labels~ and ~email_labels~ tables without reworking the V1 email or account foundations
 
 *** Deferred From V1
 - Encryption at rest for stored email content
 - Backup and restore workflows
 - Tantivy search index integration
-- Contacts, labels, AI task tables, audit log, search history, and other non-core metadata tables
+- Full first-class label persistence (~labels~, ~email_labels~, and provider-label mapping tables)
+- Contacts, AI task tables, audit log, search history, and other non-core metadata tables
 - Conflict resolution and sync queue persistence
 
 ** Implementation Plan
@@ -67,10 +71,12 @@ Acceptance criteria:
 - [X] Define storage-layer record types or mapping functions for the current core models in ~meeru-core~
 - [X] Resolve mismatches between the current lightweight domain structs and the richer storage schema
 - [X] Document which fields are required in V1, optional in V1, or deferred to later plans
+- [X] Make the V1 model boundaries explicit: folders are navigation containers, labels are a later independent concept, and provider-native mappings should stay separate for each
 
 Acceptance criteria:
 - [X] Account and email records can be converted between storage and core types without lossy ad-hoc parsing
 - [X] Deferred columns are explicit rather than silently unused
+- [X] The documented V1 shape can evolve to support both folder-first and label-first providers without redefining accounts, emails, or blob storage
 
 *** 4. Storage Traits
 - [X] Define focused traits or repository interfaces for:
@@ -84,6 +90,7 @@ Acceptance criteria:
 Acceptance criteria:
 - [X] ~meeru-core~ can depend on storage interfaces without importing SQLite-specific types
 - [X] Trait methods map to realistic workflows needed by plan 003 and plan 004
+- [X] Folder-oriented V1 traits do not imply that labels must later be represented as folders
 
 *** 5. SQLite Backend
 - [X] Implement the V1 repository traits using ~sqlx~ and SQLite
@@ -126,6 +133,7 @@ Acceptance criteria:
 - Keep this plan intentionally narrower than the full schema document. The schema doc is a design reference, not a requirement to implement every table before the first usable storage layer exists.
 - Do not mark schema design items done solely because SQL exists in documentation; the executable migration is the source of truth for implementation status.
 - Treat encryption, backup, search indexing, and broader metadata tables as follow-on work unless one becomes a hard dependency for the first sync or read flow.
+- Meeru's long-term organization model is dual: folders for navigation, labels for classification. V1 intentionally implements the folder slice first because it is enough to bootstrap local storage and initial mailbox flows, but later plans should add labels as a separate first-class concept rather than overloading ~unified_folders~ or ~folder_mappings~.
 
 * References
 - [[file:../project-overview.org][Project Overview]]

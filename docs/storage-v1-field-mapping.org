@@ -4,6 +4,7 @@
 
 * Purpose
 This document records which storage fields are actively mapped in plan 002 and which columns are intentionally deferred to later plans. The goal is to make storage/core alignment explicit instead of silently ignoring columns that exist in the schema.
+For organization metadata, Meeru uses a dual model: folders are navigation containers, while labels are separate many-to-many classification metadata. Plan 002 implements the folder slice first and intentionally defers first-class label persistence, but the V1 mapping should not force labels to be represented as folders.
 
 * Accounts
 ** Required In V1
@@ -33,6 +34,19 @@ This document records which storage fields are actively mapped in plan 002 and w
 - Icons, colors, sort order
 - Smart-folder flags and rules
 
+* Labels
+** Required In V1
+- None
+
+** Optional In V1
+- None
+
+** Deferred Beyond V1
+- First-class ~labels~ records for unified label metadata
+- ~email_labels~ associations for many-to-many email classification
+- Provider-native label mapping tables kept separate from folder mappings
+- Label presentation metadata such as color, icon, hierarchy, and visibility
+
 * Emails
 ** Required In V1
 - ~id~
@@ -57,7 +71,8 @@ This document records which storage fields are actively mapped in plan 002 and w
 - Read/starred/important/draft/sent/deleted flags
 - AI metadata
 - Search metadata
-- Conflict and provider-label metadata
+- Conflict metadata
+- Provider-label linkage through dedicated label mapping tables rather than inline email JSON
 
 * Attachments
 ** Required In V1
@@ -79,4 +94,6 @@ This document records which storage fields are actively mapped in plan 002 and w
 - ~meeru-core::account::Account~ maps directly to the active V1 account subset.
 - ~meeru-core::email::Email~ now carries storage-aligned metadata fields such as ~provider_id~, optional header fields, ~content_ref~, and attachment summary fields.
 - ~meeru-core::unified::UnifiedFolder~ maps directly to the active V1 folder subset.
+- Folder membership and label membership are separate concepts even when a provider exposes only one of them.
+- Provider-native folder IDs and provider-native label IDs should be preserved independently so Gmail-style labels and IMAP-style folders can round-trip without lossy remapping.
 - Blob content is loaded lazily through the storage service rather than embedded in the primary email metadata record.
