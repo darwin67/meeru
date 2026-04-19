@@ -97,6 +97,11 @@ docs:
 plan-status:
 	bash scripts/check-plan-status.sh
 
+## Dump the executable SQLite schema to a file
+.PHONY: dump-schema
+dump-schema:
+	bash scripts/dump-schema.sh
+
 ## Install development tools
 .PHONY: install-dev-tools
 install-dev-tools:
