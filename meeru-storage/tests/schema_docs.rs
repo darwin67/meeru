@@ -4,6 +4,32 @@ use meeru_storage::migrations;
 use sqlx::{raw_sql, sqlite::SqliteConnectOptions, SqlitePool};
 use tempfile::TempDir;
 
+const V1_OBJECT_NAMES: &[&str] = &[
+    "migrations",
+    "accounts",
+    "idx_accounts_email",
+    "idx_accounts_active",
+    "unified_folders",
+    "idx_unified_folders_parent",
+    "idx_unified_folders_type",
+    "folder_mappings",
+    "idx_folder_mappings_unified",
+    "idx_folder_mappings_account",
+    "emails",
+    "idx_emails_account",
+    "idx_emails_thread",
+    "idx_emails_message_id",
+    "idx_emails_from",
+    "idx_emails_date",
+    "idx_emails_unread",
+    "idx_emails_starred",
+    "idx_emails_search",
+    "email_folders",
+    "idx_email_folders_folder",
+    "attachments",
+    "idx_attachments_email",
+];
+
 const V1_HEADINGS: &[&str] = &[
     "Accounts Table",
     "Unified Folders Table",
@@ -25,7 +51,7 @@ async fn documented_v1_schema_executes_in_sqlite() {
         .expect("execute documented v1 schema");
 
     let names = object_names(&pool).await;
-    let expected: BTreeSet<String> = migrations::V1_OBJECT_NAMES
+    let expected: BTreeSet<String> = V1_OBJECT_NAMES
         .iter()
         .map(|name| (*name).to_string())
         .collect();
@@ -97,7 +123,7 @@ fn documented_v1_sql() -> String {
     }
 
     let mut all_sql = String::from(
-        "CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, description TEXT);\n",
+        "CREATE TABLE migrations (id INTEGER PRIMARY KEY AUTOINCREMENT, version_id INTEGER NOT NULL, is_applied INTEGER NOT NULL, tstamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP);\n",
     );
     for block in sql_blocks {
         all_sql.push_str(&block);
@@ -107,14 +133,15 @@ fn documented_v1_sql() -> String {
 }
 
 async fn object_names(pool: &SqlitePool) -> BTreeSet<String> {
-    let placeholders = std::iter::repeat_n("?", migrations::V1_OBJECT_NAMES.len())
+    let placeholders = std::iter::repeat("?")
+        .take(V1_OBJECT_NAMES.len())
         .collect::<Vec<_>>()
         .join(", ");
     let query =
         format!("SELECT name FROM sqlite_master WHERE name IN ({placeholders}) ORDER BY name");
 
     let mut sql = sqlx::query(&query);
-    for name in migrations::V1_OBJECT_NAMES {
+    for name in V1_OBJECT_NAMES {
         sql = sql.bind(name);
     }
 

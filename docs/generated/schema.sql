@@ -86,7 +86,6 @@ CREATE TABLE emails (
     tantivy_doc_id TEXT,
     sync_state TEXT CHECK (sync_state IN ('synced', 'pending_local', 'pending_remote', 'conflict')),
     last_modified TIMESTAMP,
-    provider_labels TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(account_id, provider_id)
@@ -99,18 +98,19 @@ CREATE TABLE folder_mappings (
     account_id TEXT NOT NULL REFERENCES accounts(id),
     provider_folder_id TEXT NOT NULL,
     provider_folder_name TEXT,
-    mapping_type TEXT CHECK (mapping_type IN ('direct', 'label', 'virtual', 'computed')),
+    mapping_type TEXT CHECK (mapping_type IN ('direct', 'virtual', 'computed')),
     sync_direction TEXT CHECK (sync_direction IN ('bidirectional', 'to_unified', 'to_provider')),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(account_id, provider_folder_id)
 );
 
--- table: schema_migrations
-CREATE TABLE schema_migrations (
-    version INTEGER PRIMARY KEY,
-    applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    description TEXT NOT NULL
+-- table: migrations
+CREATE TABLE migrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    version_id INTEGER NOT NULL,
+    is_applied INTEGER NOT NULL,
+    tstamp TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- table: unified_folders

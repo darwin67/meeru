@@ -18,7 +18,7 @@ The storage model for Meeru should support both folder-based and label-based pro
 ** Scope For V1
 *** Included In V1
 - [X] SQLite schema and migration runner for:
-  - [X] ~schema_migrations~
+  - [X] ~migrations~
   - [X] ~accounts~
   - [X] ~unified_folders~
   - [X] ~folder_mappings~
@@ -58,7 +58,7 @@ Acceptance criteria:
 *** 2. Migration System
 - [X] Implement a migration runner in ~meeru-storage::migrations~
 - [X] Create an initial executable V1 migration derived from ~docs/database-schema.org~
-- [X] Keep migrations idempotent and versioned through ~schema_migrations~
+- [X] Keep migrations idempotent and versioned through ~migrations~
 - [X] Validate the documented schema against actual SQLite syntax before checking off the migration work
 
 Acceptance criteria:

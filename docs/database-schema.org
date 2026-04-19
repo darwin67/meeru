@@ -8,10 +8,11 @@ Meeru uses SQLite as its primary database for storing email metadata, account in
 * Schema Version Management
 
 #+begin_src sql
-CREATE TABLE schema_migrations (
-    version INTEGER PRIMARY KEY,
-    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    description TEXT
+CREATE TABLE migrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    version_id INTEGER NOT NULL,
+    is_applied INTEGER NOT NULL,
+    tstamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 #+end_src
 
@@ -556,8 +557,8 @@ BEGIN TRANSACTION;
 ALTER TABLE emails ADD COLUMN ai_action_suggested TEXT;
 
 -- Update schema version
-INSERT INTO schema_migrations (version, description)
-VALUES (2, 'Add AI action suggestions to emails');
+INSERT INTO migrations (version_id, is_applied)
+VALUES (20260419010101, 1);
 
 COMMIT;
 #+end_src

@@ -18,7 +18,10 @@ async fn bootstrap_creates_directories_and_applies_migrations() {
     let applied_versions = migrations::applied_versions(storage.pool())
         .await
         .expect("migration versions");
-    assert_eq!(applied_versions, vec![migrations::CURRENT_SCHEMA_VERSION]);
+    assert_eq!(
+        applied_versions,
+        vec![0, migrations::current_schema_version()]
+    );
 }
 
 #[tokio::test]
@@ -67,7 +70,10 @@ async fn rerunning_migrations_is_a_noop() {
         .expect("migration versions");
 
     assert!(applied.is_empty());
-    assert_eq!(applied_versions, vec![migrations::CURRENT_SCHEMA_VERSION]);
+    assert_eq!(
+        applied_versions,
+        vec![0, migrations::current_schema_version()]
+    );
 }
 
 #[tokio::test]
