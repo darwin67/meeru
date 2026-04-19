@@ -77,6 +77,25 @@ async fn rerunning_migrations_is_a_noop() {
 }
 
 #[tokio::test]
+async fn rollback_reverts_the_latest_migration() {
+    let temp_dir = TempDir::new().expect("temp dir");
+    let storage = StorageConfig::new(temp_dir.path())
+        .open()
+        .await
+        .expect("open storage");
+
+    let rolled_back = migrations::rollback_migrations(storage.pool(), 1)
+        .await
+        .expect("rollback latest migration");
+    let applied_versions = migrations::applied_versions(storage.pool())
+        .await
+        .expect("migration versions after rollback");
+
+    assert_eq!(rolled_back, vec![migrations::current_schema_version()]);
+    assert_eq!(applied_versions, vec![0]);
+}
+
+#[tokio::test]
 async fn bootstrap_directory_failures_include_the_failing_path() {
     let temp_dir = TempDir::new().expect("temp dir");
     let file_root = temp_dir.path().join("not-a-directory");

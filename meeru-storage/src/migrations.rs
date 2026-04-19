@@ -1,5 +1,7 @@
 //! SQLite schema migrations for the Meeru storage layer.
 
+use std::collections::HashMap;
+
 use include_dir::{include_dir, Dir};
 use sqlx::{raw_sql, Row, SqlitePool};
 
@@ -13,6 +15,13 @@ struct Migration {
     up_sql: String,
     #[allow(dead_code)]
     down_sql: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MigrationStatus {
+    pub version: i64,
+    pub description: String,
+    pub applied: bool,
 }
 
 pub fn current_schema_version() -> i64 {
@@ -58,6 +67,110 @@ pub async fn run_migrations(pool: &SqlitePool) -> Result<Vec<i64>> {
     }
 
     Ok(applied)
+}
+
+/// Roll back the latest applied migrations, newest first.
+pub async fn rollback_migrations(pool: &SqlitePool, steps: usize) -> Result<Vec<i64>> {
+    ensure_migrations_table(pool).await?;
+
+    if steps == 0 {
+        return Ok(Vec::new());
+    }
+
+    let applied = applied_versions_desc(pool).await?;
+    let mut rolled_back = Vec::new();
+
+    for version in applied.into_iter().take(steps) {
+        let migration = load_migrations()
+            .into_iter()
+            .find(|migration| migration.version == version)
+            .ok_or_else(|| {
+                Error::Migration(format!("no migration file found for version {version}"))
+            })?;
+        let down_sql = migration.down_sql.as_ref().ok_or_else(|| {
+            Error::Migration(format!(
+                "migration {} ({}) has no +down section",
+                migration.version, migration.description
+            ))
+        })?;
+
+        let mut tx = pool.begin().await?;
+        raw_sql(down_sql).execute(&mut *tx).await.map_err(|error| {
+            Error::Migration(format!(
+                "failed to roll back migration {} ({}): {error}",
+                migration.version, migration.description
+            ))
+        })?;
+        sqlx::query("INSERT INTO migrations (version_id, is_applied) VALUES (?, 0)")
+            .bind(migration.version)
+            .execute(&mut *tx)
+            .await
+            .map_err(|error| {
+                Error::Migration(format!(
+                    "failed to record rollback for migration {} ({}): {error}",
+                    migration.version, migration.description
+                ))
+            })?;
+        tx.commit().await?;
+
+        rolled_back.push(migration.version);
+    }
+
+    Ok(rolled_back)
+}
+
+/// Dump the current schema from sqlite_master in dependency-friendly order.
+pub async fn dump_schema(pool: &SqlitePool) -> Result<String> {
+    let rows = sqlx::query(
+        r#"
+SELECT type, name, sql
+FROM sqlite_master
+WHERE sql IS NOT NULL
+  AND name NOT LIKE 'sqlite_%'
+ORDER BY
+  CASE type
+    WHEN 'table' THEN 0
+    WHEN 'index' THEN 1
+    WHEN 'trigger' THEN 2
+    ELSE 3
+  END,
+  name
+        "#,
+    )
+    .fetch_all(pool)
+    .await?;
+
+    let mut output = String::from(
+        "-- Generated from the executable meeru-storage SQLite migrations.\n\
+-- Do not edit by hand; regenerate with `scripts/migrations.sh dump`.\n\n",
+    );
+
+    for row in rows {
+        let object_type: String = row.get("type");
+        let name: String = row.get("name");
+        let sql: String = row.get("sql");
+
+        output.push_str(&format!("-- {object_type}: {name}\n"));
+        output.push_str(sql.trim());
+        output.push_str(";\n\n");
+    }
+
+    Ok(output)
+}
+
+/// List all known migration files and whether each is currently applied.
+pub async fn list_migrations(pool: &SqlitePool) -> Result<Vec<MigrationStatus>> {
+    ensure_migrations_table(pool).await?;
+
+    let states = latest_applied_states(pool).await?;
+    Ok(load_migrations()
+        .into_iter()
+        .map(|migration| MigrationStatus {
+            version: migration.version,
+            description: migration.description,
+            applied: states.get(&migration.version).copied().unwrap_or(false),
+        })
+        .collect())
 }
 
 fn load_migrations() -> Vec<Migration> {
@@ -168,16 +281,10 @@ fn parse_migration_sql(sql: &str, version: i64, description: &str) -> Result<Mig
 pub async fn applied_versions(pool: &SqlitePool) -> Result<Vec<i64>> {
     ensure_migrations_table(pool).await?;
 
-    let rows = sqlx::query(
-        "SELECT version_id FROM migrations WHERE is_applied = 1 ORDER BY version_id ASC",
-    )
-    .fetch_all(pool)
-    .await?;
-
-    Ok(rows
-        .into_iter()
-        .map(|row| row.get::<i64, _>("version_id"))
-        .collect())
+    let mut versions = applied_versions_desc(pool).await?;
+    versions.reverse();
+    versions.insert(0, 0);
+    Ok(versions)
 }
 
 async fn ensure_migrations_table(pool: &SqlitePool) -> Result<()> {
@@ -207,12 +314,72 @@ CREATE TABLE IF NOT EXISTS migrations (
 }
 
 async fn is_applied(pool: &SqlitePool, version: i64) -> Result<bool> {
-    let count: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM migrations WHERE version_id = ? AND is_applied = 1",
+    let state: Option<i64> = sqlx::query_scalar(
+        r#"
+SELECT is_applied
+FROM migrations
+WHERE version_id = ?
+ORDER BY id DESC
+LIMIT 1
+        "#,
     )
     .bind(version)
-    .fetch_one(pool)
+    .fetch_optional(pool)
     .await?;
 
-    Ok(count > 0)
+    Ok(matches!(state, Some(1)))
+}
+
+async fn applied_versions_desc(pool: &SqlitePool) -> Result<Vec<i64>> {
+    let rows = sqlx::query(
+        r#"
+SELECT m.version_id
+FROM migrations m
+JOIN (
+    SELECT version_id, MAX(id) AS max_id
+    FROM migrations
+    GROUP BY version_id
+) latest
+    ON latest.version_id = m.version_id
+   AND latest.max_id = m.id
+WHERE m.is_applied = 1
+  AND m.version_id <> 0
+ORDER BY m.version_id DESC
+        "#,
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rows
+        .into_iter()
+        .map(|row| row.get::<i64, _>("version_id"))
+        .collect())
+}
+
+async fn latest_applied_states(pool: &SqlitePool) -> Result<HashMap<i64, bool>> {
+    let rows = sqlx::query(
+        r#"
+SELECT m.version_id, m.is_applied
+FROM migrations m
+JOIN (
+    SELECT version_id, MAX(id) AS max_id
+    FROM migrations
+    GROUP BY version_id
+) latest
+    ON latest.version_id = m.version_id
+   AND latest.max_id = m.id
+        "#,
+    )
+    .fetch_all(pool)
+    .await?;
+
+    Ok(rows
+        .into_iter()
+        .map(|row| {
+            (
+                row.get::<i64, _>("version_id"),
+                row.get::<i64, _>("is_applied") == 1,
+            )
+        })
+        .collect())
 }

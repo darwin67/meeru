@@ -99,6 +99,14 @@ impl StorageConfig {
 
     /// Open the local storage runtime, creating directories and applying migrations.
     pub async fn open(&self) -> Result<Storage> {
+        let storage = self.open_without_migrations().await?;
+        migrations::run_migrations(storage.pool()).await?;
+
+        Ok(storage)
+    }
+
+    /// Open the local storage runtime without applying migrations.
+    pub async fn open_without_migrations(&self) -> Result<Storage> {
         let paths = self.paths();
         create_required_directories(&paths).await?;
 
@@ -119,8 +127,6 @@ impl StorageConfig {
                 path: paths.database.clone(),
                 source,
             })?;
-
-        migrations::run_migrations(&pool).await?;
 
         Ok(Storage { pool, paths })
     }

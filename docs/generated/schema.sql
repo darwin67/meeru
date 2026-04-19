@@ -1,5 +1,5 @@
 -- Generated from the executable meeru-storage SQLite migrations.
--- Do not edit by hand; regenerate with `make dump-schema`.
+-- Do not edit by hand; regenerate with `scripts/migrations.sh dump`.
 
 -- table: accounts
 CREATE TABLE accounts (
