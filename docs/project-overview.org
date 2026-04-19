@@ -3,9 +3,10 @@
 #+DATE: 2026-03-30
 
 * Project Overview
-Meeru is a modern, unified desktop email client built with Rust and Iced that provides transparent multi-account management, AI-powered features, and a CLI interface for automation.
+Meeru is a modern desktop email client built with Rust and Iced that aims to deliver a strong core email experience first, then expand into transparent multi-account management, automation, and later AI-powered features.
 
 ** Core Goals
+- [ ] Nail the core read, sync, and send experience before expanding scope
 - [ ] Unified view across all email accounts
 - [ ] Transparent operations (archiving, labeling) across providers
 - [ ] Local AI integration for privacy-focused features

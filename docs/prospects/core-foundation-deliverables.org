@@ -6,6 +6,13 @@
 * Core Foundation Deliverables
 This is a roadmap prospect, not an execution plan.
 
+** Functional MVP
+- [ ] Add one generic account with minimal configuration
+- [ ] Sync a bounded mailbox slice into local storage
+- [ ] Display folder list, message list, and message reader
+- [ ] Send a basic outbound email
+- [ ] Keep the MVP single-account and generic-provider focused until the email experience is stable
+
 - [ ] Working IMAP email client
 - [ ] Can add generic email accounts
 - [ ] Can view and send emails
@@ -17,6 +24,11 @@ This is a roadmap prospect, not an execution plan.
 - [ ] Successfully sync 10k+ emails
 - [ ] Sub-second email display
 - [ ] <100MB memory usage while idle
+
+** Sequencing Notes
+- Pull only the minimum account/auth slice needed for generic IMAP and SMTP into the MVP path
+- Do not wait for full provider-specific OAuth or multi-account orchestration before shipping the first usable desktop flow
+- Treat unified views, CLI automation, and AI as follow-on phases once the core read/send experience works end-to-end
 
 * References
 - [[file:../plans/001-project-setup-and-architecture.org][Project Setup And Architecture]]

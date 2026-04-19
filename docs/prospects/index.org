@@ -7,10 +7,18 @@ This directory holds roadmap summaries, phase-level outcome docs, risk registers
 
 Execution-focused work stays under [[file:../plans/][docs/plans]]. Prospects summarize where those plans are intended to lead and which broader themes remain open.
 
+** MVP First
+Meeru should reach a working desktop email MVP before broader provider coverage, automation, or AI work. The intended MVP slice is:
+
+- one generic account
+- bounded IMAP sync into local storage
+- folder list, message list, and reader UI
+- basic compose and SMTP send
+
 ** Recommended Sequence
 - [[file:core-foundation-deliverables.org][Core Foundation Deliverables]]
-- [[file:unified-experience-deliverables.org][Unified Experience Deliverables]]
 - [[file:provider-integration-program.org][Provider Integration Program]]
+- [[file:unified-experience-deliverables.org][Unified Experience Deliverables]]
 - [[file:cli-and-automation-deliverables.org][CLI And Automation Deliverables]]
 - [[file:ai-features-deliverables.org][AI Features Deliverables]]
 - [[file:advanced-and-enterprise-features.org][Advanced And Enterprise Features]]
