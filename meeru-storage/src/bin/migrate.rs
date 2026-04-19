@@ -18,7 +18,7 @@ async fn main() -> anyhow::Result<()> {
         "help" | "-h" | "--help" => {
             print_usage();
             Ok(())
-        }
+        },
         "create" => create_migration(&args),
         "run" => run_migrations(&args).await,
         "rollback" => rollback_migrations(&args).await,
@@ -220,10 +220,7 @@ fn print_usage() {
     let reset = "\x1b[0m";
 
     let command_rows = [
-        (
-            format!("{yellow}help{reset}"),
-            "Show this help text.",
-        ),
+        (format!("{yellow}help{reset}"), "Show this help text."),
         (
             format!("{yellow}create{reset} <name>"),
             "Create a new timestamped migration file with empty +up and +down sections.",
