@@ -49,19 +49,19 @@ This plan should produce the first executable storage slice for Meeru. The outco
 Acceptance criteria:
 - [X] Starting from an empty directory creates the required storage folders and database file
 - [X] Opening the same directory twice reuses the existing schema without data loss
-- [ ] Bootstrap failures return typed errors with actionable context
+- [X] Bootstrap failures return typed errors with actionable context
 
 *** 2. Migration System
 - [X] Implement a migration runner in ~meeru-storage::migrations~
 - [X] Create an initial executable V1 migration derived from ~docs/database-schema.org~
 - [X] Keep migrations idempotent and versioned through ~schema_migrations~
-- [ ] Validate the documented schema against actual SQLite syntax before checking off the migration work
+- [X] Validate the documented schema against actual SQLite syntax before checking off the migration work
 
 Acceptance criteria:
 - [X] A fresh database applies all migrations successfully
 - [X] Re-running migrations on an up-to-date database is a no-op
 - [X] The migration runner records applied versions and descriptions
-- [ ] Migration tests fail if the documented schema and executable migration drift in incompatible ways
+- [X] Migration tests fail if the documented schema and executable migration drift in incompatible ways
 
 *** 3. Storage Model Alignment
 - [X] Define storage-layer record types or mapping functions for the current core models in ~meeru-core~
@@ -76,9 +76,9 @@ Acceptance criteria:
 - [ ] Define focused traits or repository interfaces for:
   - [X] account CRUD
   - [X] unified folder CRUD and folder mapping lookup
-  - [ ] email insert/update/get/list operations
+  - [X] email insert/update/get/list operations
   - [X] attachment insert/list operations
-  - [ ] content blob put/get/delete operations
+  - [X] content blob put/get/delete operations
 - [X] Keep trait boundaries small enough that future provider sync code can compose them cleanly
 
 Acceptance criteria:
@@ -87,11 +87,11 @@ Acceptance criteria:
 
 *** 5. SQLite Backend
 - [X] Implement the V1 repository traits using ~sqlx~ and SQLite
-- [ ] Support basic transactional operations for writing an email record and its related folder and attachment metadata
+- [X] Support basic transactional operations for writing an email record and its related folder and attachment metadata
 - [X] Add list/query methods needed for an initial inbox or folder view
 
 Acceptance criteria:
-- [ ] Can create, list, fetch, update, and delete accounts
+- [X] Can create, list, fetch, update, and delete accounts
 - [X] Can insert and fetch email metadata by account and folder
 - [X] Can associate emails to unified folders
 - [X] Can persist and fetch attachment metadata linked to an email

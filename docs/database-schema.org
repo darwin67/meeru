@@ -214,10 +214,10 @@ CREATE TABLE attachments (
     file_hash TEXT,   -- SHA-256 hash
 
     -- Metadata
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    INDEX idx_attachments_email (email_id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_attachments_email ON attachments(email_id);
 #+end_src
 
 ** Contacts Table

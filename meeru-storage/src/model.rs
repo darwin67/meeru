@@ -162,6 +162,13 @@ pub struct NewEmail {
     pub attachment_count: i64,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct NewEmailGraph {
+    pub email: NewEmail,
+    pub folder_ids: Vec<Uuid>,
+    pub attachments: Vec<NewAttachment>,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AttachmentRecord {
     pub id: Uuid,

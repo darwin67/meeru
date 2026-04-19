@@ -114,7 +114,11 @@ impl StorageConfig {
             .max_connections(self.max_connections)
             .acquire_timeout(Duration::from_secs(10))
             .connect_with(options)
-            .await?;
+            .await
+            .map_err(|source| Error::OpenDatabase {
+                path: paths.database.clone(),
+                source,
+            })?;
 
         migrations::run_migrations(&pool).await?;
 
@@ -143,7 +147,10 @@ impl Storage {
 
 async fn create_required_directories(paths: &StoragePaths) -> Result<()> {
     for directory in paths.required_directories() {
-        std::fs::create_dir_all(directory)?;
+        std::fs::create_dir_all(directory).map_err(|source| Error::CreateDirectory {
+            path: directory.to_path_buf(),
+            source,
+        })?;
     }
 
     Ok(())

@@ -8,8 +8,8 @@ use uuid::Uuid;
 use crate::{
     model::{
         AccountRecord, AttachmentRecord, EmailAddress, EmailRecord, FolderMappingRecord,
-        NewAccount, NewAttachment, NewEmail, NewFolderMapping, NewUnifiedFolder, ProviderType,
-        UnifiedFolderRecord, UnifiedFolderType,
+        NewAccount, NewAttachment, NewEmail, NewEmailGraph, NewFolderMapping, NewUnifiedFolder,
+        ProviderType, UnifiedFolderRecord, UnifiedFolderType,
     },
     Error, Result, Storage,
 };
@@ -17,6 +17,7 @@ use crate::{
 #[async_trait]
 pub trait AccountStore {
     async fn create_account(&self, account: NewAccount) -> Result<AccountRecord>;
+    async fn update_account(&self, account: AccountRecord) -> Result<AccountRecord>;
     async fn get_account(&self, account_id: Uuid) -> Result<AccountRecord>;
     async fn list_accounts(&self) -> Result<Vec<AccountRecord>>;
     async fn delete_account(&self, account_id: Uuid) -> Result<()>;
@@ -38,6 +39,8 @@ pub trait FolderStore {
 #[async_trait]
 pub trait EmailStore {
     async fn insert_email(&self, email: NewEmail) -> Result<EmailRecord>;
+    async fn update_email(&self, email: EmailRecord) -> Result<EmailRecord>;
+    async fn insert_email_graph(&self, graph: NewEmailGraph) -> Result<EmailRecord>;
     async fn get_email(&self, email_id: Uuid) -> Result<EmailRecord>;
     async fn list_emails_for_account(
         &self,
@@ -72,6 +75,28 @@ VALUES (?, ?, ?, ?)
         .bind(account.provider_type.as_str())
         .execute(self.pool())
         .await?;
+
+        self.get_account(account.id).await
+    }
+
+    async fn update_account(&self, account: AccountRecord) -> Result<AccountRecord> {
+        let result = sqlx::query(
+            r#"
+UPDATE accounts
+SET email = ?, display_name = ?, provider_type = ?, updated_at = CURRENT_TIMESTAMP
+WHERE id = ?
+            "#,
+        )
+        .bind(&account.email)
+        .bind(&account.display_name)
+        .bind(account.provider_type.as_str())
+        .bind(account.id)
+        .execute(self.pool())
+        .await?;
+
+        if result.rows_affected() == 0 {
+            return Err(Error::NotFound(format!("account {}", account.id)));
+        }
 
         self.get_account(account.id).await
     }
@@ -263,6 +288,127 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         .await?;
 
         self.get_email(email.id).await
+    }
+
+    async fn update_email(&self, email: EmailRecord) -> Result<EmailRecord> {
+        let result = sqlx::query(
+            r#"
+UPDATE emails
+SET
+    provider_id = ?,
+    message_id = ?,
+    subject = ?,
+    from_address = ?,
+    from_name = ?,
+    to_addresses = ?,
+    date_internal = ?,
+    content_file_path = ?,
+    has_attachments = ?,
+    attachment_count = ?,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = ?
+            "#,
+        )
+        .bind(&email.provider_id)
+        .bind(&email.message_id)
+        .bind(&email.subject)
+        .bind(email.from.as_ref().map(|from| from.address.clone()))
+        .bind(email.from.as_ref().and_then(|from| from.name.clone()))
+        .bind(serialize_addresses(&email.to)?)
+        .bind(email.date_internal)
+        .bind(&email.content_file_path)
+        .bind(email.has_attachments)
+        .bind(email.attachment_count)
+        .bind(email.id)
+        .execute(self.pool())
+        .await?;
+
+        if result.rows_affected() == 0 {
+            return Err(Error::NotFound(format!("email {}", email.id)));
+        }
+
+        self.get_email(email.id).await
+    }
+
+    async fn insert_email_graph(&self, graph: NewEmailGraph) -> Result<EmailRecord> {
+        for attachment in &graph.attachments {
+            if attachment.email_id != graph.email.id {
+                return Err(Error::Other(format!(
+                    "attachment {} is linked to email {}, expected {}",
+                    attachment.id, attachment.email_id, graph.email.id
+                )));
+            }
+        }
+
+        let mut tx = self.pool().begin().await?;
+        sqlx::query(
+            r#"
+INSERT INTO emails (
+    id,
+    account_id,
+    provider_id,
+    message_id,
+    subject,
+    from_address,
+    from_name,
+    to_addresses,
+    date_internal,
+    content_file_path,
+    has_attachments,
+    attachment_count
+)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            "#,
+        )
+        .bind(graph.email.id)
+        .bind(graph.email.account_id)
+        .bind(&graph.email.provider_id)
+        .bind(&graph.email.message_id)
+        .bind(&graph.email.subject)
+        .bind(graph.email.from.as_ref().map(|from| from.address.clone()))
+        .bind(graph.email.from.as_ref().and_then(|from| from.name.clone()))
+        .bind(serialize_addresses(&graph.email.to)?)
+        .bind(graph.email.date_internal)
+        .bind(&graph.email.content_file_path)
+        .bind(graph.email.has_attachments)
+        .bind(graph.email.attachment_count)
+        .execute(&mut *tx)
+        .await?;
+
+        for folder_id in &graph.folder_ids {
+            sqlx::query(
+                r#"
+INSERT INTO email_folders (email_id, unified_folder_id)
+VALUES (?, ?)
+                "#,
+            )
+            .bind(graph.email.id)
+            .bind(folder_id)
+            .execute(&mut *tx)
+            .await?;
+        }
+
+        for attachment in &graph.attachments {
+            sqlx::query(
+                r#"
+INSERT INTO attachments (id, email_id, filename, mime_type, size_bytes, file_path, file_hash)
+VALUES (?, ?, ?, ?, ?, ?, ?)
+                "#,
+            )
+            .bind(attachment.id)
+            .bind(attachment.email_id)
+            .bind(&attachment.filename)
+            .bind(&attachment.mime_type)
+            .bind(attachment.size_bytes)
+            .bind(&attachment.file_path)
+            .bind(&attachment.file_hash)
+            .execute(&mut *tx)
+            .await?;
+        }
+
+        tx.commit().await?;
+
+        self.get_email(graph.email.id).await
     }
 
     async fn get_email(&self, email_id: Uuid) -> Result<EmailRecord> {

@@ -5,6 +5,31 @@ use sqlx::{raw_sql, Row, SqlitePool};
 use crate::Result;
 
 pub const CURRENT_SCHEMA_VERSION: i64 = 1;
+pub const V1_OBJECT_NAMES: &[&str] = &[
+    "schema_migrations",
+    "accounts",
+    "idx_accounts_email",
+    "idx_accounts_active",
+    "unified_folders",
+    "idx_unified_folders_parent",
+    "idx_unified_folders_type",
+    "folder_mappings",
+    "idx_folder_mappings_unified",
+    "idx_folder_mappings_account",
+    "emails",
+    "idx_emails_account",
+    "idx_emails_thread",
+    "idx_emails_message_id",
+    "idx_emails_from",
+    "idx_emails_date",
+    "idx_emails_unread",
+    "idx_emails_starred",
+    "idx_emails_search",
+    "email_folders",
+    "idx_email_folders_folder",
+    "attachments",
+    "idx_attachments_email",
+];
 
 struct Migration {
     version: i64,
@@ -165,12 +190,26 @@ pub async fn run_migrations(pool: &SqlitePool) -> Result<Vec<i64>> {
         }
 
         let mut tx = pool.begin().await?;
-        raw_sql(migration.sql).execute(&mut *tx).await?;
+        raw_sql(migration.sql)
+            .execute(&mut *tx)
+            .await
+            .map_err(|error| {
+                crate::Error::Migration(format!(
+                    "failed to apply migration {} ({}): {error}",
+                    migration.version, migration.description
+                ))
+            })?;
         sqlx::query("INSERT INTO schema_migrations (version, description) VALUES (?, ?)")
             .bind(migration.version)
             .bind(migration.description)
             .execute(&mut *tx)
-            .await?;
+            .await
+            .map_err(|error| {
+                crate::Error::Migration(format!(
+                    "failed to record migration {} ({}): {error}",
+                    migration.version, migration.description
+                ))
+            })?;
         tx.commit().await?;
 
         applied.push(migration.version);

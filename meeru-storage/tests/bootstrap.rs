@@ -1,4 +1,4 @@
-use meeru_storage::{migrations, StorageConfig};
+use meeru_storage::{migrations, Error, StorageConfig};
 use tempfile::TempDir;
 
 #[tokio::test]
@@ -68,4 +68,21 @@ async fn rerunning_migrations_is_a_noop() {
 
     assert!(applied.is_empty());
     assert_eq!(applied_versions, vec![migrations::CURRENT_SCHEMA_VERSION]);
+}
+
+#[tokio::test]
+async fn bootstrap_directory_failures_include_the_failing_path() {
+    let temp_dir = TempDir::new().expect("temp dir");
+    let file_root = temp_dir.path().join("not-a-directory");
+    std::fs::write(&file_root, "blocking file").expect("write blocking file");
+
+    let error = StorageConfig::new(&file_root)
+        .open()
+        .await
+        .expect_err("bootstrap should fail");
+
+    match error {
+        Error::CreateDirectory { path, .. } => assert_eq!(path, file_root),
+        other => panic!("expected CreateDirectory error, got {other:?}"),
+    }
 }

@@ -1,5 +1,7 @@
 //! Storage error types
 
+use std::path::PathBuf;
+
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -9,6 +11,20 @@ pub enum Error {
 
     #[error("Invalid path: {0}")]
     InvalidPath(String),
+
+    #[error("Failed to create storage directory {path}: {source}")]
+    CreateDirectory {
+        path: PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
+
+    #[error("Failed to open SQLite database {path}: {source}")]
+    OpenDatabase {
+        path: PathBuf,
+        #[source]
+        source: sqlx::Error,
+    },
 
     #[error("Database error: {0}")]
     Database(#[from] sqlx::Error),
