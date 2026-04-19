@@ -4,6 +4,8 @@
 #+STATUS: Draft
 
 * Gmail Integration
+Gmail should be treated as a label-first provider. Its provider-native labels should map into Meeru's label model without forcing them through folder mappings, while Gmail system semantics such as Inbox, Trash, and Spam can still inform unified folder placement where appropriate.
+
 ** Gmail-Specific Features
 - [ ] Implement Gmail OAuth2 authentication
 - [ ] Add Gmail label support:
@@ -17,7 +19,8 @@
 ** Gmail Optimization
 - [ ] Implement Gmail push notifications (IDLE)
 - [ ] Add Gmail-specific batch operations
-- [ ] Optimize label-to-folder mapping
+- [ ] Optimize unified folder derivation from Gmail system labels without collapsing user labels into folders
+- [ ] Optimize provider-label mapping and sync performance
 - [ ] Handle Gmail quota and limits
 - [ ] Add Gmail settings sync
 

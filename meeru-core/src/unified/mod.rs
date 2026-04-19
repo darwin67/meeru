@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UnifiedFolder {
     pub id: Uuid,
     pub name: String,
@@ -11,7 +11,7 @@ pub struct UnifiedFolder {
     pub parent_id: Option<Uuid>,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum UnifiedFolderType {
     Inbox,

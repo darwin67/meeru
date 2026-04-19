@@ -1,8 +1,5 @@
 # Clippy configuration
 
-# Set the MSRV
-msrv = "1.75"
-
 # Deny certain lints in CI
 warn-on-all-wildcard-imports = true
 

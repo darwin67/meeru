@@ -8,10 +8,11 @@ Meeru uses SQLite as its primary database for storing email metadata, account in
 * Schema Version Management
 
 #+begin_src sql
-CREATE TABLE schema_migrations (
-    version INTEGER PRIMARY KEY,
-    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    description TEXT
+CREATE TABLE migrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    version_id INTEGER NOT NULL,
+    is_applied INTEGER NOT NULL,
+    tstamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 #+end_src
 
@@ -89,6 +90,7 @@ CREATE INDEX idx_unified_folders_type ON unified_folders(folder_type);
 
 ** Folder Mappings Table
 Maps unified folders to provider-specific folders.
+This table is for folder-style provider containers only. Label-style provider metadata should be modeled separately instead of being forced through folder mappings.
 
 #+begin_src sql
 CREATE TABLE folder_mappings (
@@ -97,7 +99,7 @@ CREATE TABLE folder_mappings (
     account_id TEXT NOT NULL REFERENCES accounts(id),
     provider_folder_id TEXT NOT NULL,  -- Provider's folder ID/path
     provider_folder_name TEXT,
-    mapping_type TEXT CHECK (mapping_type IN ('direct', 'label', 'virtual', 'computed')),
+    mapping_type TEXT CHECK (mapping_type IN ('direct', 'virtual', 'computed')),
     sync_direction TEXT CHECK (sync_direction IN ('bidirectional', 'to_unified', 'to_provider')),
 
     -- Metadata
@@ -165,7 +167,6 @@ CREATE TABLE emails (
     -- Sync metadata
     sync_state TEXT CHECK (sync_state IN ('synced', 'pending_local', 'pending_remote', 'conflict')),
     last_modified TIMESTAMP,
-    provider_labels TEXT,  -- JSON array of provider-specific labels
 
     -- Metadata
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -214,10 +215,10 @@ CREATE TABLE attachments (
     file_hash TEXT,   -- SHA-256 hash
 
     -- Metadata
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    INDEX idx_attachments_email (email_id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_attachments_email ON attachments(email_id);
 #+end_src
 
 ** Contacts Table
@@ -266,7 +267,8 @@ CREATE UNIQUE INDEX idx_contacts_primary_email ON contacts(primary_email);
 #+end_src
 
 ** Labels Table
-Unified label system.
+Unified label system used for cross-provider classification metadata.
+Labels are distinct from unified folders: folders drive navigation, while labels are many-to-many metadata that can coexist with folders.
 
 #+begin_src sql
 CREATE TABLE labels (
@@ -288,6 +290,30 @@ CREATE TABLE labels (
 
 CREATE INDEX idx_labels_parent ON labels(parent_id);
 CREATE INDEX idx_labels_path ON labels(path);
+#+end_src
+
+** Label Mappings Table
+Maps unified labels to provider-native labels. This is intentionally separate from ~folder_mappings~ so label-first providers such as Gmail do not need to masquerade as folders.
+
+#+begin_src sql
+CREATE TABLE label_mappings (
+    id TEXT PRIMARY KEY,  -- UUID
+    label_id TEXT NOT NULL REFERENCES labels(id),
+    account_id TEXT NOT NULL REFERENCES accounts(id),
+    provider_label_id TEXT NOT NULL,  -- Provider's label ID/name
+    provider_label_name TEXT,
+    mapping_type TEXT CHECK (mapping_type IN ('direct', 'system', 'computed')),
+    sync_direction TEXT CHECK (sync_direction IN ('bidirectional', 'to_unified', 'to_provider')),
+
+    -- Metadata
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(account_id, provider_label_id)
+);
+
+CREATE INDEX idx_label_mappings_label ON label_mappings(label_id);
+CREATE INDEX idx_label_mappings_account ON label_mappings(account_id);
 #+end_src
 
 ** Email Labels Association
@@ -531,8 +557,8 @@ BEGIN TRANSACTION;
 ALTER TABLE emails ADD COLUMN ai_action_suggested TEXT;
 
 -- Update schema version
-INSERT INTO schema_migrations (version, description)
-VALUES (2, 'Add AI action suggestions to emails');
+INSERT INTO migrations (version_id, is_applied)
+VALUES (20260419010101, 1);
 
 COMMIT;
 #+end_src
