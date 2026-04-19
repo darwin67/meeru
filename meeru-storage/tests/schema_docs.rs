@@ -133,8 +133,7 @@ fn documented_v1_sql() -> String {
 }
 
 async fn object_names(pool: &SqlitePool) -> BTreeSet<String> {
-    let placeholders = std::iter::repeat("?")
-        .take(V1_OBJECT_NAMES.len())
+    let placeholders = std::iter::repeat_n("?", V1_OBJECT_NAMES.len())
         .collect::<Vec<_>>()
         .join(", ");
     let query =
