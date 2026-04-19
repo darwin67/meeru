@@ -1,5 +1,6 @@
 //! Storage-backed core services and model conversions.
 
+use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
 use crate::{
@@ -8,6 +9,7 @@ use crate::{
     unified::{UnifiedFolder, UnifiedFolderType},
     Result,
 };
+use meeru_providers::{parse_rfc822_message, ParsedMessage};
 use meeru_storage::{
     AccountStore, AttachmentStore, BlobStore, EmailStore, FolderStore, NewAttachment, NewEmail,
     NewEmailGraph, NewUnifiedFolder, Storage, StorageConfig,
@@ -29,9 +31,64 @@ pub struct SyncedAttachment {
 #[derive(Debug, Clone, PartialEq)]
 pub struct SyncedEmail {
     pub email: Email,
-    pub body: Vec<u8>,
+    pub raw_message: Vec<u8>,
     pub folder_ids: Vec<Uuid>,
     pub attachments: Vec<SyncedAttachment>,
+}
+
+impl SyncedEmail {
+    pub fn from_parsed_message(
+        email_id: Uuid,
+        account_id: Uuid,
+        provider_id: String,
+        folder_ids: Vec<Uuid>,
+        raw_message: Vec<u8>,
+        parsed: ParsedMessage,
+        fallback_date: DateTime<Utc>,
+    ) -> Self {
+        let attachments: Vec<_> = parsed
+            .attachments
+            .into_iter()
+            .map(|attachment| SyncedAttachment {
+                id: Uuid::new_v4(),
+                filename: attachment.filename,
+                mime_type: attachment.mime_type,
+                content: attachment.content,
+            })
+            .collect();
+
+        let attachment_count = attachments.len() as i64;
+
+        Self {
+            email: Email {
+                id: email_id,
+                account_id,
+                provider_id,
+                message_id: parsed.message_id,
+                subject: parsed.subject,
+                from: parsed.from.map(|from| EmailAddress {
+                    address: from.address,
+                    name: from.name,
+                }),
+                to: parsed
+                    .to
+                    .into_iter()
+                    .map(|to| EmailAddress {
+                        address: to.address,
+                        name: to.name,
+                    })
+                    .collect(),
+                date: parsed.date.unwrap_or(fallback_date),
+                content_ref: None,
+                content: None,
+                has_attachments: attachment_count > 0,
+                attachment_count,
+            },
+            raw_message,
+            folder_ids,
+            attachments,
+        }
+    }
 }
 
 impl StorageService {
@@ -80,7 +137,7 @@ impl StorageService {
     pub async fn cache_synced_email(&self, synced: SyncedEmail) -> Result<Email> {
         let body_path = self
             .storage
-            .put_email_body(synced.email.id, &synced.body)
+            .put_email_body(synced.email.id, &synced.raw_message)
             .await?;
 
         let mut attachment_paths = Vec::new();
@@ -136,13 +193,21 @@ impl StorageService {
             .content_ref
             .as_ref()
             .ok_or_else(|| anyhow::anyhow!("email {} has no content reference", email.id))?;
-        let body = self.storage.read_blob(content_ref).await?;
-        let text = String::from_utf8(body).map_err(anyhow::Error::from)?;
+        let raw_message = self.storage.read_blob(content_ref).await?;
 
-        Ok(EmailContent {
-            text: Some(text),
-            html: None,
-        })
+        match parse_rfc822_message(&raw_message) {
+            Ok(parsed) => Ok(EmailContent {
+                text: parsed.text_body,
+                html: parsed.html_body,
+            }),
+            Err(_) => {
+                let text = String::from_utf8(raw_message).map_err(anyhow::Error::from)?;
+                Ok(EmailContent {
+                    text: Some(text),
+                    html: None,
+                })
+            },
+        }
     }
 
     pub async fn list_attachments_for_email(

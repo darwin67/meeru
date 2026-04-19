@@ -4,6 +4,7 @@ use meeru_core::{
     storage::{StorageService, SyncedAttachment, SyncedEmail},
     unified::{UnifiedFolder, UnifiedFolderType},
 };
+use meeru_providers::parse_rfc822_message;
 use tempfile::TempDir;
 use uuid::Uuid;
 
@@ -87,7 +88,27 @@ async fn storage_service_supports_first_pass_sync_caching() {
                 has_attachments: true,
                 attachment_count: 1,
             },
-            body: b"hello from sync".to_vec(),
+            raw_message: concat!(
+                "From: Sender <sender@example.com>\r\n",
+                "To: Sync <sync@example.com>\r\n",
+                "Subject: Welcome\r\n",
+                "Message-ID: <provider-100@example.com>\r\n",
+                "Date: Sat, 19 Apr 2026 10:30:00 +0000\r\n",
+                "MIME-Version: 1.0\r\n",
+                "Content-Type: multipart/alternative; boundary=\"alt\"\r\n",
+                "\r\n",
+                "--alt\r\n",
+                "Content-Type: text/plain; charset=\"utf-8\"\r\n",
+                "\r\n",
+                "hello from sync\r\n",
+                "--alt\r\n",
+                "Content-Type: text/html; charset=\"utf-8\"\r\n",
+                "\r\n",
+                "<html><body><p>hello from sync</p></body></html>\r\n",
+                "--alt--\r\n"
+            )
+            .as_bytes()
+            .to_vec(),
             folder_ids: vec![inbox.id],
             attachments: vec![SyncedAttachment {
                 id: Uuid::new_v4(),
@@ -115,6 +136,43 @@ async fn storage_service_supports_first_pass_sync_caching() {
     assert_eq!(listed.len(), 1);
     assert_eq!(listed[0].id, email_id);
     assert_eq!(body.text.as_deref(), Some("hello from sync"));
+    assert_eq!(
+        body.html.as_deref(),
+        Some("<html><body><p>hello from sync</p></body></html>")
+    );
     assert_eq!(attachments.len(), 1);
     assert_eq!(attachments[0].filename, "welcome.txt");
+}
+
+#[test]
+fn synced_email_can_be_built_from_parsed_provider_data() {
+    let raw_message = concat!(
+        "From: Sender <sender@example.com>\r\n",
+        "To: Recipient <recipient@example.com>\r\n",
+        "Subject: Parsed conversion\r\n",
+        "Message-ID: <parsed@example.com>\r\n",
+        "Date: Sat, 19 Apr 2026 10:30:00 +0000\r\n",
+        "Content-Type: text/plain; charset=\"utf-8\"\r\n",
+        "\r\n",
+        "hello from parsed sync\r\n"
+    )
+    .as_bytes()
+    .to_vec();
+    let parsed = parse_rfc822_message(&raw_message).expect("message should parse");
+
+    let synced = SyncedEmail::from_parsed_message(
+        Uuid::new_v4(),
+        Uuid::new_v4(),
+        "INBOX:42:7".to_string(),
+        vec![Uuid::new_v4()],
+        raw_message,
+        parsed,
+        chrono::Utc::now(),
+    );
+
+    assert_eq!(synced.email.subject.as_deref(), Some("Parsed conversion"));
+    assert_eq!(synced.email.message_id.as_deref(), Some("parsed@example.com"));
+    assert_eq!(synced.email.to.len(), 1);
+    assert_eq!(synced.email.to[0].address, "recipient@example.com");
+    assert_eq!(synced.attachments.len(), 0);
 }

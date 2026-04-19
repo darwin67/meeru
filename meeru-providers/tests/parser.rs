@@ -75,6 +75,25 @@ fn html_only_messages_still_produce_text_and_html_bodies() {
 }
 
 #[test]
+fn parses_text_only_messages() {
+    let raw = concat!(
+        "From: Sender <sender@example.com>\r\n",
+        "To: Recipient <recipient@example.com>\r\n",
+        "Subject: Text only\r\n",
+        "Date: Sat, 19 Apr 2026 10:30:00 +0000\r\n",
+        "Content-Type: text/plain; charset=\"utf-8\"\r\n",
+        "\r\n",
+        "text only body\r\n"
+    )
+    .as_bytes();
+
+    let parsed = parse_rfc822_message(raw).expect("message should parse");
+
+    assert_eq!(parsed.text_body.as_deref(), Some("text only body\r\n"));
+    assert!(parsed.html_body.as_deref().is_some_and(|html| html.contains("text only body")));
+}
+
+#[test]
 fn exposes_helper_types_for_generic_mvp_inputs() {
     let credentials = GenericCredentials::Password {
         username: "alice@example.com".to_string(),

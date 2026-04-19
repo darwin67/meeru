@@ -9,8 +9,8 @@ For the fastest path to a functioning app, this plan owns the minimum runtime co
 
 ** Goals For This Plan
 - [ ] Implement a generic IMAP adapter in ~meeru-providers~ that can connect, authenticate, list folders, and fetch messages for one selected mailbox
-- [ ] Parse fetched RFC822 message bytes with ~mail-parser~ and convert them into the storage-ready email shape used by ~meeru-core~
-- [ ] Persist first-pass synced messages, bodies, folder membership, and attachment payloads through the existing storage interfaces from plan 002
+- [X] Parse fetched RFC822 message bytes with ~mail-parser~ and convert them into the storage-ready email shape used by ~meeru-core~
+- [X] Persist first-pass synced messages, bodies, folder membership, and attachment payloads through the existing storage interfaces from plan 002
 - [ ] Implement a basic SMTP send path for generic accounts
 - [ ] Keep the slice intentionally narrow enough that plan 005 can build account orchestration and multi-account sync on top without reworking provider primitives
 
@@ -24,15 +24,15 @@ For the fastest path to a functioning app, this plan owns the minimum runtime co
   - [ ] fetch a bounded page of message summaries
   - [ ] fetch full RFC822 message content for selected messages
   - [ ] basic server-side search where the protocol surface supports it
-- [ ] RFC822 parsing with ~mail-parser~ for:
-  - [ ] headers needed by the current email model
-  - [ ] plain text body extraction
-  - [ ] HTML body extraction when present
-  - [ ] attachment metadata and payload extraction
-- [ ] Storage of raw RFC822 bytes as the canonical local message blob for the first sync slice
-- [ ] Conversion from parsed provider data into the core/storage sync shape, while keeping text and HTML content available through core/storage read APIs
+- [X] RFC822 parsing with ~mail-parser~ for:
+  - [X] headers needed by the current email model
+  - [X] plain text body extraction
+  - [X] HTML body extraction when present
+  - [X] attachment metadata and payload extraction
+- [X] Storage of raw RFC822 bytes as the canonical local message blob for the first sync slice
+- [X] Conversion from parsed provider data into the core/storage sync shape, while keeping text and HTML content available through core/storage read APIs
 - [ ] SMTP send of a simple composed message using the same account configuration
-- [ ] Integration tests using representative MIME fixtures and storage round-trip behavior
+- [X] Integration tests using representative MIME fixtures and storage round-trip behavior
 
 *** Deferred From V1
 - Provider-specific Gmail or Outlook behavior
@@ -47,10 +47,10 @@ For the fastest path to a functioning app, this plan owns the minimum runtime co
 
 ** Implementation Plan
 *** 1. Provider Runtime Boundary
-- [ ] Define a minimal in-memory ~GenericAccountConfig~ required for generic IMAP and SMTP access
-- [ ] Include IMAP host, port, security mode, SMTP host, port, security mode, auth method, and credentials in that runtime contract
+- [X] Define a minimal in-memory ~GenericAccountConfig~ required for generic IMAP and SMTP access
+- [X] Include IMAP host, port, security mode, SMTP host, port, security mode, auth method, and credentials in that runtime contract
 - [ ] Allow the MVP to supply this config through manual entry, local config, or runtime injection without blocking on secure persistence design
-- [ ] Keep the runtime config independent from SQLite-specific storage types so later plans can persist or hydrate it through other mechanisms
+- [X] Keep the runtime config independent from SQLite-specific storage types so later plans can persist or hydrate it through other mechanisms
 - [ ] Keep the low-level protocol code contained within ~meeru-providers~
 
 Acceptance criteria:
@@ -62,35 +62,35 @@ Acceptance criteria:
 - [ ] Implement connection establishment, authentication, and folder listing
 - [ ] Implement bounded message listing for one selected provider folder
 - [ ] Fetch raw RFC822 bytes for selected messages
-- [ ] Define the V1 IMAP remote identity used for re-sync and duplicate handling as a mailbox-scoped identifier derived from mailbox identity plus ~UIDVALIDITY~ plus ~UID~
+- [X] Define the V1 IMAP remote identity used for re-sync and duplicate handling as a mailbox-scoped identifier derived from mailbox identity plus ~UIDVALIDITY~ plus ~UID~
 
 Acceptance criteria:
 - [ ] A generic account can list at least one mailbox and fetch message content from it
 - [ ] IMAP failures return typed errors with actionable protocol context
-- [ ] The plan makes explicit that IMAP UIDs are mailbox-scoped and not globally unique across an account
-- [ ] The storage-facing ~provider_id~ contract is concrete enough to support deterministic re-sync for one selected mailbox without cross-mailbox ambiguity
+- [X] The plan makes explicit that IMAP UIDs are mailbox-scoped and not globally unique across an account
+- [X] The storage-facing ~provider_id~ contract is concrete enough to support deterministic re-sync for one selected mailbox without cross-mailbox ambiguity
 
 *** 3. Message Parsing And Conversion
-- [ ] Parse headers, addresses, dates, text bodies, HTML bodies, and attachments from RFC822 bytes
-- [ ] Treat raw RFC822 bytes as the canonical stored message source for V1
-- [ ] Convert parsed messages into the storage-ready sync shape used by ~meeru-core~
-- [ ] Make both plain text and HTML content available through the core/storage read path even when the canonical stored blob is the original RFC822 payload
+- [X] Parse headers, addresses, dates, text bodies, HTML bodies, and attachments from RFC822 bytes
+- [X] Treat raw RFC822 bytes as the canonical stored message source for V1
+- [X] Convert parsed messages into the storage-ready sync shape used by ~meeru-core~
+- [X] Make both plain text and HTML content available through the core/storage read path even when the canonical stored blob is the original RFC822 payload
 - [ ] Preserve provider-native identifiers required for later re-sync
 
 Acceptance criteria:
-- [ ] Parsed messages populate the existing email and attachment storage models without ad-hoc field loss
-- [ ] A stored message can be read back as text and, when present, HTML without requiring a second canonical body store
-- [ ] MIME fixture tests cover multipart, HTML-only, text-only, and attachment-bearing messages
+- [X] Parsed messages populate the existing email and attachment storage models without ad-hoc field loss
+- [X] A stored message can be read back as text and, when present, HTML without requiring a second canonical body store
+- [X] MIME fixture tests cover multipart, HTML-only, text-only, and attachment-bearing messages
 
 *** 4. Storage-Backed First Sync
-- [ ] Use existing storage services to cache fetched email bodies and attachments
+- [X] Use existing storage services to cache fetched email bodies and attachments
 - [ ] Map fetched provider folders into unified folder assignments using the current folder mapping primitives
 - [ ] Define duplicate-handling behavior around the V1 mailbox-scoped IMAP identity
 - [ ] Accept that the same logical message may appear more than once across different provider mailboxes in V1 rather than blocking the MVP on cross-mailbox deduplication
 
 Acceptance criteria:
 - [ ] First-pass sync can ingest a bounded mailbox slice into local storage
-- [ ] Stored bodies and attachments can be read back through existing storage APIs
+- [X] Stored bodies and attachments can be read back through existing storage APIs
 - [ ] The plan states exactly what counts as "already seen" for the selected mailbox sync slice
 
 *** 5. SMTP Send Baseline
@@ -103,13 +103,13 @@ Acceptance criteria:
 - [ ] The plan documents whether sent-mail persistence is immediate, deferred, or handled by later sync
 
 *** 6. Test Coverage
-- [ ] Replace placeholder provider tests with protocol and parsing focused coverage
-- [ ] Add end-to-end tests that exercise parsing plus storage persistence for representative messages
-- [ ] Cover the mailbox-scoped identity contract with tests so duplicate detection behavior is explicit
-- [ ] Cover text and HTML extraction behavior from stored RFC822 fixtures
+- [X] Replace placeholder provider tests with protocol and parsing focused coverage
+- [X] Add end-to-end tests that exercise parsing plus storage persistence for representative messages
+- [X] Cover the mailbox-scoped identity contract with tests so duplicate detection behavior is explicit
+- [X] Cover text and HTML extraction behavior from stored RFC822 fixtures
 
 Acceptance criteria:
-- [ ] ~cargo test~ exercises real message parsing and storage-backed sync behavior
+- [X] ~cargo test~ exercises real message parsing and storage-backed sync behavior
 - [ ] The generic provider slice is usable without provider-specific code paths
 
 ** Exit Criteria
