@@ -203,6 +203,15 @@ async fn storage_service_syncs_fetched_messages_idempotently() {
         })
         .await
         .expect("create folder");
+    service
+        .create_folder_mapping(
+            account.id,
+            inbox.id,
+            "INBOX".to_string(),
+            Some("Inbox".to_string()),
+        )
+        .await
+        .expect("create folder mapping");
 
     let raw_message = concat!(
         "From: Sender <sender@example.com>\r\n",
@@ -223,11 +232,11 @@ async fn storage_service_syncs_fetched_messages_idempotently() {
     };
 
     let first = service
-        .sync_fetched_messages(account.id, inbox.id, vec![fetched.clone()])
+        .sync_provider_mailbox(account.id, "INBOX", vec![fetched.clone()])
         .await
         .expect("first sync");
     let second = service
-        .sync_fetched_messages(account.id, inbox.id, vec![fetched])
+        .sync_provider_mailbox(account.id, "INBOX", vec![fetched])
         .await
         .expect("second sync");
     let listed = service
@@ -240,4 +249,46 @@ async fn storage_service_syncs_fetched_messages_idempotently() {
     assert_eq!(first[0].id, second[0].id);
     assert_eq!(listed.len(), 1);
     assert_eq!(listed[0].subject.as_deref(), Some("Synced once"));
+}
+
+#[tokio::test]
+async fn storage_service_requires_folder_mapping_for_provider_mailbox_sync() {
+    let temp_dir = TempDir::new().expect("temp dir");
+    let service = StorageService::open(meeru_storage::StorageConfig::new(temp_dir.path()))
+        .await
+        .expect("open service");
+
+    let account = service
+        .add_account(Account {
+            id: Uuid::new_v4(),
+            email: "sync@example.com".to_string(),
+            display_name: Some("Sync".to_string()),
+            provider_type: ProviderType::Generic,
+        })
+        .await
+        .expect("create account");
+
+    let fetched = FetchedMessage {
+        identity: ImapMessageIdentity::new("Archive", 99, 7),
+        raw_message: concat!(
+            "From: Sender <sender@example.com>\r\n",
+            "To: Sync <sync@example.com>\r\n",
+            "Subject: Missing mapping\r\n",
+            "Date: Sat, 19 Apr 2026 10:30:00 +0000\r\n",
+            "Content-Type: text/plain; charset=\"utf-8\"\r\n",
+            "\r\n",
+            "missing mapping\r\n"
+        )
+        .as_bytes()
+        .to_vec(),
+    };
+
+    let error = service
+        .sync_provider_mailbox(account.id, "Archive", vec![fetched])
+        .await
+        .expect_err("sync should require an existing folder mapping");
+
+    assert!(error
+        .to_string()
+        .contains("no folder mapping found for account"));
 }

@@ -11,8 +11,9 @@ use crate::{
 };
 use meeru_providers::{parse_rfc822_message, FetchedMessage, ParsedMessage};
 use meeru_storage::{
-    AccountStore, AttachmentStore, BlobStore, EmailStore, FolderStore, NewAttachment, NewEmail,
-    NewEmailGraph, NewUnifiedFolder, Storage, StorageConfig,
+    AccountStore, AttachmentStore, BlobStore, EmailStore, FolderMappingRecord, FolderStore,
+    NewAttachment, NewEmail, NewEmailGraph, NewFolderMapping, NewUnifiedFolder, Storage,
+    StorageConfig,
 };
 
 #[derive(Debug, Clone)]
@@ -134,6 +135,32 @@ impl StorageService {
         Ok(created.into())
     }
 
+    pub async fn create_folder_mapping(
+        &self,
+        account_id: Uuid,
+        unified_folder_id: Uuid,
+        provider_folder_id: String,
+        provider_folder_name: Option<String>,
+    ) -> Result<FolderMappingRecord> {
+        Ok(self
+            .storage
+            .create_folder_mapping(NewFolderMapping {
+                id: Uuid::new_v4(),
+                unified_folder_id,
+                account_id,
+                provider_folder_id,
+                provider_folder_name,
+            })
+            .await?)
+    }
+
+    pub async fn list_folder_mappings_for_account(
+        &self,
+        account_id: Uuid,
+    ) -> Result<Vec<FolderMappingRecord>> {
+        Ok(self.storage.list_folder_mappings_for_account(account_id).await?)
+    }
+
     pub async fn cache_synced_email(&self, synced: SyncedEmail) -> Result<Email> {
         let body_path = self
             .storage
@@ -228,6 +255,28 @@ impl StorageService {
         }
 
         Ok(synced_emails)
+    }
+
+    pub async fn sync_provider_mailbox(
+        &self,
+        account_id: Uuid,
+        provider_folder_id: &str,
+        fetched_messages: Vec<FetchedMessage>,
+    ) -> Result<Vec<Email>> {
+        let mappings = self.storage.list_folder_mappings_for_account(account_id).await?;
+        let mapping = mappings
+            .into_iter()
+            .find(|mapping| mapping.provider_folder_id == provider_folder_id)
+            .ok_or_else(|| {
+                anyhow::anyhow!(
+                    "no folder mapping found for account {} and provider folder {}",
+                    account_id,
+                    provider_folder_id
+                )
+            })?;
+
+        self.sync_fetched_messages(account_id, mapping.unified_folder_id, fetched_messages)
+            .await
     }
 
     pub async fn load_email_body(&self, email: &Email) -> Result<EmailContent> {

@@ -1,7 +1,7 @@
 #+TITLE: Generic IMAP SMTP Baseline
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
-#+STATUS: Draft
+#+STATUS: Done
 
 * Generic IMAP SMTP Baseline
 This plan should produce the first usable provider slice for generic email accounts. The outcome is not "protocol client code exists"; it is a storage-backed baseline that can connect to a generic IMAP account, ingest a bounded mailbox slice into local storage, and send a basic SMTP message without redefining account or storage foundations.
@@ -12,13 +12,13 @@ For the fastest path to a functioning app, this plan owns the minimum runtime co
 - [X] Parse fetched RFC822 message bytes with ~mail-parser~ and convert them into the storage-ready email shape used by ~meeru-core~
 - [X] Persist first-pass synced messages, bodies, folder membership, and attachment payloads through the existing storage interfaces from plan 002
 - [X] Implement a basic SMTP send path for generic accounts
-- [ ] Keep the slice intentionally narrow enough that plan 005 can build account orchestration and multi-account sync on top without reworking provider primitives
+- [X] Keep the slice intentionally narrow enough that plan 005 can build account orchestration and multi-account sync on top without reworking provider primitives
 
 ** Scope For V1
 *** Included In V1
 - [X] Generic IMAP session establishment using a minimal runtime configuration contract defined in this plan for generic accounts
 - [X] A concrete ~GenericImapSmtpAdapter~ in ~meeru-providers~ that is sufficient to power the MVP without waiting for a generalized cross-provider abstraction
-- [ ] IMAP operations for:
+- [X] IMAP operations for:
   - [X] connect and authenticate
   - [X] list folders
   - [X] fetch a bounded page of message summaries
@@ -49,14 +49,14 @@ For the fastest path to a functioning app, this plan owns the minimum runtime co
 *** 1. Provider Runtime Boundary
 - [X] Define a minimal in-memory ~GenericAccountConfig~ required for generic IMAP and SMTP access
 - [X] Include IMAP host, port, security mode, SMTP host, port, security mode, auth method, and credentials in that runtime contract
-- [ ] Allow the MVP to supply this config through manual entry, local config, or runtime injection without blocking on secure persistence design
+- [X] Allow the MVP to supply this config through manual entry, local config, or runtime injection without blocking on secure persistence design
 - [X] Keep the runtime config independent from SQLite-specific storage types so later plans can persist or hydrate it through other mechanisms
 - [X] Keep the low-level protocol code contained within ~meeru-providers~
 
 Acceptance criteria:
 - [X] The generic adapter can be constructed from ~GenericAccountConfig~ without SQLite-specific types
-- [ ] Plan 005 can orchestrate accounts by reusing the same runtime contract rather than redefining generic account configuration
-- [ ] Plan 012 can harden credential persistence without changing the generic adapter's connection inputs
+- [X] Plan 005 can orchestrate accounts by reusing the same runtime contract rather than redefining generic account configuration
+- [X] Plan 012 can harden credential persistence without changing the generic adapter's connection inputs
 
 *** 2. IMAP Fetch Slice
 - [X] Implement connection establishment, authentication, and folder listing
@@ -84,7 +84,7 @@ Acceptance criteria:
 
 *** 4. Storage-Backed First Sync
 - [X] Use existing storage services to cache fetched email bodies and attachments
-- [ ] Map fetched provider folders into unified folder assignments using the current folder mapping primitives
+- [X] Map fetched provider folders into unified folder assignments using the current folder mapping primitives
 - [X] Define duplicate-handling behavior around the V1 mailbox-scoped IMAP identity
 - [X] Accept that the same logical message may appear more than once across different provider mailboxes in V1 rather than blocking the MVP on cross-mailbox deduplication
 
@@ -117,7 +117,7 @@ Acceptance criteria:
 - [X] Generic account sync can populate local storage using the plan 002 interfaces
 - [X] Generic email sending works for the supported authentication/configuration shape
 - [X] Plan 004 can render text and HTML message content without redefining the storage contract
-- [ ] Plan 005 can focus on account orchestration instead of redesigning provider primitives
+- [X] Plan 005 can focus on account orchestration instead of redesigning provider primitives
 
 ** Notes
 - V1 should optimize for a functioning single-account generic mail flow before abstracting over multiple providers. One working concrete adapter is more valuable here than an early generalized interface with no real implementation behind it.
