@@ -1,0 +1,38 @@
+#+TITLE: Core Foundation Deliverables
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+#+STATUS: Draft
+
+* Core Foundation Deliverables
+This is a roadmap prospect, not an execution plan.
+
+** Functional MVP
+- [ ] Add one generic account with minimal configuration
+- [ ] Sync a bounded mailbox slice into local storage
+- [ ] Display folder list, message list, and message reader
+- [ ] Send a basic outbound email
+- [ ] Keep the MVP single-account and generic-provider focused until the email experience is stable
+
+- [ ] Working IMAP email client
+- [ ] Can add generic email accounts
+- [ ] Can view and send emails
+- [ ] Basic folder navigation
+- [ ] Persistent storage of emails
+- [ ] Cross-platform binary builds
+
+** Success Metrics
+- [ ] Successfully sync 10k+ emails
+- [ ] Sub-second email display
+- [ ] <100MB memory usage while idle
+
+** Sequencing Notes
+- Pull only the minimum account/auth slice needed for generic IMAP and SMTP into the MVP path
+- Do not wait for full provider-specific OAuth or multi-account orchestration before shipping the first usable desktop flow
+- Treat unified views, CLI automation, and AI as follow-on phases once the core read/send experience works end-to-end
+
+* References
+- [[file:../plans/001-project-setup-and-architecture.org][Project Setup And Architecture]]
+- [[file:../plans/002-basic-storage-layer.org][Basic Storage Layer]]
+- [[file:../plans/003-imap-smtp-integration.org][Generic IMAP SMTP Baseline]]
+- [[file:../plans/005-account-abstraction-layer.org][Account Abstraction Layer]]
+- [[file:../plans/004-basic-ui-implementation.org][Basic UI Implementation]]

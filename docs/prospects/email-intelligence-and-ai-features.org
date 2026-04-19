@@ -1,9 +1,23 @@
-#+TITLE: AI-Powered Features
+#+TITLE: Email Intelligence And AI Features
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
 #+STATUS: Draft
 
-* AI-Powered Features
+* Email Intelligence and AI Features
+** Auto-Categorization
+- [ ] Design category system
+- [ ] Train/integrate email classifier
+- [ ] Implement real-time categorization
+- [ ] Create category management UI
+- [ ] Add user feedback loop
+
+** Priority Detection
+- [ ] Implement priority scoring algorithm
+- [ ] Create urgency detection model
+- [ ] Add VIP sender detection
+- [ ] Build priority inbox view
+- [ ] Implement priority notifications
+
 ** Email Summarization
 - [ ] Implement thread summarization
 - [ ] Create email TL;DR generation

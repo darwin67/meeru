@@ -1,0 +1,28 @@
+#+TITLE: Technical Risks And Mitigations
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+#+STATUS: Draft
+
+* Technical Risks and Mitigations
+This file is the cross-cutting risk register for the roadmap. Each execution plan should still carry its own local risks and tradeoffs, but this document captures the highest-level concerns and the default mitigation direction.
+
+** Core Foundation
+- [ ] Risk: IMAP provider compatibility issues
+  Mitigation: extensive provider fixture coverage, protocol capability detection, and fallback behavior in the generic provider baseline
+- [ ] Risk: performance with large email volumes
+  Mitigation: benchmarking, bounded sync slices, lazy body loading, and later optimization work in the provider/runtime plans
+- [ ] Risk: search and storage performance regresses as the local corpus grows
+  Mitigation: full-text search optimization, archival strategies, selective compression, lazy loading, and routine profiling in the owning execution plans
+
+** Unified Experience
+- [ ] Risk: cross-platform GUI consistency
+  Mitigation: platform-specific testing, explicit UI acceptance criteria, and shared design constraints for core views
+
+** AI Features
+- [ ] Risk: AI model size and performance
+  Mitigation: model quantization, provider choice controls, and clear local-versus-remote execution boundaries
+
+* References
+- [[file:../project-overview.org][Project Overview]]
+- [[file:../technical-architecture.org][Technical Architecture]]
+- [[file:../security/cargo-audit.org][Cargo Audit Tracking]]

@@ -5,7 +5,7 @@
 
 * Outlook Integration
 ** Outlook/Exchange Support
-- [ ] Implement Outlook OAuth2 flow
+- [ ] Integrate Outlook with the shared OAuth2 and credential infrastructure from plan 012
 - [ ] Add Exchange ActiveSync support
 - [ ] Implement Outlook categories
 - [ ] Handle Outlook folder types
@@ -18,6 +18,13 @@
 - [ ] Support Outlook search folders
 - [ ] Add Outlook-specific shortcuts
 
+** Explicitly Out Of Scope
+- Generic OAuth2 infrastructure shared across providers
+- Generic IMAP and SMTP baseline behavior already owned by plan 003
+- Cross-provider unified folder and label model owned by plan 006
+
 * References
 - [[file:../project-overview.org][Project Overview]]
 - [[file:../technical-architecture.org][Technical Architecture]]
+- [[file:012-authentication-and-security.org][Authentication Credential Storage And Transport Security]]
+- [[file:006-unified-folder-system.org][Unified Folder And Label System]]

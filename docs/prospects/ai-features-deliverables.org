@@ -1,0 +1,23 @@
+#+TITLE: AI Features Deliverables
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+#+STATUS: Draft
+
+* AI Features Deliverables
+This is a roadmap prospect, not an execution plan. AI work is intentionally sequenced after the core email experience, provider coverage, and automation foundations.
+
+- [ ] Local LLM support working
+- [ ] Auto-categorization functional
+- [ ] Priority detection active
+- [ ] Email summarization available
+- [ ] Smart compose operational
+- [ ] Privacy controls implemented
+
+** Success Metrics
+- [ ] AI categorization accuracy >85%
+- [ ] Local LLM inference <3 seconds
+- [ ] Privacy mode 100% local
+
+* References
+- [[file:../prospects/ai-infrastructure-privacy-and-performance.org][AI Infrastructure Privacy And Performance]]
+- [[file:../prospects/email-intelligence-and-ai-features.org][Email Intelligence And AI Features]]

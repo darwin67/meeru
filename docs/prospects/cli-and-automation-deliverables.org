@@ -1,0 +1,24 @@
+#+TITLE: CLI And Automation Deliverables
+#+AUTHOR: Darwin D. Wu
+#+DATE: 2026-03-30
+#+STATUS: Draft
+
+* CLI and Automation Deliverables
+This is a roadmap prospect, not an execution plan.
+
+- [ ] Complete CLI interface
+- [ ] All email operations via CLI
+- [ ] Local API server running
+- [ ] Agent integration working
+- [ ] Automation features active
+- [ ] Comprehensive documentation
+
+** Success Metrics
+- [ ] CLI command latency <500ms
+- [ ] API response time <100ms
+- [ ] Support 10+ concurrent agents
+
+* References
+- [[file:../plans/013-cli-foundation.org][CLI And Automation Foundation]]
+- [[file:../plans/014-api-server.org][API Server]]
+- [[file:../plans/015-agent-integration.org][Agent Integration]]

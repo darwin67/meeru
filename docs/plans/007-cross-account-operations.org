@@ -14,15 +14,13 @@
 - [ ] Create cross-account threading
 - [ ] Implement bulk operations
 
-** Label and Tag Management
-- [ ] Design unified label system
-- [ ] Create provider-label mappings that remain separate from folder mappings
-- [ ] Implement label sync logic
-- [ ] Build label management UI
-- [ ] Add color coding support
-- [ ] Define how unified folders and unified labels interact in cross-account views without collapsing one into the other
+** Dependencies And Boundaries
+- [ ] Build on the unified folder and label model from plan 006 instead of redefining it here
+- [ ] Consume account orchestration from plan 005 rather than embedding provider lifecycle logic in cross-account operations
+- [ ] Keep cross-account execution focused on search, bulk actions, and result aggregation
 
 * References
 - [[file:../project-overview.org][Project Overview]]
 - [[file:../technical-architecture.org][Technical Architecture]]
 - [[file:../database-schema.org][Database Schema]]
+- [[file:006-unified-folder-system.org][Unified Folder And Label System]]

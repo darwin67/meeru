@@ -1,9 +1,16 @@
-#+TITLE: Enterprise Features
+#+TITLE: Advanced And Enterprise Features
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
 #+STATUS: Draft
 
-* Enterprise Features
+* Advanced and Enterprise Features
+This is a longer-range prospect backlog, not an execution plan.
+
+- [ ] Email encryption (PGP/S/MIME)
+- [ ] Advanced filtering rules
+- [ ] Email templates system
+- [ ] Collaborative features
+- [ ] Mobile companion app
 - [ ] Multi-user support
 - [ ] Centralized management
 - [ ] Compliance features

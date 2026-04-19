@@ -92,35 +92,41 @@ make docs
 
 ## Roadmap
 
-See the project overview in [docs/project-overview.org](docs/project-overview.org) and the numbered development plans under [docs/plans](docs/plans), starting with [docs/plans/001-project-setup-and-architecture.org](docs/plans/001-project-setup-and-architecture.org).
+See the project overview in [docs/project-overview.org](docs/project-overview.org), the execution-focused development plans under [docs/plans](docs/plans), and the broader roadmap/prospect docs under [docs/prospects](docs/prospects), starting with [docs/plans/001-project-setup-and-architecture.org](docs/plans/001-project-setup-and-architecture.org).
 
-### Phase 1: Core Foundation (Current)
+The fastest path to a functioning MVP is a vertical slice: generic account setup, bounded mailbox sync, message list/reader UI, and basic send. Provider breadth, automation, and AI come after the core email experience is already usable.
+
+### Phase 1: Functional Email MVP
 - [x] Project setup and architecture
 - [ ] Basic storage layer
 - [ ] IMAP/SMTP integration
 - [ ] Basic UI implementation
+- [ ] Thin single-account runtime wiring
+- [ ] Minimal generic account auth/config
 
-### Phase 2: Unified Experience
+### Phase 2: Core Email Hardening
 - [ ] Multi-account management
+- [ ] Provider authentication hardening
+- [ ] Gmail integration
+- [ ] Outlook support
+- [ ] Provider optimization
+
+### Phase 3: Unified Experience
+- [ ] Unified inbox across accounts
 - [ ] Unified folder system
 - [ ] Cross-account search
 - [ ] Contact unification
 
-### Phase 3: Provider Integration
-- [ ] Gmail integration
-- [ ] Outlook support
-- [ ] OAuth authentication
+### Phase 4: CLI & Automation
+- [ ] Complete CLI interface
+- [ ] Local API server
+- [ ] Agent integration
 
-### Phase 4: AI Features
+### Phase 5: AI Features
 - [ ] Local LLM integration
 - [ ] Email categorization
 - [ ] Smart compose
 - [ ] Priority detection
-
-### Phase 5: CLI & Automation
-- [ ] Complete CLI interface
-- [ ] Local API server
-- [ ] Agent integration
 
 ## Contributing
 

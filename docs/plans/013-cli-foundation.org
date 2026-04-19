@@ -1,9 +1,9 @@
-#+TITLE: CLI Foundation
+#+TITLE: CLI And Automation Foundation
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
 #+STATUS: Draft
 
-* CLI Foundation
+* CLI and Automation Foundation
 ** CLI Framework
 - [ ] Set up clap for argument parsing
 - [ ] Design command structure
@@ -23,6 +23,20 @@
   - [ ] ~meeru compose~
   - [ ] ~meeru reply~
   - [ ] ~meeru forward~
+
+** Batch Operations
+- [ ] Implement bulk email operations
+- [ ] Add filter-based commands
+- [ ] Create scripting support
+- [ ] Add dry-run mode
+- [ ] Implement transaction support
+
+** CLI Automation
+- [ ] Create webhook support
+- [ ] Implement event streaming
+- [ ] Add rule-based automation
+- [ ] Build cron-like scheduling
+- [ ] Create automation templates
 
 * References
 - [[file:../project-overview.org][Project Overview]]

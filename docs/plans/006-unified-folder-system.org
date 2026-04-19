@@ -1,12 +1,16 @@
-#+TITLE: Unified Folder System
+#+TITLE: Unified Folder And Label System
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
 #+STATUS: Draft
 
-* Unified Folder System
-** Virtual Folder Implementation
+* Unified Folder and Label System
+This plan owns Meeru's cross-provider organization model. Folders remain navigation containers, labels remain separate classification metadata, and the plan should define how both coexist without forcing label-first providers to masquerade as folder-only systems.
+
+** Unified Container Model
 - [ ] Design unified folder data model
+- [ ] Design unified label data model
 - [ ] Create folder mapping engine
+- [ ] Create provider-label mapping model that remains separate from folder mappings
 - [ ] Implement standard folder auto-detection:
   - [ ] Inbox mapping
   - [ ] Sent folder mapping
@@ -14,7 +18,8 @@
   - [ ] Archive mapping
   - [ ] Trash mapping
 - [ ] Build custom folder creation system
-- [ ] Add folder synchronization logic
+- [ ] Define how unified folders and unified labels interact in cross-account views without collapsing one into the other
+- [ ] Add folder and label synchronization logic
 
 ** Smart Folders
 - [ ] Design smart folder rule engine
