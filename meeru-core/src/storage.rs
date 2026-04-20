@@ -16,28 +16,41 @@ use meeru_storage::{
     StorageConfig,
 };
 
+/// Core façade over the storage layer used by account, folder, and sync workflows.
 #[derive(Debug, Clone)]
 pub struct StorageService {
+    /// Open storage handle shared across repository operations.
     storage: Storage,
 }
 
+/// Attachment materialized from synced storage for message reads and tests.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SyncedAttachment {
+    /// Stable local identifier for the stored attachment blob.
     pub id: Uuid,
+    /// Attachment filename shown in the UI and used for blob naming.
     pub filename: String,
+    /// MIME type recorded for the attachment when known.
     pub mime_type: Option<String>,
+    /// Attachment payload bytes loaded from storage or parser output.
     pub content: Vec<u8>,
 }
 
+/// Parsed message plus storage metadata ready to be written into the local graph.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SyncedEmail {
+    /// Canonical email record that will be inserted into the email table.
     pub email: Email,
+    /// Raw RFC822 bytes stored as the canonical body blob.
     pub raw_message: Vec<u8>,
+    /// Unified folder ids that should reference the email after caching.
     pub folder_ids: Vec<Uuid>,
+    /// Attachments to persist alongside the email graph insert.
     pub attachments: Vec<SyncedAttachment>,
 }
 
 impl SyncedEmail {
+    /// Build a storage-ready synced email from parsed RFC822 content and sync metadata.
     pub fn from_parsed_message(
         email_id: Uuid,
         account_id: Uuid,

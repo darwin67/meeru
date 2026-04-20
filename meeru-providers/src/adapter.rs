@@ -9,13 +9,17 @@ use crate::{
     imap, smtp, EmailProvider, ProviderCapabilities, Result,
 };
 
+/// Concrete provider implementation that speaks directly to generic IMAP and SMTP servers.
 #[derive(Debug, Clone)]
 pub struct GenericImapSmtpAdapter {
+    /// Validated runtime configuration shared by IMAP and SMTP operations.
     config: GenericAccountConfig,
+    /// Lightweight connection flag used by the provider trait surface.
     connected: bool,
 }
 
 impl GenericImapSmtpAdapter {
+    /// Build an adapter from runtime configuration after validating required fields.
     pub fn new(config: GenericAccountConfig) -> Result<Self> {
         config.validate()?;
 
@@ -25,14 +29,17 @@ impl GenericImapSmtpAdapter {
         })
     }
 
+    /// Return the validated runtime configuration backing this adapter.
     pub fn config(&self) -> &GenericAccountConfig {
         &self.config
     }
 
+    /// List remote IMAP mailboxes that can be synced or mapped into unified folders.
     pub async fn list_mailboxes(&self) -> Result<Vec<GenericMailbox>> {
         imap::list_mailboxes(&self.config).await
     }
 
+    /// Fetch the newest message summaries from a mailbox for preview and sync selection.
     pub async fn fetch_mailbox_page(
         &self,
         mailbox_path: &str,
@@ -41,6 +48,7 @@ impl GenericImapSmtpAdapter {
         imap::fetch_mailbox_page(&self.config, mailbox_path, page_size).await
     }
 
+    /// Run a provider-side mailbox search and return lightweight message summaries.
     pub async fn search_mailbox(
         &self,
         mailbox_path: &str,
@@ -50,6 +58,7 @@ impl GenericImapSmtpAdapter {
         imap::search_mailbox(&self.config, mailbox_path, query, limit).await
     }
 
+    /// Fetch raw RFC822 payloads for specific UIDs in a mailbox.
     pub async fn fetch_messages(
         &self,
         mailbox_path: &str,
@@ -58,6 +67,7 @@ impl GenericImapSmtpAdapter {
         imap::fetch_messages(&self.config, mailbox_path, uids).await
     }
 
+    /// Submit a normalized outgoing message through the configured SMTP endpoint.
     pub async fn send_message(&self, message: OutgoingMessage) -> Result<()> {
         smtp::send_message(&self.config, &message).await
     }
