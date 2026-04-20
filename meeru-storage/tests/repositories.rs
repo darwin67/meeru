@@ -1,7 +1,7 @@
 use chrono::{Duration, Utc};
 use meeru_storage::{
     AccountStore, AttachmentStore, EmailAddress, EmailStore, FolderStore, NewAccount,
-    NewAttachment, NewEmail, NewEmailGraph, NewFolderMapping, NewUnifiedFolder, ProviderType,
+    NewAttachment, NewEmail, NewEmailBundle, NewFolderMapping, NewUnifiedFolder, ProviderType,
     StorageConfig, UnifiedFolderType,
 };
 use tempfile::TempDir;
@@ -191,7 +191,7 @@ async fn folder_email_and_attachment_queries_round_trip() {
 }
 
 #[tokio::test]
-async fn email_store_supports_update_and_transactional_graph_writes() {
+async fn email_store_supports_update_and_transactional_bundle_writes() {
     let temp_dir = TempDir::new().expect("temp dir");
     let storage = StorageConfig::new(temp_dir.path())
         .open()
@@ -220,7 +220,7 @@ async fn email_store_supports_update_and_transactional_graph_writes() {
 
     let email_id = Uuid::new_v4();
     let inserted = storage
-        .insert_email_graph(NewEmailGraph {
+        .insert_email_bundle(NewEmailBundle {
             email: NewEmail {
                 id: email_id,
                 account_id: account.id,
@@ -252,7 +252,7 @@ async fn email_store_supports_update_and_transactional_graph_writes() {
             }],
         })
         .await
-        .expect("insert email graph");
+        .expect("insert email bundle");
 
     let updated = storage
         .update_email(meeru_storage::EmailRecord {
@@ -282,7 +282,7 @@ async fn email_store_supports_update_and_transactional_graph_writes() {
 }
 
 #[tokio::test]
-async fn transactional_graph_writes_roll_back_on_folder_errors() {
+async fn transactional_bundle_writes_roll_back_on_folder_errors() {
     let temp_dir = TempDir::new().expect("temp dir");
     let storage = StorageConfig::new(temp_dir.path())
         .open()
@@ -301,7 +301,7 @@ async fn transactional_graph_writes_roll_back_on_folder_errors() {
 
     let email_id = Uuid::new_v4();
     let error = storage
-        .insert_email_graph(NewEmailGraph {
+        .insert_email_bundle(NewEmailBundle {
             email: NewEmail {
                 id: email_id,
                 account_id: account.id,
@@ -327,7 +327,7 @@ async fn transactional_graph_writes_roll_back_on_folder_errors() {
             }],
         })
         .await
-        .expect_err("insert email graph should fail");
+        .expect_err("insert email bundle should fail");
 
     assert!(matches!(error, meeru_storage::Error::Database(_)));
     assert!(storage

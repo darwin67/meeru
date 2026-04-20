@@ -12,7 +12,7 @@ use crate::{
 use meeru_providers::{parse_rfc822_message, FetchedMessage, ParsedMessage};
 use meeru_storage::{
     AccountStore, AttachmentStore, BlobStore, EmailStore, FolderMappingRecord, FolderStore,
-    NewAttachment, NewEmail, NewEmailGraph, NewFolderMapping, NewUnifiedFolder, Storage,
+    NewAttachment, NewEmail, NewEmailBundle, NewFolderMapping, NewUnifiedFolder, Storage,
     StorageConfig,
 };
 
@@ -36,7 +36,7 @@ pub struct SyncedAttachment {
     pub content: Vec<u8>,
 }
 
-/// Parsed message plus storage metadata ready to be written into the local graph.
+/// Parsed message plus storage metadata ready to be written into the local bundle insert.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SyncedEmail {
     /// Canonical email record that will be inserted into the email table.
@@ -45,7 +45,7 @@ pub struct SyncedEmail {
     pub raw_message: Vec<u8>,
     /// Unified folder ids that should reference the email after caching.
     pub folder_ids: Vec<Uuid>,
-    /// Attachments to persist alongside the email graph insert.
+    /// Attachments to persist alongside the email bundle insert.
     pub attachments: Vec<SyncedAttachment>,
 }
 
@@ -197,7 +197,7 @@ impl StorageService {
         email.has_attachments = !attachment_paths.is_empty();
         email.attachment_count = attachment_paths.len() as i64;
 
-        let graph = NewEmailGraph {
+        let bundle = NewEmailBundle {
             email: email_to_storage_new(email),
             folder_ids: synced.folder_ids,
             attachments: attachment_paths
@@ -214,7 +214,7 @@ impl StorageService {
                 .collect(),
         };
 
-        match self.storage.insert_email_graph(graph).await {
+        match self.storage.insert_email_bundle(bundle).await {
             Ok(record) => Ok(record.into()),
             Err(error) => {
                 let _ = self.storage.delete_blob(&body_path).await;

@@ -26,7 +26,7 @@ pub use database::{Storage, StorageConfig, StoragePaths};
 pub use error::{Error, Result};
 pub use model::{
     AccountRecord, AttachmentRecord, EmailAddress, EmailRecord, FolderMappingRecord, NewAccount,
-    NewAttachment, NewEmail, NewEmailGraph, NewFolderMapping, NewUnifiedFolder, ProviderType,
+    NewAttachment, NewEmail, NewEmailBundle, NewFolderMapping, NewUnifiedFolder, ProviderType,
     UnifiedFolderRecord, UnifiedFolderType,
 };
 pub use store::{AccountStore, AttachmentStore, EmailStore, FolderStore};
