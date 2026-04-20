@@ -9,7 +9,7 @@ use crate::{
     unified::{UnifiedFolder, UnifiedFolderType},
     Result,
 };
-use meeru_providers::{parse_rfc822_message, FetchedMessage, ParsedMessage};
+use meeru_providers::{parse_raw_message, FetchedMessage, ParsedMessage};
 use meeru_storage::{
     AccountStore, AttachmentStore, BlobStore, EmailStore, FolderMappingRecord, FolderStore,
     NewAttachment, NewEmail, NewEmailBundle, NewFolderMapping, NewUnifiedFolder, Storage,
@@ -50,7 +50,7 @@ pub struct SyncedEmail {
 }
 
 impl SyncedEmail {
-    /// Build a storage-ready synced email from parsed RFC822 content and sync metadata.
+    /// Build a storage-ready synced email from parsed raw message content and sync metadata.
     pub fn from_parsed_message(
         email_id: Uuid,
         account_id: Uuid,
@@ -254,7 +254,7 @@ impl StorageService {
                     synced_emails.push(existing.into());
                 },
                 Err(meeru_storage::Error::NotFound(_)) => {
-                    let parsed = parse_rfc822_message(&fetched.raw_message)?;
+                    let parsed = parse_raw_message(&fetched.raw_message)?;
                     let synced = SyncedEmail::from_parsed_message(
                         Uuid::new_v4(),
                         account_id,
@@ -305,7 +305,7 @@ impl StorageService {
             .ok_or_else(|| anyhow::anyhow!("email {} has no content reference", email.id))?;
         let raw_message = self.storage.read_blob(content_ref).await?;
 
-        match parse_rfc822_message(&raw_message) {
+        match parse_raw_message(&raw_message) {
             Ok(parsed) => Ok(EmailContent {
                 text: parsed.text_body,
                 html: parsed.html_body,

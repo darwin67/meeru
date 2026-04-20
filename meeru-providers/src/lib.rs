@@ -18,5 +18,5 @@ pub use generic::{
     ImapEndpoint, ImapEnvelopeSummary, ImapMessageIdentity, OutgoingMessage, SmtpEndpoint,
     TransportSecurity,
 };
-pub use parser::{parse_rfc822_message, ParsedAttachment, ParsedEmailAddress, ParsedMessage};
+pub use parser::{parse_raw_message, ParsedAttachment, ParsedEmailAddress, ParsedMessage};
 pub use traits::{EmailProvider, ProviderCapabilities};

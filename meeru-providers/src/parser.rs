@@ -1,4 +1,4 @@
-//! RFC822 parsing helpers for the generic provider baseline.
+//! Raw message parsing helpers for the generic provider baseline.
 
 use chrono::{DateTime, Utc};
 use mail_parser::{MessageParser, MimeHeaders};
@@ -14,7 +14,7 @@ pub struct ParsedEmailAddress {
     pub name: Option<String>,
 }
 
-/// Attachment payload extracted from a parsed RFC822 message.
+/// Attachment payload extracted from a parsed raw message.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParsedAttachment {
     /// Filename advertised by the attachment metadata, or a fallback name.
@@ -25,7 +25,7 @@ pub struct ParsedAttachment {
     pub content: Vec<u8>,
 }
 
-/// Structured view of the message parts the MVP needs after RFC822 parsing.
+/// Structured view of the message parts the MVP needs after raw-message parsing.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ParsedMessage {
     /// RFC822 `Message-ID` header when present.
@@ -46,11 +46,11 @@ pub struct ParsedMessage {
     pub attachments: Vec<ParsedAttachment>,
 }
 
-/// Parse a raw RFC822 message into the normalized fields used by storage and UI layers.
-pub fn parse_rfc822_message(raw_message: &[u8]) -> Result<ParsedMessage> {
+/// Parse a raw message into the normalized fields used by storage and UI layers.
+pub fn parse_raw_message(raw_message: &[u8]) -> Result<ParsedMessage> {
     let message = MessageParser::default()
         .parse(raw_message)
-        .ok_or_else(|| crate::Error::Parse("failed to parse RFC822 message".to_string()))?;
+        .ok_or_else(|| crate::Error::Parse("failed to parse raw message".to_string()))?;
 
     let text_body = message.body_text(0).map(|body| body.into_owned());
     let html_body = message.body_html(0).map(|body| body.into_owned());

@@ -1,4 +1,4 @@
-use meeru_providers::{parse_rfc822_message, GenericCredentials, ImapMessageIdentity};
+use meeru_providers::{parse_raw_message, GenericCredentials, ImapMessageIdentity};
 
 #[test]
 fn parses_text_html_and_attachments_from_rfc822() {
@@ -33,7 +33,7 @@ fn parses_text_html_and_attachments_from_rfc822() {
     )
     .as_bytes();
 
-    let parsed = parse_rfc822_message(raw).expect("message should parse");
+    let parsed = parse_raw_message(raw).expect("message should parse");
 
     assert_eq!(parsed.message_id.as_deref(), Some("welcome@example.com"));
     assert_eq!(parsed.subject.as_deref(), Some("Welcome"));
@@ -66,7 +66,7 @@ fn html_only_messages_still_produce_text_and_html_bodies() {
     )
     .as_bytes();
 
-    let parsed = parse_rfc822_message(raw).expect("message should parse");
+    let parsed = parse_raw_message(raw).expect("message should parse");
 
     assert!(parsed
         .text_body
@@ -91,7 +91,7 @@ fn parses_text_only_messages() {
     )
     .as_bytes();
 
-    let parsed = parse_rfc822_message(raw).expect("message should parse");
+    let parsed = parse_raw_message(raw).expect("message should parse");
 
     assert_eq!(parsed.text_body.as_deref(), Some("text only body\r\n"));
     assert!(parsed

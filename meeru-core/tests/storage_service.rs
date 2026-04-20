@@ -4,7 +4,7 @@ use meeru_core::{
     storage::{StorageService, SyncedAttachment, SyncedEmail},
     unified::{UnifiedFolder, UnifiedFolderType},
 };
-use meeru_providers::{parse_rfc822_message, FetchedMessage, ImapMessageIdentity};
+use meeru_providers::{parse_raw_message, FetchedMessage, ImapMessageIdentity};
 use tempfile::TempDir;
 use uuid::Uuid;
 
@@ -158,7 +158,7 @@ fn synced_email_can_be_built_from_parsed_provider_data() {
     )
     .as_bytes()
     .to_vec();
-    let parsed = parse_rfc822_message(&raw_message).expect("message should parse");
+    let parsed = parse_raw_message(&raw_message).expect("message should parse");
 
     let synced = SyncedEmail::from_parsed_message(
         Uuid::new_v4(),
