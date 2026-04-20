@@ -1,35 +1,38 @@
 #+TITLE: Generic IMAP SMTP Baseline
 #+AUTHOR: Darwin D. Wu
 #+DATE: 2026-03-30
-#+STATUS: Draft
+#+STATUS: Done
 
 * Generic IMAP SMTP Baseline
 This plan should produce the first usable provider slice for generic email accounts. The outcome is not "protocol client code exists"; it is a storage-backed baseline that can connect to a generic IMAP account, ingest a bounded mailbox slice into local storage, and send a basic SMTP message without redefining account or storage foundations.
+For the fastest path to a functioning app, this plan owns the minimum runtime configuration and concrete adapter behavior needed to make one generic account work end-to-end. It should not wait for the later multi-account orchestration or authentication-hardening plans before delivering a usable vertical slice.
 
 ** Goals For This Plan
-- [ ] Implement a generic IMAP adapter in ~meeru-providers~ that can connect, authenticate, list folders, and fetch messages for one selected mailbox
-- [ ] Parse fetched RFC822 message bytes with ~mail-parser~ and convert them into the storage-ready email shape used by ~meeru-core~
-- [ ] Persist first-pass synced messages, bodies, folder membership, and attachment payloads through the existing storage interfaces from plan 002
-- [ ] Implement a basic SMTP send path for generic accounts
-- [ ] Keep the slice intentionally narrow enough that plan 005 can build account orchestration and multi-account sync on top without reworking provider primitives
+- [X] Implement a generic IMAP adapter in ~meeru-providers~ that can connect, authenticate, list folders, and fetch messages for one selected mailbox
+- [X] Parse fetched RFC822 message bytes with ~mail-parser~ and convert them into the storage-ready email shape used by ~meeru-core~
+- [X] Persist first-pass synced messages, bodies, folder membership, and attachment payloads through the existing storage interfaces from plan 002
+- [X] Implement a basic SMTP send path for generic accounts
+- [X] Keep the slice intentionally narrow enough that plan 005 can build account orchestration and multi-account sync on top without reworking provider primitives
 
 ** Scope For V1
 *** Included In V1
-- [ ] Generic IMAP session establishment using account configuration supplied by the shared account/auth layer
-- [ ] IMAP operations for:
-  - [ ] connect and authenticate
-  - [ ] list folders
-  - [ ] fetch a bounded page of message summaries
-  - [ ] fetch full RFC822 message content for selected messages
-  - [ ] basic server-side search where the protocol surface supports it
-- [ ] RFC822 parsing with ~mail-parser~ for:
-  - [ ] headers needed by the current email model
-  - [ ] plain text body extraction
-  - [ ] HTML body extraction when present
-  - [ ] attachment metadata and payload extraction
-- [ ] Conversion from parsed provider data into the core/storage sync shape
-- [ ] SMTP send of a simple composed message using the same account configuration
-- [ ] Integration tests using representative MIME fixtures and storage round-trip behavior
+- [X] Generic IMAP session establishment using a minimal runtime configuration contract defined in this plan for generic accounts
+- [X] A concrete ~GenericImapSmtpAdapter~ in ~meeru-providers~ that is sufficient to power the MVP without waiting for a generalized cross-provider abstraction
+- [X] IMAP operations for:
+  - [X] connect and authenticate
+  - [X] list folders
+  - [X] fetch a bounded page of message summaries
+  - [X] fetch full RFC822 message content for selected messages
+  - [X] basic server-side search where the protocol surface supports it
+- [X] RFC822 parsing with ~mail-parser~ for:
+  - [X] headers needed by the current email model
+  - [X] plain text body extraction
+  - [X] HTML body extraction when present
+  - [X] attachment metadata and payload extraction
+- [X] Storage of raw RFC822 bytes as the canonical local message blob for the first sync slice
+- [X] Conversion from parsed provider data into the core/storage sync shape, while keeping text and HTML content available through core/storage read APIs
+- [X] SMTP send of a simple composed message using the same account configuration
+- [X] Integration tests using representative MIME fixtures and storage round-trip behavior
 
 *** Deferred From V1
 - Provider-specific Gmail or Outlook behavior
@@ -38,66 +41,90 @@ This plan should produce the first usable provider slice for generic email accou
 - Delta sync features such as CONDSTORE or provider-specific sync tokens
 - Connection pooling beyond a resilient per-account session lifecycle
 - Full draft sync, sent-folder reconciliation, and conflict resolution workflows
+- Secure credential persistence, token refresh, keyring integration, and auth UX hardening owned by plan 012
+- Final generalized provider abstraction and multi-provider orchestration owned by plan 005
+- HTML rendering and message-reader presentation behavior owned by plan 004
 
 ** Implementation Plan
 *** 1. Provider Runtime Boundary
-- [ ] Define the provider-facing configuration shape required for generic IMAP and SMTP access
-- [ ] Make the generic adapter consume shared account/auth data rather than inventing a parallel configuration path
-- [ ] Keep the low-level protocol code contained within ~meeru-providers~
+- [X] Define a minimal in-memory ~GenericAccountConfig~ required for generic IMAP and SMTP access
+- [X] Include IMAP host, port, security mode, SMTP host, port, security mode, auth method, and credentials in that runtime contract
+- [X] Allow the MVP to supply this config through manual entry, local config, or runtime injection without blocking on secure persistence design
+- [X] Keep the runtime config independent from SQLite-specific storage types so later plans can persist or hydrate it through other mechanisms
+- [X] Keep the low-level protocol code contained within ~meeru-providers~
 
 Acceptance criteria:
-- [ ] The generic adapter can be constructed from the shared account/runtime configuration without SQLite-specific types
-- [ ] Plan 005 can reuse the adapter without changing its public contract
+- [X] The generic adapter can be constructed from ~GenericAccountConfig~ without SQLite-specific types
+- [X] Plan 005 can orchestrate accounts by reusing the same runtime contract rather than redefining generic account configuration
+- [X] Plan 012 can harden credential persistence without changing the generic adapter's connection inputs
 
 *** 2. IMAP Fetch Slice
-- [ ] Implement connection establishment, authentication, and folder listing
-- [ ] Implement bounded message listing for one selected provider folder
-- [ ] Fetch raw RFC822 bytes for selected messages
+- [X] Implement connection establishment, authentication, and folder listing
+- [X] Implement bounded message listing for one selected provider folder
+- [X] Fetch raw RFC822 bytes for selected messages
+- [X] Define the V1 IMAP remote identity used for re-sync and duplicate handling as a mailbox-scoped identifier derived from mailbox identity plus ~UIDVALIDITY~ plus ~UID~
 
 Acceptance criteria:
-- [ ] A generic account can list at least one mailbox and fetch message content from it
-- [ ] IMAP failures return typed errors with actionable protocol context
+- [X] A generic account can list at least one mailbox and fetch message content from it
+- [X] IMAP failures return typed errors with actionable protocol context
+- [X] The plan makes explicit that IMAP UIDs are mailbox-scoped and not globally unique across an account
+- [X] The storage-facing ~provider_id~ contract is concrete enough to support deterministic re-sync for one selected mailbox without cross-mailbox ambiguity
 
 *** 3. Message Parsing And Conversion
-- [ ] Parse headers, addresses, dates, text bodies, HTML bodies, and attachments from RFC822 bytes
-- [ ] Convert parsed messages into the storage-ready sync shape used by ~meeru-core~
-- [ ] Preserve provider-native identifiers required for later re-sync
+- [X] Parse headers, addresses, dates, text bodies, HTML bodies, and attachments from RFC822 bytes
+- [X] Treat raw RFC822 bytes as the canonical stored message source for V1
+- [X] Convert parsed messages into the storage-ready sync shape used by ~meeru-core~
+- [X] Make both plain text and HTML content available through the core/storage read path even when the canonical stored blob is the original RFC822 payload
+- [X] Preserve provider-native identifiers required for later re-sync
 
 Acceptance criteria:
-- [ ] Parsed messages populate the existing email and attachment storage models without ad-hoc field loss
-- [ ] MIME fixture tests cover multipart, HTML-only, text-only, and attachment-bearing messages
+- [X] Parsed messages populate the existing email and attachment storage models without ad-hoc field loss
+- [X] A stored message can be read back as text and, when present, HTML without requiring a second canonical body store
+- [X] MIME fixture tests cover multipart, HTML-only, text-only, and attachment-bearing messages
 
 *** 4. Storage-Backed First Sync
-- [ ] Use existing storage services to cache fetched email bodies and attachments
-- [ ] Map fetched provider folders into unified folder assignments using the current folder mapping primitives
-- [ ] Define duplicate-handling behavior for already-seen provider message IDs
+- [X] Use existing storage services to cache fetched email bodies and attachments
+- [X] Map fetched provider folders into unified folder assignments using the current folder mapping primitives
+- [X] Define duplicate-handling behavior around the V1 mailbox-scoped IMAP identity
+- [X] Accept that the same logical message may appear more than once across different provider mailboxes in V1 rather than blocking the MVP on cross-mailbox deduplication
 
 Acceptance criteria:
-- [ ] First-pass sync can ingest a bounded mailbox slice into local storage
-- [ ] Stored bodies and attachments can be read back through existing storage APIs
+- [X] First-pass sync can ingest a bounded mailbox slice into local storage
+- [X] Stored bodies and attachments can be read back through existing storage APIs
+- [X] The plan states exactly what counts as "already seen" for the selected mailbox sync slice
 
 *** 5. SMTP Send Baseline
-- [ ] Implement an SMTP client wrapper for generic accounts
-- [ ] Send a basic outbound message
-- [ ] Define the V1 local follow-up behavior after a successful send
+- [X] Implement an SMTP client wrapper for generic accounts
+- [X] Send a basic outbound message
+- [X] Define the V1 local follow-up behavior after a successful send
 
 Acceptance criteria:
-- [ ] A simple outbound message can be submitted through SMTP with typed error handling
-- [ ] The plan documents whether sent-mail persistence is immediate, deferred, or handled by later sync
+- [X] A simple outbound message can be submitted through SMTP with typed error handling
+- [X] The plan documents whether sent-mail persistence is immediate, deferred, or handled by later sync
 
 *** 6. Test Coverage
-- [ ] Replace placeholder provider tests with protocol and parsing focused coverage
-- [ ] Add end-to-end tests that exercise parsing plus storage persistence for representative messages
+- [X] Replace placeholder provider tests with protocol and parsing focused coverage
+- [X] Add end-to-end tests that exercise parsing plus storage persistence for representative messages
+- [X] Cover the mailbox-scoped identity contract with tests so duplicate detection behavior is explicit
+- [X] Cover text and HTML extraction behavior from stored RFC822 fixtures
 
 Acceptance criteria:
-- [ ] ~cargo test~ exercises real message parsing and storage-backed sync behavior
-- [ ] The generic provider slice is usable without provider-specific code paths
+- [X] ~cargo test~ exercises real message parsing and storage-backed sync behavior
+- [X] The generic provider slice is usable without provider-specific code paths
 
 ** Exit Criteria
-- [ ] ~meeru-providers~ exposes a working generic IMAP and SMTP baseline rather than empty modules
-- [ ] Generic account sync can populate local storage using the plan 002 interfaces
-- [ ] Generic email sending works for the supported authentication/configuration shape
-- [ ] Plan 005 can focus on account orchestration instead of redesigning provider primitives
+- [X] ~meeru-providers~ exposes a working ~GenericImapSmtpAdapter~ rather than empty modules
+- [X] Generic account sync can populate local storage using the plan 002 interfaces
+- [X] Generic email sending works for the supported authentication/configuration shape
+- [X] Plan 004 can render text and HTML message content without redefining the storage contract
+- [X] Plan 005 can focus on account orchestration instead of redesigning provider primitives
+
+** Notes
+- V1 should optimize for a functioning single-account generic mail flow before abstracting over multiple providers. One working concrete adapter is more valuable here than an early generalized interface with no real implementation behind it.
+- The runtime configuration introduced here is intentionally minimal and temporary in shape. It is the contract the provider needs to run, not the final UX or security story for how credentials are stored or refreshed.
+- For V1 message storage, raw RFC822 bytes are the source of truth. Parsed text and HTML are derived from that source for read APIs and UI rendering, which keeps the storage slice narrow while preserving HTML-capable behavior.
+- IMAP remote identity must be treated as mailbox-scoped. A V1 sync key should include mailbox identity and ~UIDVALIDITY~ alongside ~UID~ so re-sync behavior is deterministic for a selected mailbox even if cross-mailbox deduplication is deferred.
+- For V1 SMTP follow-up behavior, successful submission does not immediately persist a local sent copy. Sent-mail persistence is deferred to later provider sync behavior rather than being synthesized locally in this plan.
 
 * References
 - [[file:../project-overview.org][Project Overview]]

@@ -163,7 +163,7 @@ pub struct NewEmail {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct NewEmailGraph {
+pub struct NewEmailBundle {
     pub email: NewEmail,
     pub folder_ids: Vec<Uuid>,
     pub attachments: Vec<NewAttachment>,

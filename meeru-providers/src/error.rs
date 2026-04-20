@@ -4,6 +4,9 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum Error {
+    #[error("Invalid configuration: {0}")]
+    InvalidConfiguration(String),
+
     #[error("Connection error: {0}")]
     Connection(String),
 
@@ -21,6 +24,9 @@ pub enum Error {
 
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
+
+    #[error("Parse error: {0}")]
+    Parse(String),
 
     #[error("Other error: {0}")]
     Other(String),

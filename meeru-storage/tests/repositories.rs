@@ -1,7 +1,7 @@
 use chrono::{Duration, Utc};
 use meeru_storage::{
     AccountStore, AttachmentStore, EmailAddress, EmailStore, FolderStore, NewAccount,
-    NewAttachment, NewEmail, NewEmailGraph, NewFolderMapping, NewUnifiedFolder, ProviderType,
+    NewAttachment, NewEmail, NewEmailBundle, NewFolderMapping, NewUnifiedFolder, ProviderType,
     StorageConfig, UnifiedFolderType,
 };
 use tempfile::TempDir;
@@ -162,6 +162,10 @@ async fn folder_email_and_attachment_queries_round_trip() {
         .list_emails_for_account(account.id, 10)
         .await
         .expect("list account emails");
+    let fetched_by_provider_id = storage
+        .get_email_by_provider_id(account.id, "43")
+        .await
+        .expect("get email by provider id");
     let folder_emails = storage
         .list_emails_in_folder(inbox.id, 10)
         .await
@@ -177,6 +181,7 @@ async fn folder_email_and_attachment_queries_round_trip() {
 
     assert_eq!(mappings, vec![mapping]);
     assert_eq!(attachments, vec![attachment]);
+    assert_eq!(fetched_by_provider_id.id, newer_email.id);
     assert_eq!(account_emails.len(), 2);
     assert_eq!(folder_emails.len(), 2);
     assert_eq!(account_emails[0].id, newer_email.id);
@@ -186,7 +191,7 @@ async fn folder_email_and_attachment_queries_round_trip() {
 }
 
 #[tokio::test]
-async fn email_store_supports_update_and_transactional_graph_writes() {
+async fn email_store_supports_update_and_transactional_bundle_writes() {
     let temp_dir = TempDir::new().expect("temp dir");
     let storage = StorageConfig::new(temp_dir.path())
         .open()
@@ -215,7 +220,7 @@ async fn email_store_supports_update_and_transactional_graph_writes() {
 
     let email_id = Uuid::new_v4();
     let inserted = storage
-        .insert_email_graph(NewEmailGraph {
+        .insert_email_bundle(NewEmailBundle {
             email: NewEmail {
                 id: email_id,
                 account_id: account.id,
@@ -247,7 +252,7 @@ async fn email_store_supports_update_and_transactional_graph_writes() {
             }],
         })
         .await
-        .expect("insert email graph");
+        .expect("insert email bundle");
 
     let updated = storage
         .update_email(meeru_storage::EmailRecord {
@@ -277,7 +282,7 @@ async fn email_store_supports_update_and_transactional_graph_writes() {
 }
 
 #[tokio::test]
-async fn transactional_graph_writes_roll_back_on_folder_errors() {
+async fn transactional_bundle_writes_roll_back_on_folder_errors() {
     let temp_dir = TempDir::new().expect("temp dir");
     let storage = StorageConfig::new(temp_dir.path())
         .open()
@@ -296,7 +301,7 @@ async fn transactional_graph_writes_roll_back_on_folder_errors() {
 
     let email_id = Uuid::new_v4();
     let error = storage
-        .insert_email_graph(NewEmailGraph {
+        .insert_email_bundle(NewEmailBundle {
             email: NewEmail {
                 id: email_id,
                 account_id: account.id,
@@ -322,7 +327,7 @@ async fn transactional_graph_writes_roll_back_on_folder_errors() {
             }],
         })
         .await
-        .expect_err("insert email graph should fail");
+        .expect_err("insert email bundle should fail");
 
     assert!(matches!(error, meeru_storage::Error::Database(_)));
     assert!(storage
